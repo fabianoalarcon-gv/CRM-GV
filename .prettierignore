@@ -1,0 +1,7 @@
+.next
+node_modules
+package-lock.json
+
+# Documentos de planejamento com formatação manual — não reformatar
+Projeto_LogiHub_CRM.md
+cronograma.md

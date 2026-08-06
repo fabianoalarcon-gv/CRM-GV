@@ -13,16 +13,17 @@
 - [ ] PREP-05 | Configurar variáveis de ambiente (.env local e produção)
 - [ ] PREP-06 | Instalar e configurar cliente Supabase no Next.js (auth + db client)
 - [ ] PREP-07 | Conectar projeto ao Vercel e validar deploy "hello world"
-- [ ] PREP-08 | Definir estrutura de pastas modular por domínio (ex: /modules/pipeline, /modules/clientes)
-- [ ] PREP-09 | Configurar ESLint + Prettier + convenções de código
-- [ ] PREP-10 | Criar design system base (variáveis de cor provisórias, tipografia, espaçamento no Tailwind)
-- [ ] PREP-11 | Criar componentes de UI reutilizáveis: Button, Card, Input, Select, Modal, Badge, Table
-- [ ] PREP-12 | Criar componente de Logo (placeholder, pronto para substituição futura)
-- [ ] PREP-13 | Criar layout base: header, sidebar de navegação, área de conteúdo, responsivo
+- [x] PREP-08 | Definir estrutura de pastas modular por domínio (ex: /modules/pipeline, /modules/clientes)
+- [x] PREP-09 | Configurar ESLint + Prettier + convenções de código
+- [x] PREP-10 | Criar design system base (variáveis de cor provisórias, tipografia, espaçamento no Tailwind)
+- [x] PREP-11 | Criar componentes de UI reutilizáveis: Button, Card, Input, Select, Modal, Badge, Table
+- [x] PREP-12 | Criar componente de Logo (placeholder, pronto para substituição futura)
+- [x] PREP-13 | Criar layout base: header, sidebar de navegação, área de conteúdo, responsivo
 
 ---
 
 ## Banco de Dados (DB)
+
 `[depende de: PREP-04, PREP-05, PREP-06]`
 
 - [ ] DB-01 | Modelar tabela Usuários e tabela de Perfis/Roles (Admin, Comercial + reservar Operações/Financeiro)
@@ -39,6 +40,7 @@
 ---
 
 ## Autenticação e Permissões (AUTH)
+
 `[depende de: DB-01, DB-08]`
 
 - [ ] AUTH-01 | Configurar Supabase Auth com login por e-mail/senha
@@ -52,6 +54,7 @@
 ---
 
 ## MÓDULO 1 — Pipeline Comercial / Kanban (PIPE)
+
 `[depende de: DB-03, DB-06, DB-08, AUTH-04, AUTH-05, PREP-11]`
 
 - [ ] PIPE-01 | Criar página do quadro Kanban com colunas estáticas (Em análise, Aprovado, Reprovado)
@@ -73,6 +76,7 @@
 ---
 
 ## MÓDULO 2 — Clientes/Empresas (CLI)
+
 `[depende de: DB-02, DB-04, DB-06, AUTH-04, AUTH-05, PIPE-06]`
 
 - [ ] CLI-01 | Criar página de listagem de clientes
@@ -88,6 +92,7 @@
 ---
 
 ## MÓDULO 3 — Dashboard Comercial (DASH)
+
 `[depende de: PIPE-02, PIPE-05, DB-03 populado com dados reais/seed]`
 
 - [ ] DASH-01 | Definir e escrever queries agregadas (valor total, aprovado, em análise, reprovado)
@@ -106,6 +111,7 @@
 ---
 
 ## MÓDULO 4 — Calendário (CAL)
+
 `[depende de: DB-05, DB-06, AUTH-04, AUTH-05]`
 
 - [ ] CAL-01 | Criar página de calendário com visualização mensal
@@ -119,6 +125,7 @@
 ---
 
 ## Funcionalidades Transversais do MVP (TRANS)
+
 `[depende de: PIPE-08, AUTH-06]`
 
 - [ ] TRANS-01 | Avaliar e escolher biblioteca de geração de PDF (react-pdf ou server-side)
@@ -133,6 +140,7 @@
 ---
 
 ## QA e Ajustes Gerais do MVP (QA)
+
 `[depende de: PIPE, CLI, DASH, CAL, TRANS concluídos]`
 
 - [ ] QA-01 | Revisão de responsividade em todos os módulos (mobile, tablet, desktop)
@@ -145,6 +153,7 @@
 ---
 
 ## Identidade Visual Final (BRAND)
+
 `[depende de: PEND-01]`
 
 - [ ] BRAND-01 | Receber arquivos de logo e paleta oficial da Granvale
@@ -155,6 +164,7 @@
 ---
 
 ## Deploy e Entrega (DEPLOY)
+
 `[depende de: QA concluído, BRAND concluído]`
 
 - [ ] DEPLOY-01 | Configurar ambiente de produção no Supabase (apartado do ambiente de dev)
@@ -166,6 +176,7 @@
 ---
 
 ## FASE 2 — Planejamento de Schema (não implementar) (F2)
+
 `[pode ser feito em paralelo, a qualquer momento após DB-06]`
 
 - [ ] F2-01 | Modelar schema de Agendamento de tarefas e prazos
@@ -177,6 +188,7 @@
 ---
 
 ## FASE 3 — Planejamento de Schema (não implementar) (F3)
+
 `[depende de: F2 concluído]`
 
 - [ ] F3-01 | Modelar schema do Módulo Financeiro (faturamento, custos, margem por operação)
@@ -196,3 +208,4 @@
 ## Log de sessões
 
 - **2026-08-06**: Repo criado (branches `main`/`dev`), brief e cronograma commitados, scaffold Next.js + Tailwind gerado via create-next-app e commitado (PREP-01/02/03 concluídos).
+- **2026-08-06**: Concluído o restante do PREP (sem depender de contas externas): estrutura de pastas modular (`src/modules/{pipeline,clientes,dashboard,calendario}`, `src/components/{ui,layout,brand}`, `src/lib`), Prettier configurado e integrado ao ESLint, design system provisório em `globals.css` (cores extraídas do logo: navy/grafite/laranja + cores de Termômetro), 7 componentes de UI (`Button`, `Card`, `Input`, `Select`, `Badge`, `Table`, `Modal`), componente `Logo` (usando `public/logo_logihub.png`, recortado/com fundo transparente) e layout base responsivo (`Header` + `Sidebar` + `AppShell`, sidebar fixa no desktop e menu hambúrguer no mobile) dentro do route group `(app)`. Testado com build de produção, lint e screenshots (desktop/mobile, light/dark). PREP-04 a PREP-07 (Supabase/Vercel) seguem pendentes — dependem de contas externas do usuário.
