@@ -9,10 +9,10 @@
 - [x] PREP-01 | Criar repositório Git e definir estratégia de branches (main/dev/feature)
 - [x] PREP-02 | Inicializar projeto Next.js
 - [x] PREP-03 | Instalar e configurar Tailwind CSS
-- [ ] PREP-04 | Criar organização e projeto no Supabase
-- [ ] PREP-05 | Configurar variáveis de ambiente (.env local e produção)
-- [ ] PREP-06 | Instalar e configurar cliente Supabase no Next.js (auth + db client)
-- [ ] PREP-07 | Conectar projeto ao Vercel e validar deploy "hello world"
+- [x] PREP-04 | Criar organização e projeto no Supabase
+- [ ] PREP-05 | Configurar variáveis de ambiente (.env local e produção) — `.env.local`/`.env.example` prontos; falta confirmar env vars em produção no Vercel
+- [x] PREP-06 | Instalar e configurar cliente Supabase no Next.js (auth + db client)
+- [ ] PREP-07 | Conectar projeto ao Vercel e validar deploy "hello world" — já conectado via GitHub; falta validar o deploy com as env vars
 - [x] PREP-08 | Definir estrutura de pastas modular por domínio (ex: /modules/pipeline, /modules/clientes)
 - [x] PREP-09 | Configurar ESLint + Prettier + convenções de código
 - [x] PREP-10 | Criar design system base (variáveis de cor provisórias, tipografia, espaçamento no Tailwind)
@@ -209,3 +209,4 @@
 
 - **2026-08-06**: Repo criado (branches `main`/`dev`), brief e cronograma commitados, scaffold Next.js + Tailwind gerado via create-next-app e commitado (PREP-01/02/03 concluídos).
 - **2026-08-06**: Concluído o restante do PREP (sem depender de contas externas): estrutura de pastas modular (`src/modules/{pipeline,clientes,dashboard,calendario}`, `src/components/{ui,layout,brand}`, `src/lib`), Prettier configurado e integrado ao ESLint, design system provisório em `globals.css` (cores extraídas do logo: navy/grafite/laranja + cores de Termômetro), 7 componentes de UI (`Button`, `Card`, `Input`, `Select`, `Badge`, `Table`, `Modal`), componente `Logo` (usando `public/logo_logihub.png`, recortado/com fundo transparente) e layout base responsivo (`Header` + `Sidebar` + `AppShell`, sidebar fixa no desktop e menu hambúrguer no mobile) dentro do route group `(app)`. Testado com build de produção, lint e screenshots (desktop/mobile, light/dark). PREP-04 a PREP-07 (Supabase/Vercel) seguem pendentes — dependem de contas externas do usuário.
+- **2026-08-06**: Conectado ao Supabase — já existia o projeto `CRM_LogiHub` (org Granvale, região us-east-2) criado antes desta sessão; feito o link via `supabase login`/`supabase link` (login rodado pelo usuário em `cmd.exe`, pois o PowerShell bloqueava scripts `.ps1`), API keys obtidas via CLI e gravadas em `.env.local` (fora do git), `.env.example` criado documentando as variáveis. Instalado `@supabase/supabase-js` + `@supabase/ssr`, com clients em `src/lib/supabase/{client,server,middleware}.ts` e refresh de sessão em `src/proxy.ts` (Next 16 renomeou `middleware.ts` → `proxy.ts`, ver BUG-002 em `bugs.md`). Vercel já estava conectado ao repo via GitHub (deploy automático por push) — falta o usuário configurar as 3 env vars do Supabase no dashboard do Vercel (Settings > Environment Variables) e redeployar para validar PREP-05/PREP-07.

@@ -12,6 +12,13 @@ _Nenhum bug em aberto no momento._
 
 ## Corrigidos
 
+- [x] **BUG-002** — Uso da convenção depreciada `middleware.ts` em vez de `proxy.ts`
+  - **Onde**: `src/middleware.ts` (renomeado para `src/proxy.ts`)
+  - **Descrição**: o Next.js 16 renomeou a convenção `middleware` para `proxy` (função exportada também muda de nome). O build acusava aviso de depreciação ao criar o middleware de refresh de sessão do Supabase.
+  - **Como foi encontrado**: aviso `⚠ The "middleware" file convention is deprecated` no `npm run build`, ao configurar o cliente Supabase (PREP-06).
+  - **Correção**: arquivo renomeado para `src/proxy.ts` e função `middleware` renomeada para `proxy`, conforme `node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md`.
+  - **Data**: 2026-08-06
+
 - [x] **BUG-001** — Logo ilegível no modo escuro
   - **Onde**: `src/components/brand/Logo.tsx`, usado no `Header`
   - **Descrição**: o `logo_logihub.png` é navy sobre fundo transparente; no dark mode (fundo escuro do header) o texto "LogiHub" ficava quase invisível por falta de contraste.
