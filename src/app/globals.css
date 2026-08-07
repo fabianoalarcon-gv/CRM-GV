@@ -17,6 +17,10 @@
   --brand-accent: #f5821f;
   --brand-accent-dark: #d96c14;
 
+  /* Cor das linhas de "rota" — o motivo assinatura do produto (waypoints conectados),
+     ecoando o ícone de circuito do logo. */
+  --brand-route: #94a3b8;
+
   --temp-frio: #38bdf8;
   --temp-morno: #facc15;
   --temp-quente: #ef4444;
@@ -34,6 +38,7 @@
   --color-brand-graphite-light: var(--brand-graphite-light);
   --color-brand-accent: var(--brand-accent);
   --color-brand-accent-dark: var(--brand-accent-dark);
+  --color-brand-route: var(--brand-route);
 
   --color-temp-frio: var(--temp-frio);
   --color-temp-morno: var(--temp-morno);
@@ -41,6 +46,7 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-space-grotesk);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -49,6 +55,7 @@
     --foreground: #e2e8f0;
     --surface: #111827;
     --border: #1f2937;
+    --brand-route: #334155;
   }
 }
 

@@ -2,8 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Renova a sessão do Supabase Auth a cada requisição.
- * O bloqueio de rotas por perfil (RBAC) fica para AUTH-04/AUTH-05.
+ * Renova a sessão do Supabase Auth a cada requisição e faz a guarda básica de
+ * autenticação (usuário logado ou não). Bloqueio por perfil (RBAC) fica para
+ * AUTH-05, quando a tabela de Perfis/Roles (DB-01) existir.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -27,7 +28,24 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { pathname } = request.nextUrl;
+  const isLoginRoute = pathname === "/login";
+
+  if (!user && !isLoginRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  if (user && isLoginRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }

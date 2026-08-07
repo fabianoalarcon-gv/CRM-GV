@@ -43,13 +43,15 @@
 
 `[depende de: DB-01, DB-08]`
 
-- [ ] AUTH-01 | Configurar Supabase Auth com login por e-mail/senha
-- [ ] AUTH-02 | Construir tela de Login
+> Nota: AUTH-01/02/04 foram adiantados fora de ordem (2026-08-06), a pedido do usuário, usando só o Auth nativo do Supabase (tabela `auth.users`), que não depende do nosso schema. A parte de RBAC por perfil (AUTH-05 e o resto de AUTH-04) continua bloqueada por DB-01.
+
+- [x] AUTH-01 | Configurar Supabase Auth com login por e-mail/senha
+- [x] AUTH-02 | Construir tela de Login
 - [ ] AUTH-03 | Construir tela de recuperação de senha
-- [ ] AUTH-04 | Implementar middleware/guard de proteção de rotas autenticadas
-- [ ] AUTH-05 | Implementar lógica de RBAC no frontend (mostrar/ocultar ações por perfil)
+- [x] AUTH-04 | Implementar middleware/guard de proteção de rotas autenticadas — guarda básica (logado/deslogado) em `src/lib/supabase/middleware.ts`; falta a parte de RBAC por perfil, que depende de DB-01
+- [ ] AUTH-05 | Implementar lógica de RBAC no frontend (mostrar/ocultar ações por perfil) — depende da tabela de Perfis/Roles (DB-01)
 - [ ] AUTH-06 | Construir tela de gestão de usuários (Admin cria, edita, desativa usuários e define perfil)
-- [ ] AUTH-07 | Testar fluxo completo de login/logout/recuperação de senha
+- [ ] AUTH-07 | Testar fluxo completo de login/logout/recuperação de senha — login testado ponta a ponta (Puppeteer); falta UI de logout e AUTH-03 (recuperação de senha) para fechar este item
 
 ---
 
@@ -210,3 +212,5 @@
 - **2026-08-06**: Repo criado (branches `main`/`dev`), brief e cronograma commitados, scaffold Next.js + Tailwind gerado via create-next-app e commitado (PREP-01/02/03 concluídos).
 - **2026-08-06**: Concluído o restante do PREP (sem depender de contas externas): estrutura de pastas modular (`src/modules/{pipeline,clientes,dashboard,calendario}`, `src/components/{ui,layout,brand}`, `src/lib`), Prettier configurado e integrado ao ESLint, design system provisório em `globals.css` (cores extraídas do logo: navy/grafite/laranja + cores de Termômetro), 7 componentes de UI (`Button`, `Card`, `Input`, `Select`, `Badge`, `Table`, `Modal`), componente `Logo` (usando `public/logo_logihub.png`, recortado/com fundo transparente) e layout base responsivo (`Header` + `Sidebar` + `AppShell`, sidebar fixa no desktop e menu hambúrguer no mobile) dentro do route group `(app)`. Testado com build de produção, lint e screenshots (desktop/mobile, light/dark). PREP-04 a PREP-07 (Supabase/Vercel) seguem pendentes — dependem de contas externas do usuário.
 - **2026-08-06**: Conectado ao Supabase — já existia o projeto `CRM_LogiHub` (org Granvale, região us-east-2) criado antes desta sessão; feito o link via `supabase login`/`supabase link` (login rodado pelo usuário em `cmd.exe`, pois o PowerShell bloqueava scripts `.ps1`), API keys obtidas via CLI e gravadas em `.env.local` (fora do git), `.env.example` criado documentando as variáveis. Instalado `@supabase/supabase-js` + `@supabase/ssr`, com clients em `src/lib/supabase/{client,server,middleware}.ts` e refresh de sessão em `src/proxy.ts` (Next 16 renomeou `middleware.ts` → `proxy.ts`, ver BUG-002 em `bugs.md`). Vercel já estava conectado ao repo via GitHub (deploy automático por push) — usuário configurou as 3 env vars do Supabase no dashboard do Vercel e redeployou; validado visualmente pelo usuário no preview `https://crm-gv-git-dev-fabianoalarcon-6118s-projects.vercel.app/` (Vercel Authentication bloqueia acesso externo/curl a previews, então a validação foi feita pelo usuário logado). **FASE 0 (PREP) 100% concluída.**
+- **2026-08-06**: Instaladas 3 skills (`frontend-design`, `webapp-testing`, `supabase-postgres-best-practices`) via `npx skills add`, documentadas em `skills.md`.
+- **2026-08-06**: Redesign visual (a pedido do usuário, achando o design "fraco/genérico") usando a skill `frontend-design`: adicionada fonte de destaque Space Grotesk (`--font-display`), token de cor `--brand-route` e elemento assinatura `RouteLine` (linha de rota pontilhada com waypoints, ecoando o ícone de circuito do logo) usado no Dashboard conectando os KPIs e na tela de Login. Sidebar ganhou indicador de item ativo com barra lateral em vez de preenchimento total. Criada a tela de Login (`src/app/login`, split-screen navy+branco) com Supabase Auth, e guarda de rota básica no proxy (`src/lib/supabase/middleware.ts`): sem sessão → redireciona para `/login`; logado em `/login` → redireciona para `/` (AUTH-01/02/04 adiantados fora de ordem, ver nota na seção AUTH). Criado usuário de teste via Admin API (`scripts/create-test-user.mjs`, credenciais comunicadas fora deste arquivo). Testado com Puppeteer (instalado só no scratchpad, fora do repo): fluxo de login ponta a ponta, contraste em light/dark, mobile — encontrados e corrigidos BUG-003 (crash inofensivo do Node/libuv no Windows) e BUG-004 (botão primário ilegível no dark mode).

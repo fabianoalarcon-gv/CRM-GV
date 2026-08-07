@@ -26,13 +26,25 @@ export function Sidebar({ onNavigate, className }: SidebarProps) {
             onClick={onNavigate}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "group relative flex items-center gap-3 rounded-lg py-2 pr-3 pl-4 text-sm font-medium transition-colors",
               isActive
-                ? "bg-brand-navy text-white"
+                ? "bg-brand-accent/10 text-brand-navy dark:text-white"
                 : "text-brand-graphite hover:bg-black/[.04] dark:text-brand-graphite-light dark:hover:bg-white/[.06]",
             )}
           >
-            <Icon className="h-5 w-5 shrink-0" />
+            <span
+              aria-hidden
+              className={cn(
+                "absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-brand-accent transition-opacity",
+                isActive ? "opacity-100" : "opacity-0",
+              )}
+            />
+            <Icon
+              className={cn(
+                "h-5 w-5 shrink-0 transition-colors",
+                isActive ? "text-brand-accent" : "text-brand-graphite-light",
+              )}
+            />
             {item.label}
           </Link>
         );
