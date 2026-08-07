@@ -9,13 +9,21 @@
 - [ ] **BUG-005** — Login via Supabase Auth falha em produção (Vercel), mas funciona localmente e direto contra a API
   - **Onde**: `src/app/login/page.tsx` (`supabase.auth.signInWithPassword`)
   - **Descrição**: no deploy do Vercel (`https://crm-gv-git-dev-fabianoalarcon-6118s-projects.vercel.app/`), o login com `teste@logihub.dev` sempre retorna "e-mail ou senha inválidos". As mesmas credenciais funcionam: (1) via `curl` direto no endpoint `POST /auth/v1/token?grant_type=password` do Supabase, (2) localmente via `npm run dev` + fluxo completo testado com Puppeteer. O usuário já conferiu que as 3 env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) estão corretas no Vercel para Production **e** Preview.
-  - **Hipóteses ainda não descartadas**: diferença de env vars entre o build usado no deploy testado e o momento da checagem (pode precisar de um redeploy limpo); alguma configuração de domínio/CORS no Supabase Auth (Authentication > URL Configuration) que só bloqueia o domínio `*.vercel.app`; cache de build antigo no Vercel.
-  - **Correção**: nenhuma ainda — foi aplicado um **bypass temporário** (ver `src/lib/dev-bypass.ts`, usado em `src/app/login/page.tsx` e `src/lib/supabase/middleware.ts`) para não bloquear o desenvolvimento. Precisa ser removido assim que a causa raiz for encontrada e corrigida.
+  - **Hipóteses ainda não descartadas**: `NEXT_PUBLIC_*` é inlinado em build-time — se o "Redeploy" usado pelo usuário reaproveitou o build cache em vez de rodar `next build` do zero, o bundle do cliente pode ter ficado com o valor antigo (vazio) dessas variáveis; o correto é validar isso abrindo o DevTools > Network no deploy do Vercel durante o login e conferir a URL/apikey do request para `/auth/v1/token`. Outras hipóteses: configuração de domínio/CORS no Supabase Auth (Authentication > URL Configuration) restrita a `localhost`; a env var só está de fato marcada pra "Preview" na branch `dev` especificamente (não só no projeto).
+  - **Importante (2026-08-07)**: o bypass **não deve mais pular a tentativa de login real** — ele quebrava o acesso a dados protegidos por RLS (ex: módulo Pipeline) mesmo localmente, onde o login real funciona normalmente. Corrigido: `src/app/login/page.tsx` agora sempre tenta `signInWithPassword` primeiro; só cai no bypass (`src/lib/dev-bypass.ts`) se a tentativa real falhar E as credenciais baterem com a conta de teste. Localmente isso significa que o bypass fica inerte (login real sempre funciona); no Vercel ele ainda mascara o BUG-005.
+  - **Correção**: nenhuma ainda — causa raiz não identificada. O bypass segue como rede de segurança apenas para quando o login real falha.
   - **Data**: 2026-08-07
 
 ---
 
 ## Corrigidos
+
+- [x] **BUG-007** — Erro de hidratação do React no board do Pipeline (dnd-kit + SSR)
+  - **Onde**: `src/modules/pipeline/components/Board.tsx` / `Column.tsx` / `ProposalCard.tsx`
+  - **Descrição**: `useDraggable`/`useDroppable` do `@dnd-kit/core` geram um id interno (`aria-describedby="DndDescribedBy-N"`) usado pra acessibilidade; esse contador não bate entre a renderização no servidor (Server Component da página) e a hidratação no cliente, gerando `aria-describedby="DndDescribedBy-0"` no servidor vs `"-1"` no cliente — erro de hidratação do React (conhecido em issues do dnd-kit com SSR/Next.js).
+  - **Como foi encontrado**: console do navegador (via Puppeteer) ao abrir `/pipeline` pela primeira vez.
+  - **Correção**: criado `src/modules/pipeline/components/BoardClient.tsx`, que carrega o `Board` via `next/dynamic` com `ssr: false` (mostrando um skeleton simples enquanto isso) — o board interativo só é montado no cliente, então nunca há uma versão renderizada no servidor pra divergir.
+  - **Data**: 2026-08-07
 
 - [x] **BUG-006** — Funções do banco com falhas de segurança apontadas pelo `supabase db advisors`
   - **Onde**: `supabase/migrations/20260807010654_profiles.sql` (funções `set_updated_at` e `handle_new_user`)

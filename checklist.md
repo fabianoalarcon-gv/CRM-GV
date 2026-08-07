@@ -61,21 +61,21 @@
 
 `[depende de: DB-03, DB-06, DB-08, AUTH-04, AUTH-05, PREP-11]`
 
-- [ ] PIPE-01 | Criar página do quadro Kanban com colunas estáticas (Em análise, Aprovado, Reprovado)
-- [ ] PIPE-02 | Buscar propostas do banco e renderizar como cards nas colunas correspondentes
-- [ ] PIPE-03 | Instalar e configurar @dnd-kit
-- [ ] PIPE-04 | Implementar drag-and-drop de cards entre colunas
-- [ ] PIPE-05 | Persistir mudança de Status no banco ao soltar o card em outra coluna
-- [ ] PIPE-06 | Criar componente de Card exibindo: nº proposta, empresa, valor, serviço
-- [ ] PIPE-07 | Implementar etiqueta visual de Termômetro (Frio/Morno/Quente) com esquema de cores definido
+- [x] PIPE-01 | Criar página do quadro Kanban com colunas estáticas (Em análise, Aprovado, Reprovado) — `/pipeline`, colunas vêm de `proposal_statuses` (ver PIPE-13)
+- [x] PIPE-02 | Buscar propostas do banco e renderizar como cards nas colunas correspondentes — `src/modules/pipeline/queries.ts`
+- [x] PIPE-03 | Instalar e configurar @dnd-kit
+- [x] PIPE-04 | Implementar drag-and-drop de cards entre colunas
+- [x] PIPE-05 | Persistir mudança de Status no banco ao soltar o card em outra coluna — Server Action `updateProposalStatus`, com rollback otimista em caso de erro
+- [x] PIPE-06 | Criar componente de Card exibindo: nº proposta, empresa, valor, serviço
+- [x] PIPE-07 | Implementar etiqueta visual de Termômetro (Frio/Morno/Quente) com esquema de cores definido — reaproveita o `Badge` do PREP-11
 - [ ] PIPE-08 | Criar modal/página de detalhe da proposta (todos os campos + observações)
 - [ ] PIPE-09 | Criar formulário de nova proposta, acessível direto do quadro
 - [ ] PIPE-10 | Implementar validação do padrão do nº de proposta (NNN/AA, com suporte a sufixo ".1")
 - [ ] PIPE-11 | Criar formulário de edição de proposta existente
-- [ ] PIPE-12 | Implementar campo de Observações como histórico (log de alterações com data/autor)
-- [ ] PIPE-13 | Preparar estrutura para permitir criação de novas colunas de Status no futuro
-- [ ] PIPE-14 | Testes funcionais do módulo: criar, mover, editar e excluir proposta
-- [ ] PIPE-15 | Testes de responsividade do quadro Kanban em mobile/tablet
+- [ ] PIPE-12 | Implementar campo de Observações como histórico (log de alterações com data/autor) — tabela `propostas_historico` já existe (DB-03); falta UI
+- [x] PIPE-13 | Preparar estrutura para permitir criação de novas colunas de Status no futuro — colunas vêm da tabela `proposal_statuses`, não são hardcoded
+- [ ] PIPE-14 | Testes funcionais do módulo: criar, mover, editar e excluir proposta — só "mover" testado até aqui (Puppeteer, com persistência confirmada após reload); criar/editar/excluir dependem de PIPE-08/09/11
+- [ ] PIPE-15 | Testes de responsividade do quadro Kanban em mobile/tablet — testado em mobile (scroll horizontal das colunas); falta tablet
 
 ---
 
@@ -218,3 +218,4 @@
 - **2026-08-06**: Redesign visual (a pedido do usuário, achando o design "fraco/genérico") usando a skill `frontend-design`: adicionada fonte de destaque Space Grotesk (`--font-display`), token de cor `--brand-route` e elemento assinatura `RouteLine` (linha de rota pontilhada com waypoints, ecoando o ícone de circuito do logo) usado no Dashboard conectando os KPIs e na tela de Login. Sidebar ganhou indicador de item ativo com barra lateral em vez de preenchimento total. Criada a tela de Login (`src/app/login`, split-screen navy+branco) com Supabase Auth, e guarda de rota básica no proxy (`src/lib/supabase/middleware.ts`): sem sessão → redireciona para `/login`; logado em `/login` → redireciona para `/` (AUTH-01/02/04 adiantados fora de ordem, ver nota na seção AUTH). Criado usuário de teste via Admin API (`scripts/create-test-user.mjs`, credenciais comunicadas fora deste arquivo). Testado com Puppeteer (instalado só no scratchpad, fora do repo): fluxo de login ponta a ponta, contraste em light/dark, mobile — encontrados e corrigidos BUG-003 (crash inofensivo do Node/libuv no Windows) e BUG-004 (botão primário ilegível no dark mode).
 - **2026-08-06**: Login funcionando no Vercel travado (BUG-005, aberto) — adicionado bypass temporário com credencial fixa para não bloquear o desenvolvimento (ver nota na seção AUTH e `bugs.md`). Depois, a pedido do usuário: tema escuro automático (baseado no SO) foi desativado — `dark:` virou variante de classe (`@custom-variant dark`), nunca ativada, então header/conteúdo principal ficam sempre claros independente do tema do sistema operacional; `Sidebar`/`AppShell` passaram a usar navy fixo (não mais `dark:`) para o menu lateral e o painel de marca do login continuarem sempre escuros. Adicionado recolhimento do menu lateral (`AppShell` com estado `isCollapsed`, persistido em `localStorage`): retraído mostra só os ícones (com `title` para acessibilidade), botão de alternância fixo no rodapé da sidebar. Validado com Puppeteer forçando `prefers-color-scheme: dark` do SO para confirmar que a UI não muda mais.
 - **2026-08-07**: Modelagem completa do banco (DB-01 a DB-10), usando a skill `supabase-postgres-best-practices` como guia. 8 tabelas em `public`: `profiles` (RBAC, 1-para-1 com `auth.users`, com trigger de auto-criação no signup + backfill do usuário de teste), `proposal_statuses` (colunas do Kanban como tabela, não enum, pensando no PIPE-13), `clientes` + `contatos_cliente`, `propostas` + `propostas_historico` (log do PIPE-12), `interacoes_cliente`, `compromissos`. RLS ativo em todas as tabelas (`private.is_admin()` como helper reutilizável) — Admin e Comercial leem/criam/editam tudo, só Admin remove; validado com `supabase db advisors` (2 achados de segurança corrigidos: `search_path` mutável e `handle_new_user` exposta como RPC pública) e via REST API direta (anon bloqueado, authenticated liberado). Migrations em `supabase/migrations/`, aplicadas com `supabase db push --linked` (não precisa da senha do Postgres, só do login já feito da CLI). Seed fictício em `supabase/seed.sql` (5 clientes, 10 propostas, 3 interações, 3 compromissos, setores Automotivo/Offshore/Químico/Siderúrgico). Integridade validada com joins de 4 tabelas e uma agregação por status (bate com os totais esperados).
+- **2026-08-07**: Início do Módulo 1 — Pipeline Comercial (Kanban): board em `/pipeline` com dados reais do banco (`src/modules/pipeline/`), colunas dinâmicas vindas de `proposal_statuses` (PIPE-13), cards com nº/cliente/serviço/valor/termômetro (PIPE-06/07), drag-and-drop com `@dnd-kit` persistindo o status via Server Action com rollback otimista em caso de erro (PIPE-03/04/05). Tipos gerados do banco (`supabase gen types typescript --linked` → `src/lib/supabase/database.types.ts`) e conectados aos clients Supabase para tipagem correta dos joins. Corrigido BUG-007 (mismatch de hidratação do dnd-kit com SSR — board agora carrega via `next/dynamic` com `ssr:false`). **Achado importante sobre o BUG-005**: o bypass de login estava pulando a autenticação real mesmo localmente (onde ela funciona), quebrando o acesso a dados protegidos por RLS — corrigido para sempre tentar o login real primeiro, só usando o bypass como último recurso quando ele falha de fato (nota atualizada em `bugs.md`). Testado com Puppeteer: renderização com dados reais, drag-and-drop com persistência confirmada após reload completo, e responsividade mobile (scroll horizontal). PIPE-08 a PIPE-12 (detalhe, formulários de criar/editar, validação do nº de proposta, histórico de observações) ficam para a próxima sessão.

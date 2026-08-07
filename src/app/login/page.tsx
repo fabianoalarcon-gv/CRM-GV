@@ -21,7 +21,21 @@ export default function LoginPage() {
     setError(null);
     setIsSubmitting(true);
 
-    // TEMPORÁRIO — ver BUG-005 em bugs.md. Remover junto com src/lib/dev-bypass.ts.
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (!signInError) {
+      setIsSubmitting(false);
+      router.push("/");
+      router.refresh();
+      return;
+    }
+
+    // TEMPORÁRIO — ver BUG-005 em bugs.md. Login real falhou (ex: em produção,
+    // no Vercel); se for a credencial de teste conhecida, cai no bypass como
+    // último recurso. Localmente o login real funciona e é sempre tentado
+    // primeiro — só usa o bypass quando ele de fato falha, pra não perder
+    // acesso a dados reais (protegidos por RLS) sem necessidade.
     if (email === DEV_BYPASS_EMAIL && password === DEV_BYPASS_PASSWORD) {
       document.cookie = `${DEV_BYPASS_COOKIE}=1; path=/; max-age=86400`;
       setIsSubmitting(false);
@@ -30,23 +44,13 @@ export default function LoginPage() {
       return;
     }
 
-    const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-
     setIsSubmitting(false);
-
-    if (signInError) {
-      console.error("Supabase signInWithPassword error:", signInError);
-      setError(
-        signInError.message === "Invalid login credentials"
-          ? "E-mail ou senha inválidos."
-          : `Erro ao entrar: ${signInError.message}`,
-      );
-      return;
-    }
-
-    router.push("/");
-    router.refresh();
+    console.error("Supabase signInWithPassword error:", signInError);
+    setError(
+      signInError.message === "Invalid login credentials"
+        ? "E-mail ou senha inválidos."
+        : `Erro ao entrar: ${signInError.message}`,
+    );
   }
 
   return (
