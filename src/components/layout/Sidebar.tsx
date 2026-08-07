@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
+import { useIsAdmin } from "@/lib/auth/context";
 import { navItems } from "./nav-items";
 
 export interface SidebarProps {
@@ -13,10 +14,12 @@ export interface SidebarProps {
 
 export function Sidebar({ onNavigate, collapsed = false, className }: SidebarProps) {
   const pathname = usePathname();
+  const isAdmin = useIsAdmin();
+  const visibleItems = navItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <nav className={cn("flex flex-col gap-1 p-3", className)} aria-label="Navegação principal">
-      {navItems.map((item) => {
+      {visibleItems.map((item) => {
         const isActive = pathname === item.href;
         const Icon = item.icon;
 

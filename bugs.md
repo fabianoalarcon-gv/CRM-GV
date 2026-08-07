@@ -12,6 +12,14 @@ _Nenhum bug em aberto no momento._
 
 ## Corrigidos
 
+- [x] **BUG-009** — Link de recuperação de senha caía sempre em "Link inválido ou expirado"
+  - **Onde**: `src/app/redefinir-senha/page.tsx`
+  - **Descrição**: ao clicar num link real de recuperação de senha do Supabase (`.../redefinir-senha#access_token=...&type=recovery`), a página sempre mostrava "Link inválido ou expirado", mesmo com um token válido e recém-gerado.
+  - **Causa raiz**: o link de recuperação chega como fragmento da URL (`#access_token=...`), que o navegador nunca envia ao servidor. O client "puro" do `@supabase/supabase-js` faz o parse automático desse fragmento (`detectSessionInUrl`), mas o client SSR (`@supabase/ssr`, usado neste projeto via `createBrowserClient`) não faz esse parse automaticamente — ele foi pensado para o fluxo baseado em cookies/PKCE. Resultado: `supabase.auth.getSession()` sempre retornava sessão vazia nessa página.
+  - **Como foi encontrado**: testado o fluxo completo de recuperação de senha (AUTH-07) gerando um link real via Admin API (`supabase.auth.admin.generateLink`, sem depender de caixa de e-mail) e abrindo com Puppeteer.
+  - **Correção**: `redefinir-senha/page.tsx` agora faz o parse manual de `window.location.hash`, extrai `access_token`/`refresh_token` e chama `supabase.auth.setSession(...)` explicitamente antes de cair no fallback de `getSession()`. Validado de ponta a ponta: link → sessão estabelecida → formulário exibido → senha redefinida → login com a nova senha funcionando.
+  - **Data**: 2026-08-07
+
 - [x] **BUG-008** — `NEXT_PUBLIC_SUPABASE_URL` errada no ambiente Production do Vercel (com `/rest/v1` sobrando)
   - **Onde**: Vercel → Settings → Environment Variables, `NEXT_PUBLIC_SUPABASE_URL` no escopo **Production** (não era código da aplicação)
   - **Descrição**: depois de corrigir o BUG-005, o login voltou a funcionar no preview (`crm-gv-git-dev-...`) mas continuou falhando na URL de produção de verdade (`https://crm-gv.vercel.app/`), agora com a mensagem "Invalid path specified in request URL" em vez de "e-mail ou senha inválidos".

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type SubmitEvent } from "react";
+import { useEffect, useState, type SubmitEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -13,7 +14,16 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    // Lido só depois do mount: window.location não existe durante o SSR.
+    const params = new URLSearchParams(window.location.search);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (params.has("redefinida")) setNotice("Senha redefinida com sucesso. Faça login.");
+    else if (params.has("inativo")) setError("Sua conta foi desativada. Contate um administrador.");
+  }, []);
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -95,14 +105,23 @@ export default function LoginPage() {
               value={email}
               onChange={(event) => setEmail(event.target.value)}
             />
-            <Input
-              label="Senha"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
+            <div className="flex flex-col gap-1.5">
+              <Input
+                label="Senha"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+              <Link
+                href="/esqueci-senha"
+                className="self-end text-xs font-medium text-brand-graphite-light hover:text-brand-accent"
+              >
+                Esqueci minha senha
+              </Link>
+            </div>
+            {notice && <p className="text-sm text-status-aprovado">{notice}</p>}
             {error && <p className="text-sm text-temp-quente">{error}</p>}
             <Button type="submit" disabled={isSubmitting} className="mt-2">
               {isSubmitting ? "Entrando…" : "Entrar"}

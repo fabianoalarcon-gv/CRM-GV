@@ -1,10 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+// Rotas acessíveis sem sessão — telas do fluxo de autenticação (AUTH-03).
+const PUBLIC_ROUTES = ["/login", "/esqueci-senha", "/redefinir-senha"];
+
 /**
  * Renova a sessão do Supabase Auth a cada requisição e faz a guarda básica de
- * autenticação (usuário logado ou não). Bloqueio por perfil (RBAC) fica para
- * AUTH-05, quando a tabela de Perfis/Roles (DB-01) existir.
+ * autenticação (usuário logado ou não), além de bloquear usuários desativados
+ * (profiles.is_active = false, ver AUTH-06). RBAC por perfil fica no frontend
+ * (AUTH-05) e nas policies de RLS.
  */
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
@@ -33,18 +37,34 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isLoginRoute = pathname === "/login";
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname);
 
-  if (!user && !isLoginRoute) {
+  if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 
-  if (user && isLoginRoute) {
+  if (user && pathname === "/login") {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
+  }
+
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_active")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.is_active === false) {
+      await supabase.auth.signOut();
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("inativo", "1");
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

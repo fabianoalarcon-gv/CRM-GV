@@ -41,10 +41,22 @@ function CalendarIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+function UsersIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
+      <circle cx="8" cy="8" r="3.25" />
+      <path d="M2.5 20c0-3.31 2.47-6 5.5-6s5.5 2.69 5.5 6" />
+      <path d="M15.5 4.5a3.25 3.25 0 0 1 0 6.5" />
+      <path d="M15 14.25c2.9.4 5 2.9 5 5.75" />
+    </svg>
+  );
+}
+
 export interface NavItem {
   label: string;
   href: string;
   icon: (props: SVGProps<SVGSVGElement>) => React.JSX.Element;
+  adminOnly?: boolean;
 }
 
 export const navItems: NavItem[] = [
@@ -52,4 +64,5 @@ export const navItems: NavItem[] = [
   { label: "Pipeline Comercial", href: "/pipeline", icon: PipelineIcon },
   { label: "Clientes", href: "/clientes", icon: ClientsIcon },
   { label: "Calendário", href: "/calendario", icon: CalendarIcon },
+  { label: "Usuários", href: "/usuarios", icon: UsersIcon, adminOnly: true },
 ];
