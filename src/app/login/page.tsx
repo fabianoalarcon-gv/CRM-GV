@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Logo } from "@/components/brand/Logo";
 import { RouteLine } from "@/components/ui/RouteLine";
 import { createClient } from "@/lib/supabase/client";
+import { DEV_BYPASS_COOKIE, DEV_BYPASS_EMAIL, DEV_BYPASS_PASSWORD } from "@/lib/dev-bypass";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,6 +20,15 @@ export default function LoginPage() {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
+
+    // TEMPORÁRIO — ver BUG-005 em bugs.md. Remover junto com src/lib/dev-bypass.ts.
+    if (email === DEV_BYPASS_EMAIL && password === DEV_BYPASS_PASSWORD) {
+      document.cookie = `${DEV_BYPASS_COOKIE}=1; path=/; max-age=86400`;
+      setIsSubmitting(false);
+      router.push("/");
+      router.refresh();
+      return;
+    }
 
     const supabase = createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });

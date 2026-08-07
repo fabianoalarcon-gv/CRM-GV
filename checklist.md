@@ -44,6 +44,8 @@
 `[depende de: DB-01, DB-08]`
 
 > Nota: AUTH-01/02/04 foram adiantados fora de ordem (2026-08-06), a pedido do usuário, usando só o Auth nativo do Supabase (tabela `auth.users`), que não depende do nosso schema. A parte de RBAC por perfil (AUTH-05 e o resto de AUTH-04) continua bloqueada por DB-01.
+>
+> ⚠️ **BUG-005 (aberto)**: o login real via Supabase Auth funciona localmente mas falha em produção (Vercel) por motivo ainda não identificado. Há um **bypass temporário** ativo (`src/lib/dev-bypass.ts`, credencial fixa `teste@logihub.dev`) para não bloquear o desenvolvimento — precisa ser removido depois que o BUG-005 for corrigido. Ver detalhes em `bugs.md`.
 
 - [x] AUTH-01 | Configurar Supabase Auth com login por e-mail/senha
 - [x] AUTH-02 | Construir tela de Login

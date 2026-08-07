@@ -6,7 +6,12 @@
 
 ## Abertos
 
-_Nenhum bug em aberto no momento._
+- [ ] **BUG-005** — Login via Supabase Auth falha em produção (Vercel), mas funciona localmente e direto contra a API
+  - **Onde**: `src/app/login/page.tsx` (`supabase.auth.signInWithPassword`)
+  - **Descrição**: no deploy do Vercel (`https://crm-gv-git-dev-fabianoalarcon-6118s-projects.vercel.app/`), o login com `teste@logihub.dev` sempre retorna "e-mail ou senha inválidos". As mesmas credenciais funcionam: (1) via `curl` direto no endpoint `POST /auth/v1/token?grant_type=password` do Supabase, (2) localmente via `npm run dev` + fluxo completo testado com Puppeteer. O usuário já conferiu que as 3 env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) estão corretas no Vercel para Production **e** Preview.
+  - **Hipóteses ainda não descartadas**: diferença de env vars entre o build usado no deploy testado e o momento da checagem (pode precisar de um redeploy limpo); alguma configuração de domínio/CORS no Supabase Auth (Authentication > URL Configuration) que só bloqueia o domínio `*.vercel.app`; cache de build antigo no Vercel.
+  - **Correção**: nenhuma ainda — foi aplicado um **bypass temporário** (ver `src/lib/dev-bypass.ts`, usado em `src/app/login/page.tsx` e `src/lib/supabase/middleware.ts`) para não bloquear o desenvolvimento. Precisa ser removido assim que a causa raiz for encontrada e corrigida.
+  - **Data**: 2026-08-07
 
 ---
 
