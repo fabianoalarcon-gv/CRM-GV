@@ -15,7 +15,7 @@ export function Logo({ className, height = 32 }: LogoProps) {
   const width = height * LOGO_ASPECT_RATIO;
 
   return (
-    <span className={cn("inline-flex items-center rounded-md dark:bg-white dark:px-2 dark:py-1", className)}>
+    <span className={cn("inline-flex items-center", className)}>
       <Image
         src="/logo_logihub.png"
         alt="LogiHub"

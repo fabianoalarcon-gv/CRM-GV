@@ -83,9 +83,7 @@ export default function LoginPage() {
       </div>
 
       <div className="flex flex-col items-center justify-center gap-8 p-8">
-        <span className="inline-flex rounded-md dark:bg-white dark:px-2 dark:py-1 lg:hidden">
-          <Logo height={26} />
-        </span>
+        <Logo height={26} className="lg:hidden" />
 
         <div className="w-full max-w-sm">
           <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">

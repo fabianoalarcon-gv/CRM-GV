@@ -7,10 +7,11 @@ import { navItems } from "./nav-items";
 
 export interface SidebarProps {
   onNavigate?: () => void;
+  collapsed?: boolean;
   className?: string;
 }
 
-export function Sidebar({ onNavigate, className }: SidebarProps) {
+export function Sidebar({ onNavigate, collapsed = false, className }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -24,28 +25,30 @@ export function Sidebar({ onNavigate, className }: SidebarProps) {
             key={item.href}
             href={item.href}
             onClick={onNavigate}
+            title={collapsed ? item.label : undefined}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "group relative flex items-center gap-3 rounded-lg py-2 pr-3 pl-4 text-sm font-medium transition-colors",
+              "group relative flex items-center gap-3 rounded-lg py-2 text-sm font-medium transition-colors",
+              collapsed ? "justify-center px-2" : "pr-3 pl-4",
               isActive
-                ? "bg-brand-accent/10 text-brand-navy dark:text-white"
-                : "text-brand-graphite hover:bg-black/[.04] dark:text-brand-graphite-light dark:hover:bg-white/[.06]",
+                ? "bg-white/10 text-white"
+                : "text-white/60 hover:bg-white/5 hover:text-white/90",
             )}
           >
             <span
               aria-hidden
               className={cn(
-                "absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-brand-accent transition-opacity",
+                "absolute top-1/2 left-0 h-5 w-[3px] -translate-y-1/2 rounded-full bg-brand-accent transition-opacity",
                 isActive ? "opacity-100" : "opacity-0",
               )}
             />
             <Icon
               className={cn(
                 "h-5 w-5 shrink-0 transition-colors",
-                isActive ? "text-brand-accent" : "text-brand-graphite-light",
+                isActive ? "text-brand-accent" : "text-white/50 group-hover:text-white/80",
               )}
             />
-            {item.label}
+            {!collapsed && item.label}
           </Link>
         );
       })}
