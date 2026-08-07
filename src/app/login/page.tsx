@@ -26,7 +26,12 @@ export default function LoginPage() {
     setIsSubmitting(false);
 
     if (signInError) {
-      setError("E-mail ou senha inválidos.");
+      console.error("Supabase signInWithPassword error:", signInError);
+      setError(
+        signInError.message === "Invalid login credentials"
+          ? "E-mail ou senha inválidos."
+          : `Erro ao entrar: ${signInError.message}`,
+      );
       return;
     }
 
