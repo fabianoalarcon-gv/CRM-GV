@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/Textarea";
+import { useIsAdmin } from "@/lib/auth/context";
 import { usePipelineData } from "../context";
 import { addProposalHistoryEntry, deleteProposal, updateProposal } from "../actions";
 import { ProposalForm } from "./ProposalForm";
@@ -31,6 +32,7 @@ export interface ProposalDetailModalProps {
 
 export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetailModalProps) {
   const { history, statuses, profiles } = usePipelineData();
+  const isAdmin = useIsAdmin();
   const [isEditing, setIsEditing] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [isSavingNote, setIsSavingNote] = useState(false);
@@ -208,39 +210,43 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           </div>
         </div>
 
-        {deleteError && <p className="text-sm text-temp-quente">{deleteError}</p>}
+        {isAdmin && deleteError && <p className="text-sm text-temp-quente">{deleteError}</p>}
 
         <div className="flex items-center justify-between border-t border-border pt-4">
-          {confirmingDelete ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-brand-graphite-light">Excluir esta proposta?</span>
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                disabled={isDeleting}
-                onClick={handleDelete}
-              >
-                {isDeleting ? "Excluindo…" : "Confirmar"}
-              </Button>
+          {isAdmin ? (
+            confirmingDelete ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-brand-graphite-light">Excluir esta proposta?</span>
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  disabled={isDeleting}
+                  onClick={handleDelete}
+                >
+                  {isDeleting ? "Excluindo…" : "Confirmar"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirmingDelete(false)}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            ) : (
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                onClick={() => setConfirmingDelete(false)}
+                onClick={() => setConfirmingDelete(true)}
               >
-                Cancelar
+                Excluir
               </Button>
-            </div>
+            )
           ) : (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setConfirmingDelete(true)}
-            >
-              Excluir
-            </Button>
+            <span />
           )}
           <Button type="button" onClick={() => setIsEditing(true)}>
             Editar
