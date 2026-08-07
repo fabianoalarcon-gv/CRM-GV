@@ -4,15 +4,16 @@ import { useEffect, useState, type SubmitEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Logo } from "@/components/brand/Logo";
-import { RouteLine } from "@/components/ui/RouteLine";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -51,6 +52,7 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
+      {/* Painel esquerdo: marca (visível a partir de lg) */}
       <div className="relative hidden flex-col justify-between overflow-hidden bg-brand-navy p-10 lg:flex">
         <div
           aria-hidden
@@ -60,8 +62,14 @@ export default function LoginPage() {
             backgroundSize: "24px 24px",
           }}
         />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-navy via-transparent to-transparent"
+        />
 
-        <Logo height={28} className="relative !bg-white px-2 py-1" />
+        <div className="relative w-fit rounded-xl bg-white p-3 shadow-lg">
+          <Logo height={28} />
+        </div>
 
         <div className="relative">
           <p className="font-display text-3xl leading-snug font-semibold text-white">
@@ -69,10 +77,7 @@ export default function LoginPage() {
             <br />
             Acompanhe todo o trajeto.
           </p>
-          <div className="mt-8 max-w-xs">
-            <RouteLine stops={3} />
-          </div>
-          <p className="mt-4 text-sm text-white/60">
+          <p className="mt-4 max-w-xs text-sm text-white/60">
             Pipeline comercial, clientes e indicadores da Granvale Logística em um só lugar.
           </p>
         </div>
@@ -82,51 +87,87 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-8 p-8">
+      {/* Painel direito: formulário */}
+      <div className="flex flex-col items-center justify-center gap-8 bg-surface p-8 shadow-[-20px_0_25px_-5px_rgba(15,23,42,0.05)]">
         <Logo height={26} className="lg:hidden" />
 
         <div className="w-full max-w-sm">
-          <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">
-            Bem-vindo
-          </p>
-          <h1 className="mt-1 font-display text-2xl font-semibold text-foreground">
-            Entrar no LogiHub
+          <h1 className="font-display text-2xl font-semibold text-foreground">
+            Acessar Plataforma
           </h1>
           <p className="mt-1 text-sm text-brand-graphite-light">
-            Use as credenciais fornecidas pela sua equipe.
+            Insira suas credenciais para continuar.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4">
-            <Input
-              label="E-mail"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
             <div className="flex flex-col gap-1.5">
+              <label htmlFor="email" className="font-mono text-xs font-medium text-foreground">
+                E-mail corporativo
+              </label>
               <Input
-                label="Senha"
+                id="email"
+                type="email"
+                placeholder="nome@empresa.com.br"
+                autoComplete="email"
+                required
+                icon={<Icon name="mail" />}
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="font-mono text-xs font-medium text-foreground">
+                  Senha
+                </label>
+                <Link
+                  href="/esqueci-senha"
+                  className="text-xs font-medium text-brand-accent hover:underline"
+                >
+                  Esqueceu a senha?
+                </Link>
+              </div>
+              <Input
+                id="password"
                 type="password"
                 autoComplete="current-password"
                 required
+                icon={<Icon name="lock" />}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
               />
-              <Link
-                href="/esqueci-senha"
-                className="self-end text-xs font-medium text-brand-graphite-light hover:text-brand-accent"
-              >
-                Esqueci minha senha
-              </Link>
             </div>
+
+            {/*
+              Só visual por enquanto: a sessão do Supabase aqui é baseada em
+              cookie (@supabase/ssr), não em localStorage — diferenciar "lembrar
+              de mim" exigiria controlar o maxAge do cookie na criação do client,
+              o que não foi feito ainda pra não arriscar quebrar login sem testar
+              a fundo.
+            */}
+            <label className="flex items-center gap-2 text-sm text-brand-graphite-light">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(event) => setRememberMe(event.target.checked)}
+                className="h-4 w-4 rounded border-border accent-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent"
+              />
+              Lembrar de mim
+            </label>
+
             {notice && <p className="text-sm text-status-aprovado">{notice}</p>}
             {error && <p className="text-sm text-temp-quente">{error}</p>}
-            <Button type="submit" disabled={isSubmitting} className="mt-2">
-              {isSubmitting ? "Entrando…" : "Entrar"}
+
+            <Button type="submit" disabled={isSubmitting} className="mt-2 gap-2">
+              {isSubmitting ? "Entrando…" : "Entrar no Sistema"}
+              {!isSubmitting && <Icon name="arrow_forward" size={18} />}
             </Button>
           </form>
+
+          <p className="mt-8 text-center text-sm text-brand-graphite-light">
+            Problemas para acessar? Contate um administrador do sistema.
+          </p>
         </div>
       </div>
     </div>
