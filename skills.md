@@ -16,6 +16,10 @@ Skills ficam em `.agents/skills/<nome>` (fonte universal) com um symlink em `.cl
   - **Por quê**: toolkit com Playwright para testar a aplicação local (screenshots, logs do navegador, verificação de funcionalidade). Substitui a abordagem manual com Chrome headless usada para validar o layout no PREP-13; será útil para testar os módulos PIPE/CLI/DASH/CAL conforme forem implementados.
   - **Instalado em**: 2026-08-06
 
+- [x] **supabase-postgres-best-practices** — `supabase/agent-skills`
+  - **Por quê**: guia de boas práticas de Postgres/Supabase (schema, migrations, RLS, índices, performance) mantido pela própria Supabase. Deve ser carregado antes de qualquer alteração no banco — essencial para o próximo bloco do cronograma (DB-01 a DB-10: tabelas, FKs, migrations SQL e RLS por perfil).
+  - **Instalado em**: 2026-08-06
+
 ---
 
 ## Como instalar uma nova skill
