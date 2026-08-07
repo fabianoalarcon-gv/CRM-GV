@@ -6,17 +6,19 @@
 
 ## Abertos
 
-- [ ] **BUG-005** — Login via Supabase Auth falha em produção (Vercel), mas funciona localmente e direto contra a API
-  - **Onde**: `src/app/login/page.tsx` (`supabase.auth.signInWithPassword`)
-  - **Descrição**: no deploy do Vercel (`https://crm-gv-git-dev-fabianoalarcon-6118s-projects.vercel.app/`), o login com `teste@logihub.dev` sempre retorna "e-mail ou senha inválidos". As mesmas credenciais funcionam: (1) via `curl` direto no endpoint `POST /auth/v1/token?grant_type=password` do Supabase, (2) localmente via `npm run dev` + fluxo completo testado com Puppeteer. O usuário já conferiu que as 3 env vars (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) estão corretas no Vercel para Production **e** Preview.
-  - **Hipóteses ainda não descartadas**: `NEXT_PUBLIC_*` é inlinado em build-time — se o "Redeploy" usado pelo usuário reaproveitou o build cache em vez de rodar `next build` do zero, o bundle do cliente pode ter ficado com o valor antigo (vazio) dessas variáveis; o correto é validar isso abrindo o DevTools > Network no deploy do Vercel durante o login e conferir a URL/apikey do request para `/auth/v1/token`. Outras hipóteses: configuração de domínio/CORS no Supabase Auth (Authentication > URL Configuration) restrita a `localhost`; a env var só está de fato marcada pra "Preview" na branch `dev` especificamente (não só no projeto).
-  - **Importante (2026-08-07)**: o bypass **não deve mais pular a tentativa de login real** — ele quebrava o acesso a dados protegidos por RLS (ex: módulo Pipeline) mesmo localmente, onde o login real funciona normalmente. Corrigido: `src/app/login/page.tsx` agora sempre tenta `signInWithPassword` primeiro; só cai no bypass (`src/lib/dev-bypass.ts`) se a tentativa real falhar E as credenciais baterem com a conta de teste. Localmente isso significa que o bypass fica inerte (login real sempre funciona); no Vercel ele ainda mascara o BUG-005.
-  - **Correção**: nenhuma ainda — causa raiz não identificada. O bypass segue como rede de segurança apenas para quando o login real falha.
-  - **Data**: 2026-08-07
+_Nenhum bug em aberto no momento._
 
 ---
 
 ## Corrigidos
+
+- [x] **BUG-005** — Login via Supabase Auth falhava em produção (Vercel), mas funcionava localmente e direto contra a API
+  - **Onde**: Configuração do projeto Supabase (Authentication > URL Configuration), não era código da aplicação
+  - **Descrição**: no deploy do Vercel, o login com credenciais válidas sempre retornava "e-mail ou senha inválidos". As mesmas credenciais funcionavam via `curl` direto na API e localmente via `npm run dev`. Env vars já haviam sido conferidas como corretas em Production e Preview no Vercel.
+  - **Causa raiz**: o **Site URL** do Supabase Auth estava travado em `http://localhost:3000` e a lista de **Redirect URLs** estava vazia — o Supabase Auth valida a origem/URL de requisições de login contra essa lista, então requisições vindas do domínio do Vercel eram rejeitadas.
+  - **Como foi encontrado**: usuário verificou Authentication > URL Configuration no dashboard do Supabase a pedido; confirmado via `curl` simulando o header `Origin` do domínio do Vercel contra a API antes de aplicar a correção.
+  - **Correção**: adicionadas `http://localhost:3000/**`, `https://crm-gv-git-dev-fabianoalarcon-6118s-projects.vercel.app/**` e `https://*-fabianoalarcon-6118s-projects.vercel.app/**` (cobre qualquer preview do projeto) em Redirect URLs. Login real confirmado funcionando no Vercel pelo usuário. Removido o bypass temporário (`src/lib/dev-bypass.ts` e os usos em `src/app/login/page.tsx` e `src/lib/supabase/middleware.ts`), que não é mais necessário.
+  - **Data**: 2026-08-07
 
 - [x] **BUG-007** — Erro de hidratação do React no board do Pipeline (dnd-kit + SSR)
   - **Onde**: `src/modules/pipeline/components/Board.tsx` / `Column.tsx` / `ProposalCard.tsx`
