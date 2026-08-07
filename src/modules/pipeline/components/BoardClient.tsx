@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { ProposalStatus, Proposta } from "../types";
+import type { Proposta } from "../types";
 
 // dnd-kit gera ids internos (aria-describedby) que não batem entre servidor e
 // cliente — desativar SSR pro board evita o mismatch de hidratação do React.
@@ -21,7 +21,6 @@ function BoardSkeleton() {
 }
 
 export interface BoardClientProps {
-  statuses: ProposalStatus[];
   initialPropostas: Proposta[];
 }
 

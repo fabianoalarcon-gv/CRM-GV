@@ -1,5 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
-import type { ProposalStatus, Proposta, Termometro, TipoServico } from "./types";
+import type {
+  ClienteOption,
+  ProfileOption,
+  ProposalHistoryEntry,
+  ProposalStatus,
+  Proposta,
+  Termometro,
+  TipoServico,
+} from "./types";
 
 export async function getProposalStatuses(): Promise<ProposalStatus[]> {
   const supabase = await createClient();
@@ -38,5 +46,42 @@ export async function getPropostas(): Promise<Proposta[]> {
     responsavel_id: p.responsavel_id,
     created_at: p.created_at,
     updated_at: p.updated_at,
+  }));
+}
+
+export async function getClientesOptions(): Promise<ClienteOption[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("clientes").select("id, nome").order("nome");
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getProfileOptions(): Promise<ProfileOption[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, full_name")
+    .order("full_name");
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getProposalHistory(): Promise<ProposalHistoryEntry[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("propostas_historico")
+    .select("id, proposta_id, texto, created_at, autor:profiles(full_name)")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((h) => ({
+    id: h.id,
+    proposta_id: h.proposta_id,
+    autor_nome: h.autor?.full_name ?? null,
+    texto: h.texto,
+    created_at: h.created_at,
   }));
 }

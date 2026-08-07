@@ -26,3 +26,34 @@ export interface Proposta {
   created_at: string;
   updated_at: string;
 }
+
+export interface ClienteOption {
+  id: number;
+  nome: string;
+}
+
+export interface ProfileOption {
+  id: string;
+  full_name: string;
+}
+
+export interface ProposalHistoryEntry {
+  id: number;
+  proposta_id: number;
+  autor_nome: string | null;
+  texto: string;
+  created_at: string;
+}
+
+export interface ProposalInput {
+  numero_proposta: string;
+  data_envio: string;
+  cliente_id: number;
+  servico: string;
+  descricao: string;
+  valor: number;
+  status_id: number;
+  termometro: Termometro;
+  tipo_servico: TipoServico;
+  responsavel_id: string | null;
+}

@@ -1,0 +1,56 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { usePipelineData } from "../context";
+import { createProposal } from "../actions";
+import { ProposalForm } from "./ProposalForm";
+import type { ProposalInput } from "../types";
+
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function NewProposalButton() {
+  const { statuses } = usePipelineData();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const defaultStatusId = statuses.find((s) => s.is_default)?.id ?? statuses[0]?.id ?? 0;
+
+  const initialValues: ProposalInput = {
+    numero_proposta: "",
+    data_envio: todayISO(),
+    cliente_id: 0,
+    servico: "",
+    descricao: "",
+    valor: 0,
+    status_id: defaultStatusId,
+    termometro: "morno",
+    tipo_servico: "spot",
+    responsavel_id: null,
+  };
+
+  return (
+    <>
+      <Button type="button" onClick={() => setIsOpen(true)}>
+        + Nova proposta
+      </Button>
+
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Nova proposta"
+        className="max-w-2xl"
+      >
+        <ProposalForm
+          initialValues={initialValues}
+          submitLabel="Criar proposta"
+          onSubmit={createProposal}
+          onSuccess={() => setIsOpen(false)}
+          onCancel={() => setIsOpen(false)}
+        />
+      </Modal>
+    </>
+  );
+}
