@@ -1,13 +1,22 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import type { ClienteOption, ProfileOption, ProposalHistoryEntry, ProposalStatus } from "./types";
+import type {
+  ClienteOption,
+  ContatoPrincipal,
+  ProfileOption,
+  ProposalHistoryEntry,
+  ProposalStatus,
+  ProximoCompromisso,
+} from "./types";
 
 export interface PipelineDataValue {
   statuses: ProposalStatus[];
   clientes: ClienteOption[];
   profiles: ProfileOption[];
   history: ProposalHistoryEntry[];
+  contatosPrincipais: Map<number, ContatoPrincipal>;
+  proximosCompromissos: Map<number, ProximoCompromisso>;
 }
 
 const PipelineDataContext = createContext<PipelineDataValue | null>(null);

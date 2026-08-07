@@ -3,23 +3,30 @@ import { NewProposalButton } from "@/modules/pipeline/components/NewProposalButt
 import { PipelineDataProvider } from "@/modules/pipeline/context";
 import {
   getClientesOptions,
+  getContatosPrincipais,
   getProfileOptions,
   getProposalHistory,
   getProposalStatuses,
   getPropostas,
+  getProximosCompromissos,
 } from "@/modules/pipeline/queries";
 
 export default async function PipelinePage() {
-  const [statuses, propostas, clientes, profiles, history] = await Promise.all([
-    getProposalStatuses(),
-    getPropostas(),
-    getClientesOptions(),
-    getProfileOptions(),
-    getProposalHistory(),
-  ]);
+  const [statuses, propostas, clientes, profiles, history, contatosPrincipais, proximosCompromissos] =
+    await Promise.all([
+      getProposalStatuses(),
+      getPropostas(),
+      getClientesOptions(),
+      getProfileOptions(),
+      getProposalHistory(),
+      getContatosPrincipais(),
+      getProximosCompromissos(),
+    ]);
 
   return (
-    <PipelineDataProvider value={{ statuses, clientes, profiles, history }}>
+    <PipelineDataProvider
+      value={{ statuses, clientes, profiles, history, contatosPrincipais, proximosCompromissos }}
+    >
       <div className="flex h-full flex-col gap-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>

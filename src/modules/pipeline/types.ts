@@ -16,6 +16,7 @@ export interface Proposta {
   data_envio: string;
   cliente_id: number;
   cliente_nome: string;
+  cliente_setor: string | null;
   servico: string | null;
   descricao: string | null;
   valor: number;
@@ -25,6 +26,16 @@ export interface Proposta {
   responsavel_id: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface ContatoPrincipal {
+  nome: string;
+  telefone: string | null;
+}
+
+export interface ProximoCompromisso {
+  titulo: string;
+  inicio: string;
 }
 
 export interface ClienteOption {

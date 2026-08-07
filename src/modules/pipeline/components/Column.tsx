@@ -20,7 +20,7 @@ export function Column({ status, propostas }: ColumnProps) {
   const total = propostas.reduce((sum, p) => sum + p.valor, 0);
 
   return (
-    <div className="flex w-72 shrink-0 flex-col rounded-xl bg-black/[.02]">
+    <div className="flex w-80 shrink-0 flex-col rounded-xl bg-black/[.02]">
       <div className="flex items-center justify-between gap-2 px-3 py-2.5">
         <div>
           <h2 className="text-sm font-semibold text-foreground">{status.label}</h2>
