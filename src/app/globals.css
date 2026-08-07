@@ -34,6 +34,10 @@
   --temp-frio: #38bdf8;
   --temp-morno: #facc15;
   --temp-quente: #ef4444;
+
+  /* Status de proposta no Dashboard (DASH-04/08): reaproveita frio/quente do
+     Termômetro para em_analise/reprovado; aprovado ganha um verde próprio. */
+  --status-aprovado: #22c55e;
 }
 
 @theme inline {
@@ -53,6 +57,8 @@
   --color-temp-frio: var(--temp-frio);
   --color-temp-morno: var(--temp-morno);
   --color-temp-quente: var(--temp-quente);
+
+  --color-status-aprovado: var(--status-aprovado);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
