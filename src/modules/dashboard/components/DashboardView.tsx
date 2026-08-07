@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import {
   applyFilters,
-  buildStatusLabelMap,
   computeConversionRates,
   computeForecast,
+  computeFunnelStages,
   computeMonthlyAggregates,
   computeStatusAggregates,
   formatCurrency,
@@ -18,7 +18,7 @@ import { MonthlyBarChart } from "./MonthlyBarChart";
 import { RankingTable } from "./RankingTable";
 import { SalesFunnel } from "./SalesFunnel";
 import { StatusBarChart } from "./StatusBarChart";
-import type { DashboardFilters, DashboardProposta } from "../types";
+import type { DashboardFilters, DashboardProposta, StatusKey } from "../types";
 
 const TIPO_SERVICO_OPTIONS = [
   { value: "fixo", label: "Fixo" },
@@ -29,26 +29,33 @@ const EMPTY_FILTERS: DashboardFilters = { dataInicio: "", dataFim: "", tipoServi
 
 export interface DashboardViewProps {
   propostas: DashboardProposta[];
+  statusLabels: Partial<Record<StatusKey, string>>;
 }
 
-export function DashboardView({ propostas }: DashboardViewProps) {
+export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
   const [filters, setFilters] = useState<DashboardFilters>(EMPTY_FILTERS);
 
   const filtered = useMemo(() => applyFilters(propostas, filters), [propostas, filters]);
-  const statusLabels = useMemo(() => buildStatusLabelMap(propostas), [propostas]);
   const statusAggregates = useMemo(
     () => computeStatusAggregates(filtered, statusLabels),
     [filtered, statusLabels],
   );
-  const rates = useMemo(() => computeConversionRates(statusAggregates), [statusAggregates]);
+  const rates = useMemo(() => computeConversionRates(filtered), [filtered]);
   const monthly = useMemo(() => computeMonthlyAggregates(filtered), [filtered]);
-  const forecast = useMemo(() => computeForecast(statusAggregates, rates), [statusAggregates, rates]);
+  const forecast = useMemo(() => computeForecast(filtered, rates), [filtered, rates]);
+  const funnelStages = useMemo(() => computeFunnelStages(statusAggregates), [statusAggregates]);
   const ranking = useMemo(() => rankTopPropostas(filtered, 5), [filtered]);
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);
-  const valorEmAnalise = statusAggregates.find((a) => a.status === "em_analise")?.valor ?? 0;
-  const valorAprovado = statusAggregates.find((a) => a.status === "aprovado")?.valor ?? 0;
-  const valorReprovado = statusAggregates.find((a) => a.status === "reprovado")?.valor ?? 0;
+  const valorAndamento = statusAggregates
+    .filter((a) => a.status !== "fechado")
+    .reduce((acc, a) => acc + a.valor, 0);
+  const valorAprovado = filtered
+    .filter((p) => p.resultado === "aprovado")
+    .reduce((acc, p) => acc + p.valor, 0);
+  const valorReprovado = filtered
+    .filter((p) => p.resultado === "reprovado")
+    .reduce((acc, p) => acc + p.valor, 0);
 
   return (
     <div className="flex flex-col gap-8">
@@ -107,7 +114,7 @@ export function DashboardView({ propostas }: DashboardViewProps) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard label="Valor total em propostas" value={formatCurrency(valorTotal)} accent />
-        <KpiCard label="Em análise" value={formatCurrency(valorEmAnalise)} />
+        <KpiCard label="Em andamento" value={formatCurrency(valorAndamento)} caption="Prospecção a Negociação" />
         <KpiCard label="Aprovado" value={formatCurrency(valorAprovado)} />
         <KpiCard label="Reprovado" value={formatCurrency(valorReprovado)} />
       </div>
@@ -128,15 +135,15 @@ export function DashboardView({ propostas }: DashboardViewProps) {
           value={formatCurrency(forecast.valor)}
           caption={
             forecast.temHistorico
-              ? `Aprovado + (Em análise × ${(forecast.taxaUsada * 100).toFixed(0)}% de conversão histórica)`
-              : "Aprovado + 50% do Em análise (ainda sem propostas decididas para calcular a taxa real)"
+              ? `Aprovado + (em andamento × ${(forecast.taxaUsada * 100).toFixed(0)}% de conversão histórica)`
+              : "Aprovado + 50% do valor em andamento (ainda sem propostas decididas para calcular a taxa real)"
           }
         />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <StatusBarChart aggregates={statusAggregates} />
-        <SalesFunnel aggregates={statusAggregates} />
+        <SalesFunnel stages={funnelStages} />
       </div>
 
       <MonthlyBarChart monthly={monthly} />

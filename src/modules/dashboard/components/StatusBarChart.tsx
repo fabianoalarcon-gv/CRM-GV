@@ -21,7 +21,7 @@ export function StatusBarChart({ aggregates }: StatusBarChartProps) {
             const pct = (agg.valor / maxValor) * 100;
             return (
               <div key={agg.status} className="flex items-center gap-3">
-                <span className="w-24 shrink-0 text-sm text-foreground">{agg.label}</span>
+                <span className="w-28 shrink-0 text-sm text-foreground">{agg.label}</span>
                 <div className="h-6 flex-1 rounded-full bg-black/[.04]">
                   <div
                     className="h-6 rounded-full transition-[width]"

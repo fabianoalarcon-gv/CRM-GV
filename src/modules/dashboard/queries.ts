@@ -1,12 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import type { DashboardProposta, StatusKey, TipoServico } from "./types";
+import type { DashboardProposta, Resultado, StatusKey, TipoServico } from "./types";
 
 export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, valor, data_envio, tipo_servico, clientes(nome), proposal_statuses(key, label, sort_order)",
+      "id, numero_proposta, valor, data_envio, tipo_servico, resultado, clientes(nome), proposal_statuses(key, label, sort_order)",
     )
     .order("data_envio");
 
@@ -19,8 +19,24 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
     valor: Number(p.valor),
     data_envio: p.data_envio,
     tipo_servico: p.tipo_servico as TipoServico,
-    status_key: (p.proposal_statuses?.key ?? "em_analise") as StatusKey,
+    status_key: (p.proposal_statuses?.key ?? "prospeccao") as StatusKey,
     status_label: p.proposal_statuses?.label ?? "—",
     status_sort_order: p.proposal_statuses?.sort_order ?? 0,
+    resultado: p.resultado as Resultado | null,
   }));
+}
+
+// Rótulos direto da tabela — não dá pra confiar só nas propostas existentes
+// pra descobrir o rótulo de cada status: um estágio sem nenhuma proposta ainda
+// (ex: um estágio novo do funil) nunca apareceria no label map se ele viesse
+// só das propostas.
+export async function getStatusLabels(): Promise<Partial<Record<StatusKey, string>>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("proposal_statuses").select("key, label");
+
+  if (error) throw error;
+
+  const map: Partial<Record<StatusKey, string>> = {};
+  for (const s of data ?? []) map[s.key as StatusKey] = s.label;
+  return map;
 }

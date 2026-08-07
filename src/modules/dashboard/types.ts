@@ -1,4 +1,5 @@
-export type StatusKey = "em_analise" | "aprovado" | "reprovado";
+export type StatusKey = "prospeccao" | "qualificacao" | "proposta" | "negociacao" | "fechado";
+export type Resultado = "aprovado" | "reprovado";
 export type TipoServico = "fixo" | "spot";
 
 export interface DashboardProposta {
@@ -11,6 +12,7 @@ export interface DashboardProposta {
   status_key: StatusKey;
   status_label: string;
   status_sort_order: number;
+  resultado: Resultado | null;
 }
 
 export interface DashboardFilters {

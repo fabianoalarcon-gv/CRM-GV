@@ -8,8 +8,9 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { usePipelineData } from "../context";
+import { updateProposalResultado } from "../actions";
 import { ProposalDetailModal } from "./ProposalDetailModal";
-import type { Proposta } from "../types";
+import type { Proposta, Resultado } from "../types";
 
 const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
   frio: "Frio",
@@ -43,11 +44,24 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
     id: String(proposta.id),
   });
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const { profiles, contatosPrincipais, proximosCompromissos } = usePipelineData();
+  const { statuses, profiles, contatosPrincipais, proximosCompromissos } = usePipelineData();
 
   const responsavel = profiles.find((p) => p.id === proposta.responsavel_id);
   const contato = contatosPrincipais.get(proposta.cliente_id);
   const proximoCompromisso = proximosCompromissos.get(proposta.cliente_id);
+  const isFechado = statuses.find((s) => s.id === proposta.status_id)?.key === "fechado";
+
+  const [resultado, setResultado] = useState(proposta.resultado);
+  const [isSavingResultado, setIsSavingResultado] = useState(false);
+
+  async function handleResultadoChange(next: Resultado | null) {
+    const previous = resultado;
+    setResultado(next);
+    setIsSavingResultado(true);
+    const result = await updateProposalResultado(proposta.id, next);
+    setIsSavingResultado(false);
+    if (result.error) setResultado(previous);
+  }
 
   return (
     <>
@@ -69,6 +83,26 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
             </span>
             <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
           </div>
+
+          {isFechado && (
+            <select
+              value={resultado ?? ""}
+              disabled={isSavingResultado}
+              onClick={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
+              onChange={(e) => handleResultadoChange((e.target.value || null) as Resultado | null)}
+              className={cn(
+                "h-6 w-fit cursor-pointer rounded-md border-0 pr-6 pl-2 text-[11px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent",
+                resultado === "aprovado" && "bg-status-aprovado/15 text-status-aprovado",
+                resultado === "reprovado" && "bg-temp-quente/15 text-temp-quente",
+                !resultado && "bg-black/[.05] text-brand-graphite-light",
+              )}
+            >
+              <option value="">Definir resultado…</option>
+              <option value="aprovado">✓ Aprovado</option>
+              <option value="reprovado">✗ Reprovado</option>
+            </select>
+          )}
 
           <div>
             <p className="text-sm font-medium text-foreground">{proposta.cliente_nome}</p>

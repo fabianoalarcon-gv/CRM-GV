@@ -1,8 +1,11 @@
 import { DashboardView } from "@/modules/dashboard/components/DashboardView";
-import { getDashboardPropostas } from "@/modules/dashboard/queries";
+import { getDashboardPropostas, getStatusLabels } from "@/modules/dashboard/queries";
 
 export default async function Home() {
-  const propostas = await getDashboardPropostas();
+  const [propostas, statusLabels] = await Promise.all([
+    getDashboardPropostas(),
+    getStatusLabels(),
+  ]);
 
-  return <DashboardView propostas={propostas} />;
+  return <DashboardView propostas={propostas} statusLabels={statusLabels} />;
 }

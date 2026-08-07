@@ -1,11 +1,22 @@
 import type { DashboardFilters, DashboardProposta, StatusKey } from "./types";
 
-export const STATUS_ORDER: StatusKey[] = ["em_analise", "aprovado", "reprovado"];
+export const STATUS_ORDER: StatusKey[] = [
+  "prospeccao",
+  "qualificacao",
+  "proposta",
+  "negociacao",
+  "fechado",
+];
 
+// Estágios do funil = dado ordenado (magnitude ao longo do progresso), então a
+// cor segue a regra "sequencial": um hue só, mais escuro = mais perto do
+// fechamento. Reaproveita o laranja de marca em vez de introduzir uma paleta nova.
 export const STATUS_COLORS: Record<StatusKey, string> = {
-  em_analise: "var(--color-temp-frio)",
-  aprovado: "var(--color-status-aprovado)",
-  reprovado: "var(--color-temp-quente)",
+  prospeccao: "color-mix(in srgb, var(--color-brand-accent) 30%, white)",
+  qualificacao: "color-mix(in srgb, var(--color-brand-accent) 50%, white)",
+  proposta: "color-mix(in srgb, var(--color-brand-accent) 70%, white)",
+  negociacao: "color-mix(in srgb, var(--color-brand-accent) 90%, white)",
+  fechado: "var(--color-brand-accent-dark)",
 };
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
@@ -39,14 +50,6 @@ export interface StatusAggregate {
   valor: number;
 }
 
-export function buildStatusLabelMap(
-  propostas: DashboardProposta[],
-): Partial<Record<StatusKey, string>> {
-  const map: Partial<Record<StatusKey, string>> = {};
-  for (const p of propostas) map[p.status_key] = p.status_label;
-  return map;
-}
-
 export function computeStatusAggregates(
   propostas: DashboardProposta[],
   labelByStatus: Partial<Record<StatusKey, string>> = {},
@@ -64,14 +67,40 @@ export function computeStatusAggregates(
   return STATUS_ORDER.map((key) => map.get(key)!);
 }
 
+export interface FunnelStage {
+  status: StatusKey;
+  label: string;
+  count: number;
+  pct: number;
+}
+
+// Funil "cumulativo a partir da direita": como só guardamos o estágio ATUAL de
+// cada proposta (não um histórico de por onde ela passou), cada estágio mostra
+// "quantas propostas estão neste estágio ou mais adiante" — uma aproximação
+// razoável de um funil de verdade sem precisar de uma tabela de histórico.
+export function computeFunnelStages(statusAggregates: StatusAggregate[]): FunnelStage[] {
+  const total = statusAggregates.reduce((sum, s) => sum + s.count, 0);
+  return statusAggregates.map((stage, i) => {
+    const countAtOrLater = statusAggregates
+      .slice(i)
+      .reduce((sum, s) => sum + s.count, 0);
+    return {
+      status: stage.status,
+      label: stage.label,
+      count: countAtOrLater,
+      pct: total > 0 ? countAtOrLater / total : 0,
+    };
+  });
+}
+
 export interface ConversionRates {
   taxaConversao: number | null;
   taxaReprovacao: number | null;
 }
 
-export function computeConversionRates(statusAggregates: StatusAggregate[]): ConversionRates {
-  const aprovado = statusAggregates.find((s) => s.status === "aprovado")?.count ?? 0;
-  const reprovado = statusAggregates.find((s) => s.status === "reprovado")?.count ?? 0;
+export function computeConversionRates(propostas: DashboardProposta[]): ConversionRates {
+  const aprovado = propostas.filter((p) => p.resultado === "aprovado").length;
+  const reprovado = propostas.filter((p) => p.resultado === "reprovado").length;
   const decididas = aprovado + reprovado;
 
   if (decididas === 0) return { taxaConversao: null, taxaReprovacao: null };
@@ -114,14 +143,16 @@ export function computeMonthlyAggregates(propostas: DashboardProposta[]): Monthl
   return Array.from(map.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
 }
 
-export function computeForecast(statusAggregates: StatusAggregate[], rates: ConversionRates) {
-  const aprovado = statusAggregates.find((s) => s.status === "aprovado");
-  const emAnalise = statusAggregates.find((s) => s.status === "em_analise");
-  const valorAprovado = aprovado?.valor ?? 0;
-  const valorEmAnalise = emAnalise?.valor ?? 0;
+export function computeForecast(propostas: DashboardProposta[], rates: ConversionRates) {
+  const valorAprovado = propostas
+    .filter((p) => p.resultado === "aprovado")
+    .reduce((sum, p) => sum + p.valor, 0);
+  const valorEmAndamento = propostas
+    .filter((p) => p.resultado === null)
+    .reduce((sum, p) => sum + p.valor, 0);
 
   const taxaUsada = rates.taxaConversao ?? 0.5;
-  const previsao = valorAprovado + valorEmAnalise * taxaUsada;
+  const previsao = valorAprovado + valorEmAndamento * taxaUsada;
 
   return {
     valor: previsao,

@@ -259,6 +259,7 @@ export type Database = {
           id: number
           numero_proposta: string
           responsavel_id: string | null
+          resultado: string | null
           servico: string | null
           status_id: number
           termometro: string
@@ -275,6 +276,7 @@ export type Database = {
           id?: never
           numero_proposta: string
           responsavel_id?: string | null
+          resultado?: string | null
           servico?: string | null
           status_id: number
           termometro?: string
@@ -291,6 +293,7 @@ export type Database = {
           id?: never
           numero_proposta?: string
           responsavel_id?: string | null
+          resultado?: string | null
           servico?: string | null
           status_id?: number
           termometro?: string

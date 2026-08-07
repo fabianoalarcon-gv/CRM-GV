@@ -101,6 +101,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
             termometro: proposta.termometro,
             tipo_servico: proposta.tipo_servico,
             responsavel_id: proposta.responsavel_id,
+            resultado: proposta.resultado,
           }}
           submitLabel="Salvar alterações"
           onSubmit={(input) => updateProposal(proposta.id, input)}
@@ -138,7 +139,17 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           </div>
           <div>
             <dt className="text-brand-graphite-light">Status</dt>
-            <dd className="text-foreground">{statusLabel}</dd>
+            <dd className="text-foreground">
+              {statusLabel}
+              {proposta.resultado && (
+                <Badge
+                  variant={proposta.resultado === "aprovado" ? "success" : "danger"}
+                  className="ml-2"
+                >
+                  {proposta.resultado === "aprovado" ? "Aprovado" : "Reprovado"}
+                </Badge>
+              )}
+            </dd>
           </div>
           <div>
             <dt className="text-brand-graphite-light">Tipo</dt>

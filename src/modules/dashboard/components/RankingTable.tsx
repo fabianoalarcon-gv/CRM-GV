@@ -2,13 +2,21 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { formatCurrency } from "../utils";
-import type { DashboardProposta, StatusKey } from "../types";
+import type { DashboardProposta } from "../types";
 
-const STATUS_BADGE_VARIANT: Record<StatusKey, "info" | "success" | "danger"> = {
-  em_analise: "info",
-  aprovado: "success",
-  reprovado: "danger",
-};
+function statusVariant(p: DashboardProposta): "info" | "success" | "danger" | "default" {
+  if (p.status_key !== "fechado") return "info";
+  if (p.resultado === "aprovado") return "success";
+  if (p.resultado === "reprovado") return "danger";
+  return "default";
+}
+
+function statusLabel(p: DashboardProposta): string {
+  if (p.status_key === "fechado" && p.resultado) {
+    return `${p.status_label} · ${p.resultado === "aprovado" ? "Aprovado" : "Reprovado"}`;
+  }
+  return p.status_label;
+}
 
 export interface RankingTableProps {
   propostas: DashboardProposta[];
@@ -41,7 +49,7 @@ export function RankingTable({ propostas }: RankingTableProps) {
                   <TableCell className="font-mono text-xs">{p.numero_proposta}</TableCell>
                   <TableCell>{p.cliente_nome}</TableCell>
                   <TableCell>
-                    <Badge variant={STATUS_BADGE_VARIANT[p.status_key]}>{p.status_label}</Badge>
+                    <Badge variant={statusVariant(p)}>{statusLabel(p)}</Badge>
                   </TableCell>
                   <TableCell className="font-mono font-semibold">{formatCurrency(p.valor)}</TableCell>
                 </TableRow>

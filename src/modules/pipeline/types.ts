@@ -1,5 +1,6 @@
 export type Termometro = "frio" | "morno" | "quente";
 export type TipoServico = "fixo" | "spot";
+export type Resultado = "aprovado" | "reprovado";
 
 export interface ProposalStatus {
   id: number;
@@ -24,6 +25,7 @@ export interface Proposta {
   termometro: Termometro;
   tipo_servico: TipoServico;
   responsavel_id: string | null;
+  resultado: Resultado | null;
   created_at: string;
   updated_at: string;
 }
@@ -67,4 +69,5 @@ export interface ProposalInput {
   termometro: Termometro;
   tipo_servico: TipoServico;
   responsavel_id: string | null;
+  resultado: Resultado | null;
 }

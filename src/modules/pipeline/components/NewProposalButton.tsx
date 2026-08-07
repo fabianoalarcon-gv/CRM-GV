@@ -29,6 +29,7 @@ export function NewProposalButton() {
     termometro: "morno",
     tipo_servico: "spot",
     responsavel_id: null,
+    resultado: null,
   };
 
   return (

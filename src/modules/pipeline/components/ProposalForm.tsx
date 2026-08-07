@@ -20,6 +20,11 @@ const TIPO_SERVICO_OPTIONS = [
   { value: "spot", label: "Spot" },
 ];
 
+const RESULTADO_OPTIONS = [
+  { value: "aprovado", label: "Aprovado" },
+  { value: "reprovado", label: "Reprovado" },
+];
+
 export interface ProposalFormProps {
   initialValues: ProposalInput;
   submitLabel: string;
@@ -44,6 +49,9 @@ export function ProposalForm({
   function update<K extends keyof ProposalInput>(key: K, value: ProposalInput[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
+
+  const selectedStatus = statuses.find((s) => s.id === values.status_id);
+  const isFechado = selectedStatus?.key === "fechado";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -148,6 +156,16 @@ export function ProposalForm({
         onChange={(e) => update("responsavel_id", e.target.value || null)}
         options={profiles.map((p) => ({ value: p.id, label: p.full_name }))}
       />
+
+      {isFechado && (
+        <Select
+          label="Resultado"
+          placeholder="Ainda não decidido"
+          value={values.resultado ?? ""}
+          onChange={(e) => update("resultado", (e.target.value || null) as ProposalInput["resultado"])}
+          options={RESULTADO_OPTIONS}
+        />
+      )}
 
       {formError && <p className="text-sm text-temp-quente">{formError}</p>}
 
