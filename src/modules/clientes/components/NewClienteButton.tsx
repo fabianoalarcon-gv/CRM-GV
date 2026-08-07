@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { Modal } from "@/components/ui/Modal";
 import { createCliente } from "../actions";
 import { ClienteForm } from "./ClienteForm";
@@ -19,11 +20,12 @@ export function NewClienteButton() {
 
   return (
     <>
-      <Button type="button" onClick={() => setIsOpen(true)}>
-        + Novo cliente
+      <Button type="button" onClick={() => setIsOpen(true)} className="gap-1.5">
+        <Icon name="add_business" size={18} />
+        Nova Empresa
       </Button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Novo cliente" className="max-w-lg">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Nova empresa" className="max-w-lg">
         <ClienteForm
           initialValues={EMPTY_VALUES}
           submitLabel="Criar cliente"

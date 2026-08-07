@@ -7,6 +7,10 @@ export interface Cliente {
   created_at: string;
 }
 
+export interface ClienteListItem extends Cliente {
+  ultima_proposta: string | null;
+}
+
 export interface ClienteInput {
   nome: string;
   setor: string;

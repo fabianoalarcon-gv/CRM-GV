@@ -1,15 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Cliente, Contato, Interacao, PropostaResumo } from "./types";
+import type { Cliente, ClienteListItem, Contato, Interacao, PropostaResumo } from "./types";
 
-export async function getClientes(): Promise<Cliente[]> {
+export async function getClientes(): Promise<ClienteListItem[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("clientes")
-    .select("id, nome, setor, endereco, observacoes, created_at")
+    .select("id, nome, setor, endereco, observacoes, created_at, propostas(data_envio)")
     .order("nome");
 
   if (error) throw error;
-  return data;
+
+  return (data ?? []).map((c) => ({
+    id: c.id,
+    nome: c.nome,
+    setor: c.setor,
+    endereco: c.endereco,
+    observacoes: c.observacoes,
+    created_at: c.created_at,
+    ultima_proposta:
+      c.propostas.length > 0
+        ? c.propostas.reduce((max, p) => (p.data_envio > max ? p.data_envio : max), c.propostas[0].data_envio)
+        : null,
+  }));
 }
 
 export async function getClienteById(id: number): Promise<Cliente | null> {
