@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { ClienteInput, ContatoInput } from "./types";
+import type { ClienteInput, ContatoInput, InteracaoInput } from "./types";
 
 function toRow(input: ClienteInput) {
   return {
@@ -66,6 +66,27 @@ export async function addContato(clienteId: number, input: ContatoInput) {
     cargo: input.cargo.trim() || null,
     email: input.email.trim() || null,
     telefone: input.telefone.trim() || null,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/clientes/${clienteId}`);
+  return { error: null };
+}
+
+export async function addInteracao(clienteId: number, input: InteracaoInput) {
+  if (!input.descricao.trim()) return { error: "Descreva a interação." };
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { error } = await supabase.from("interacoes_cliente").insert({
+    cliente_id: clienteId,
+    autor_id: user?.id ?? null,
+    tipo: input.tipo || null,
+    descricao: input.descricao.trim(),
   });
 
   if (error) return { error: error.message };

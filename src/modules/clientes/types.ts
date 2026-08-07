@@ -30,3 +30,26 @@ export interface ContatoInput {
   email: string;
   telefone: string;
 }
+
+export interface PropostaResumo {
+  id: number;
+  numero_proposta: string;
+  data_envio: string;
+  valor: number;
+  termometro: "frio" | "morno" | "quente";
+  status_label: string;
+}
+
+export interface Interacao {
+  id: number;
+  cliente_id: number;
+  tipo: string | null;
+  descricao: string;
+  data_interacao: string;
+  autor_nome: string | null;
+}
+
+export interface InteracaoInput {
+  tipo: string;
+  descricao: string;
+}
