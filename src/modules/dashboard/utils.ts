@@ -71,6 +71,7 @@ export interface FunnelStage {
   status: StatusKey;
   label: string;
   count: number;
+  valor: number;
   pct: number;
 }
 
@@ -81,13 +82,14 @@ export interface FunnelStage {
 export function computeFunnelStages(statusAggregates: StatusAggregate[]): FunnelStage[] {
   const total = statusAggregates.reduce((sum, s) => sum + s.count, 0);
   return statusAggregates.map((stage, i) => {
-    const countAtOrLater = statusAggregates
-      .slice(i)
-      .reduce((sum, s) => sum + s.count, 0);
+    const atOrLater = statusAggregates.slice(i);
+    const countAtOrLater = atOrLater.reduce((sum, s) => sum + s.count, 0);
+    const valorAtOrLater = atOrLater.reduce((sum, s) => sum + s.valor, 0);
     return {
       status: stage.status,
       label: stage.label,
       count: countAtOrLater,
+      valor: valorAtOrLater,
       pct: total > 0 ? countAtOrLater / total : 0,
     };
   });

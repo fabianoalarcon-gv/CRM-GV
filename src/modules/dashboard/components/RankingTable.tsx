@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { formatCurrency } from "../utils";
+import { CardIcon } from "./CardIcon";
 import type { DashboardProposta } from "../types";
 
 function statusVariant(p: DashboardProposta): "info" | "success" | "danger" | "default" {
@@ -26,9 +27,12 @@ export function RankingTable({ propostas }: RankingTableProps) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 p-5">
-        <div>
-          <CardDescription>Ranking</CardDescription>
-          <CardTitle className="mt-1 font-display text-base">Propostas de maior valor</CardTitle>
+        <div className="flex items-center gap-3">
+          <CardIcon name="leaderboard" color="var(--color-temp-morno)" />
+          <div>
+            <CardDescription>Ranking</CardDescription>
+            <CardTitle className="mt-1 font-display text-base">Propostas de maior valor</CardTitle>
+          </div>
         </div>
 
         {propostas.length === 0 ? (

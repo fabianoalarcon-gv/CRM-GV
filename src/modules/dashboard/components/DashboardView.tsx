@@ -113,10 +113,32 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Valor total em propostas" value={formatCurrency(valorTotal)} accent />
-        <KpiCard label="Em andamento" value={formatCurrency(valorAndamento)} caption="Prospecção a Negociação" />
-        <KpiCard label="Aprovado" value={formatCurrency(valorAprovado)} />
-        <KpiCard label="Reprovado" value={formatCurrency(valorReprovado)} />
+        <KpiCard
+          label="Valor total em propostas"
+          value={formatCurrency(valorTotal)}
+          icon="payments"
+          color="var(--color-brand-accent)"
+          accent
+        />
+        <KpiCard
+          label="Em andamento"
+          value={formatCurrency(valorAndamento)}
+          caption="Prospecção a Negociação"
+          icon="hourglass_top"
+          color="var(--color-temp-frio)"
+        />
+        <KpiCard
+          label="Aprovado"
+          value={formatCurrency(valorAprovado)}
+          icon="check_circle"
+          color="var(--color-status-aprovado)"
+        />
+        <KpiCard
+          label="Reprovado"
+          value={formatCurrency(valorReprovado)}
+          icon="cancel"
+          color="var(--color-temp-quente)"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -124,11 +146,15 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
           label="Taxa de conversão"
           value={rates.taxaConversao !== null ? `${(rates.taxaConversao * 100).toFixed(0)}%` : "—"}
           caption="Aprovadas ÷ (aprovadas + reprovadas)"
+          icon="trending_up"
+          color="var(--color-status-aprovado)"
         />
         <KpiCard
           label="Taxa de reprovação"
           value={rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"}
           caption="Reprovadas ÷ (aprovadas + reprovadas)"
+          icon="trending_down"
+          color="var(--color-temp-quente)"
         />
         <KpiCard
           label="Previsão de receita"
@@ -138,6 +164,8 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
               ? `Aprovado + (em andamento × ${(forecast.taxaUsada * 100).toFixed(0)}% de conversão histórica)`
               : "Aprovado + 50% do valor em andamento (ainda sem propostas decididas para calcular a taxa real)"
           }
+          icon="insights"
+          color="var(--color-cal-embarque)"
         />
       </div>
 

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/Card";
 import { formatCompactCurrency, STATUS_COLORS, type StatusAggregate } from "../utils";
+import { CardIcon } from "./CardIcon";
 
 export interface StatusBarChartProps {
   aggregates: StatusAggregate[];
@@ -11,9 +12,12 @@ export function StatusBarChart({ aggregates }: StatusBarChartProps) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 p-5">
-        <div>
-          <CardDescription>Propostas por status</CardDescription>
-          <CardTitle className="mt-1 font-display text-base">Valor por etapa do pipeline</CardTitle>
+        <div className="flex items-center gap-3">
+          <CardIcon name="bar_chart" color="var(--color-brand-navy)" />
+          <div>
+            <CardDescription>Propostas por status</CardDescription>
+            <CardTitle className="mt-1 font-display text-base">Valor por etapa do pipeline</CardTitle>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3">
