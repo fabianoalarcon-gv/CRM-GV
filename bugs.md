@@ -12,6 +12,14 @@ _Nenhum bug em aberto no momento._
 
 ## Corrigidos
 
+- [x] **BUG-008** — `NEXT_PUBLIC_SUPABASE_URL` errada no ambiente Production do Vercel (com `/rest/v1` sobrando)
+  - **Onde**: Vercel → Settings → Environment Variables, `NEXT_PUBLIC_SUPABASE_URL` no escopo **Production** (não era código da aplicação)
+  - **Descrição**: depois de corrigir o BUG-005, o login voltou a funcionar no preview (`crm-gv-git-dev-...`) mas continuou falhando na URL de produção de verdade (`https://crm-gv.vercel.app/`), agora com a mensagem "Invalid path specified in request URL" em vez de "e-mail ou senha inválidos".
+  - **Causa raiz**: via DevTools > Network, a requisição de login estava indo para `https://xdcwsxbgedjzpmrbuegt.supabase.co/rest/v1/auth/v1/token` (nota o `/rest/v1` duplicado antes de `/auth/v1/token`) e caindo na API REST (PostgREST) em vez da API de Auth — retornando o erro do PostgREST `PGRST125` ("Invalid path specified in request URL"). A variável `NEXT_PUBLIC_SUPABASE_URL` no ambiente **Production** do Vercel estava configurada com `/rest/v1` no final, diferente do valor correto usado no ambiente Preview — cada ambiente tem suas próprias variáveis no Vercel, então só Production estava errado.
+  - **Como foi encontrado**: usuário inspecionou a requisição via DevTools > Network a pedido, e colou a Request URL/status/resposta.
+  - **Correção**: usuário corrigiu `NEXT_PUBLIC_SUPABASE_URL` no ambiente Production do Vercel para `https://xdcwsxbgedjzpmrbuegt.supabase.co` (sem `/rest/v1`, sem barra final) e refez o deploy. Login confirmado funcionando em produção.
+  - **Data**: 2026-08-07
+
 - [x] **BUG-005** — Login via Supabase Auth falhava em produção (Vercel), mas funcionava localmente e direto contra a API
   - **Onde**: Configuração do projeto Supabase (Authentication > URL Configuration), não era código da aplicação
   - **Descrição**: no deploy do Vercel, o login com credenciais válidas sempre retornava "e-mail ou senha inválidos". As mesmas credenciais funcionavam via `curl` direto na API e localmente via `npm run dev`. Env vars já haviam sido conferidas como corretas em Production e Preview no Vercel.
