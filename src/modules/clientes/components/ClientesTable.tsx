@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
@@ -13,6 +14,7 @@ export interface ClientesTableProps {
 }
 
 export function ClientesTable({ clientes }: ClientesTableProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [setor, setSetor] = useState("");
 
@@ -66,7 +68,11 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
             </TableRow>
           )}
           {filtered.map((cliente) => (
-            <TableRow key={cliente.id}>
+            <TableRow
+              key={cliente.id}
+              className="cursor-pointer"
+              onClick={() => router.push(`/clientes/${cliente.id}`)}
+            >
               <TableCell className="font-medium">{cliente.nome}</TableCell>
               <TableCell>{cliente.setor ?? "—"}</TableCell>
               <TableCell>{cliente.endereco ?? "—"}</TableCell>
