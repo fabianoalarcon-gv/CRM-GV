@@ -17,6 +17,13 @@
 
 ## Corrigidos
 
+- [x] **BUG-006** — Funções do banco com falhas de segurança apontadas pelo `supabase db advisors`
+  - **Onde**: `supabase/migrations/20260807010654_profiles.sql` (funções `set_updated_at` e `handle_new_user`)
+  - **Descrição**: (1) `set_updated_at` foi criada sem `set search_path = ''`, deixando o `search_path` mutável (risco de sequestro de função via schema malicioso); (2) `handle_new_user` (SECURITY DEFINER, criadora do `profile` no signup) ficou com `EXECUTE` liberado por padrão para `anon`/`authenticated`, exposta como RPC pública em `/rest/v1/rpc/handle_new_user`.
+  - **Como foi encontrado**: `supabase db advisors --linked --type security`, logo após aplicar as migrations do DB-01 a DB-08.
+  - **Correção**: migration `20260807011534_fix_function_security.sql` — adiciona `search_path = ''` em `set_updated_at` e revoga `EXECUTE` de `handle_new_user` para `public/anon/authenticated`. Validado que o trigger de auto-criação de perfil continua funcionando (criação de usuário descartável + verificação + remoção).
+  - **Data**: 2026-08-07
+
 - [x] **BUG-004** — Botão `primary` quase invisível no modo escuro
   - **Onde**: `src/components/ui/Button.tsx` (variante `primary`)
   - **Descrição**: o botão primário usa fundo navy (`bg-brand-navy`), a mesma família de cor do fundo/superfícies no modo escuro — o botão "Entrar" da tela de login praticamente desaparecia contra o painel escuro.

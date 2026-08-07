@@ -26,16 +26,16 @@
 
 `[depende de: PREP-04, PREP-05, PREP-06]`
 
-- [ ] DB-01 | Modelar tabela Usuários e tabela de Perfis/Roles (Admin, Comercial + reservar Operações/Financeiro)
-- [ ] DB-02 | Modelar tabela Clientes/Empresas (nome, setor, contatos, endereço, observações)
-- [ ] DB-03 | Modelar tabela Propostas (todos os campos da planilha: nº proposta, data, valor, status, termômetro, tipo, descrição, observações)
-- [ ] DB-04 | Modelar tabela Histórico de Interações (vinculada a Clientes)
-- [ ] DB-05 | Modelar tabela Compromissos (vinculada a Usuários, para o Calendário)
-- [ ] DB-06 | Definir e criar chaves estrangeiras: Propostas↔Clientes, Propostas↔Usuários, Interações↔Clientes, Compromissos↔Usuários
-- [ ] DB-07 | Escrever migrations SQL de todas as tabelas acima
-- [ ] DB-08 | Configurar Row Level Security (RLS) por perfil de usuário em cada tabela
-- [ ] DB-09 | Criar script de seed com dados fictícios (setores: Automotivo, Offshore, Químico, Siderúrgico etc.)
-- [ ] DB-10 | Validar integridade referencial rodando queries de teste (joins entre as tabelas)
+- [x] DB-01 | Modelar tabela Usuários e tabela de Perfis/Roles (Admin, Comercial + reservar Operações/Financeiro) — tabela `profiles` (1-para-1 com `auth.users`), roles admin/comercial/operacoes/financeiro
+- [x] DB-02 | Modelar tabela Clientes/Empresas (nome, setor, contatos, endereço, observações) — `clientes` + `contatos_cliente` (1 cliente : N contatos)
+- [x] DB-03 | Modelar tabela Propostas (todos os campos da planilha: nº proposta, data, valor, status, termômetro, tipo, descrição, observações) — `propostas` + `propostas_historico` (log de observações do PIPE-12); status vira tabela `proposal_statuses` (não enum fixo) para suportar PIPE-13
+- [x] DB-04 | Modelar tabela Histórico de Interações (vinculada a Clientes) — `interacoes_cliente`
+- [x] DB-05 | Modelar tabela Compromissos (vinculada a Usuários, para o Calendário) — `compromissos`
+- [x] DB-06 | Definir e criar chaves estrangeiras: Propostas↔Clientes, Propostas↔Usuários, Interações↔Clientes, Compromissos↔Usuários — todas integradas nas migrations acima
+- [x] DB-07 | Escrever migrations SQL de todas as tabelas acima — `supabase/migrations/2026080701*.sql`, aplicadas via `supabase db push --linked`
+- [x] DB-08 | Configurar Row Level Security (RLS) por perfil de usuário em cada tabela — RLS ativo em todas as 8 tabelas; `private.is_admin()` como helper; validado via `supabase db advisors` (2 achados corrigidos) e via REST API (anon bloqueado, authenticated liberado)
+- [x] DB-09 | Criar script de seed com dados fictícios (setores: Automotivo, Offshore, Químico, Siderúrgico etc.) — `supabase/seed.sql`, 5 clientes/10 propostas/3 interações/3 compromissos
+- [x] DB-10 | Validar integridade referencial rodando queries de teste (joins entre as tabelas) — join de 4 tabelas e agregação por status testados no banco remoto
 
 ---
 
@@ -43,15 +43,15 @@
 
 `[depende de: DB-01, DB-08]`
 
-> Nota: AUTH-01/02/04 foram adiantados fora de ordem (2026-08-06), a pedido do usuário, usando só o Auth nativo do Supabase (tabela `auth.users`), que não depende do nosso schema. A parte de RBAC por perfil (AUTH-05 e o resto de AUTH-04) continua bloqueada por DB-01.
+> Nota: AUTH-01/02/04 foram adiantados fora de ordem (2026-08-06), a pedido do usuário, usando só o Auth nativo do Supabase (tabela `auth.users`), que não depende do nosso schema. A tabela de Perfis/Roles (DB-01) já existe agora — AUTH-05 e a parte de RBAC do AUTH-04 estão desbloqueadas, mas ainda não implementadas.
 >
 > ⚠️ **BUG-005 (aberto)**: o login real via Supabase Auth funciona localmente mas falha em produção (Vercel) por motivo ainda não identificado. Há um **bypass temporário** ativo (`src/lib/dev-bypass.ts`, credencial fixa `teste@logihub.dev`) para não bloquear o desenvolvimento — precisa ser removido depois que o BUG-005 for corrigido. Ver detalhes em `bugs.md`.
 
 - [x] AUTH-01 | Configurar Supabase Auth com login por e-mail/senha
 - [x] AUTH-02 | Construir tela de Login
 - [ ] AUTH-03 | Construir tela de recuperação de senha
-- [x] AUTH-04 | Implementar middleware/guard de proteção de rotas autenticadas — guarda básica (logado/deslogado) em `src/lib/supabase/middleware.ts`; falta a parte de RBAC por perfil, que depende de DB-01
-- [ ] AUTH-05 | Implementar lógica de RBAC no frontend (mostrar/ocultar ações por perfil) — depende da tabela de Perfis/Roles (DB-01)
+- [x] AUTH-04 | Implementar middleware/guard de proteção de rotas autenticadas — guarda básica (logado/deslogado) em `src/lib/supabase/middleware.ts`; falta a parte de RBAC por perfil (agora desbloqueada, DB-01 existe)
+- [ ] AUTH-05 | Implementar lógica de RBAC no frontend (mostrar/ocultar ações por perfil) — tabela `profiles`/roles já existe (DB-01), falta consumir no frontend
 - [ ] AUTH-06 | Construir tela de gestão de usuários (Admin cria, edita, desativa usuários e define perfil)
 - [ ] AUTH-07 | Testar fluxo completo de login/logout/recuperação de senha — login testado ponta a ponta (Puppeteer); falta UI de logout e AUTH-03 (recuperação de senha) para fechar este item
 
@@ -217,3 +217,4 @@
 - **2026-08-06**: Instaladas 3 skills (`frontend-design`, `webapp-testing`, `supabase-postgres-best-practices`) via `npx skills add`, documentadas em `skills.md`.
 - **2026-08-06**: Redesign visual (a pedido do usuário, achando o design "fraco/genérico") usando a skill `frontend-design`: adicionada fonte de destaque Space Grotesk (`--font-display`), token de cor `--brand-route` e elemento assinatura `RouteLine` (linha de rota pontilhada com waypoints, ecoando o ícone de circuito do logo) usado no Dashboard conectando os KPIs e na tela de Login. Sidebar ganhou indicador de item ativo com barra lateral em vez de preenchimento total. Criada a tela de Login (`src/app/login`, split-screen navy+branco) com Supabase Auth, e guarda de rota básica no proxy (`src/lib/supabase/middleware.ts`): sem sessão → redireciona para `/login`; logado em `/login` → redireciona para `/` (AUTH-01/02/04 adiantados fora de ordem, ver nota na seção AUTH). Criado usuário de teste via Admin API (`scripts/create-test-user.mjs`, credenciais comunicadas fora deste arquivo). Testado com Puppeteer (instalado só no scratchpad, fora do repo): fluxo de login ponta a ponta, contraste em light/dark, mobile — encontrados e corrigidos BUG-003 (crash inofensivo do Node/libuv no Windows) e BUG-004 (botão primário ilegível no dark mode).
 - **2026-08-06**: Login funcionando no Vercel travado (BUG-005, aberto) — adicionado bypass temporário com credencial fixa para não bloquear o desenvolvimento (ver nota na seção AUTH e `bugs.md`). Depois, a pedido do usuário: tema escuro automático (baseado no SO) foi desativado — `dark:` virou variante de classe (`@custom-variant dark`), nunca ativada, então header/conteúdo principal ficam sempre claros independente do tema do sistema operacional; `Sidebar`/`AppShell` passaram a usar navy fixo (não mais `dark:`) para o menu lateral e o painel de marca do login continuarem sempre escuros. Adicionado recolhimento do menu lateral (`AppShell` com estado `isCollapsed`, persistido em `localStorage`): retraído mostra só os ícones (com `title` para acessibilidade), botão de alternância fixo no rodapé da sidebar. Validado com Puppeteer forçando `prefers-color-scheme: dark` do SO para confirmar que a UI não muda mais.
+- **2026-08-07**: Modelagem completa do banco (DB-01 a DB-10), usando a skill `supabase-postgres-best-practices` como guia. 8 tabelas em `public`: `profiles` (RBAC, 1-para-1 com `auth.users`, com trigger de auto-criação no signup + backfill do usuário de teste), `proposal_statuses` (colunas do Kanban como tabela, não enum, pensando no PIPE-13), `clientes` + `contatos_cliente`, `propostas` + `propostas_historico` (log do PIPE-12), `interacoes_cliente`, `compromissos`. RLS ativo em todas as tabelas (`private.is_admin()` como helper reutilizável) — Admin e Comercial leem/criam/editam tudo, só Admin remove; validado com `supabase db advisors` (2 achados de segurança corrigidos: `search_path` mutável e `handle_new_user` exposta como RPC pública) e via REST API direta (anon bloqueado, authenticated liberado). Migrations em `supabase/migrations/`, aplicadas com `supabase db push --linked` (não precisa da senha do Postgres, só do login já feito da CLI). Seed fictício em `supabase/seed.sql` (5 clientes, 10 propostas, 3 interações, 3 compromissos, setores Automotivo/Offshore/Químico/Siderúrgico). Integridade validada com joins de 4 tabelas e uma agregação por status (bate com os totais esperados).
