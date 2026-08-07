@@ -3,18 +3,11 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
+import { Icon } from "@/components/ui/Icon";
 import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/cn";
 
 const COLLAPSE_STORAGE_KEY = "logihub_sidebar_collapsed";
-
-function CollapseIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} {...props}>
-      <path d="M15 6l-6 6 6 6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -43,22 +36,40 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex flex-1">
         <aside
           className={cn(
-            "hidden shrink-0 flex-col bg-brand-navy transition-[width] duration-200 lg:flex",
+            "hidden shrink-0 flex-col border-r border-border bg-surface transition-[width] duration-200 lg:flex",
             isCollapsed ? "w-16" : "w-64",
           )}
         >
+          <div
+            className={cn(
+              "flex h-16 shrink-0 items-center border-b border-border",
+              isCollapsed ? "justify-center px-2" : "px-4",
+            )}
+          >
+            {isCollapsed ? (
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-accent text-sm font-bold text-white">
+                L
+              </span>
+            ) : (
+              <Logo height={24} />
+            )}
+          </div>
+
           <Sidebar collapsed={isCollapsed} className="flex-1" />
+
           <button
             type="button"
             onClick={toggleCollapsed}
             aria-label={isCollapsed ? "Expandir menu" : "Retrair menu"}
             className={cn(
-              "flex items-center gap-2 border-t border-white/10 py-3 text-sm font-medium text-white/50 transition-colors hover:bg-white/5 hover:text-white/90",
+              "flex items-center gap-2 border-t border-border py-3 text-sm font-medium text-brand-graphite-light transition-colors hover:bg-black/[.03] hover:text-foreground",
               isCollapsed ? "justify-center px-2" : "px-4",
             )}
           >
-            <CollapseIcon
-              className={cn("h-4 w-4 shrink-0 transition-transform", isCollapsed && "rotate-180")}
+            <Icon
+              name="left_panel_close"
+              className={cn("shrink-0 transition-transform", isCollapsed && "rotate-180")}
+              size={18}
             />
             {!isCollapsed && "Retrair menu"}
           </button>
@@ -71,24 +82,16 @@ export function AppShell({ children }: { children: ReactNode }) {
               className="absolute inset-0 bg-black/50"
               onClick={() => setIsMobileNavOpen(false)}
             />
-            <div className="relative z-50 flex h-full w-64 flex-col bg-brand-navy">
-              <div className="flex h-16 items-center justify-between border-b border-white/10 px-4">
-                <Logo height={24} className="!bg-white rounded-md px-2 py-1" />
+            <div className="relative z-50 flex h-full w-64 flex-col bg-surface">
+              <div className="flex h-16 items-center justify-between border-b border-border px-4">
+                <Logo height={24} />
                 <button
                   type="button"
                   onClick={() => setIsMobileNavOpen(false)}
                   aria-label="Fechar menu de navegação"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-white/60 hover:bg-white/5 hover:text-white/90"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-brand-graphite-light hover:bg-black/[.03] hover:text-foreground"
                 >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    className="h-5 w-5"
-                  >
-                    <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-                  </svg>
+                  <Icon name="close" />
                 </button>
               </div>
               <Sidebar onNavigate={() => setIsMobileNavOpen(false)} />

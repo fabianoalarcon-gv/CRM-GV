@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import type { ClienteOption, CompromissoInput } from "../types";
+import { TIPO_OPTIONS } from "../utils";
 
 export interface CompromissoFormProps {
   initialValues: CompromissoInput;
@@ -73,13 +74,21 @@ export function CompromissoForm({
         />
       </div>
 
-      <Select
-        label="Cliente"
-        placeholder="Sem cliente vinculado"
-        value={values.cliente_id ? String(values.cliente_id) : ""}
-        onChange={(e) => update("cliente_id", e.target.value ? Number(e.target.value) : null)}
-        options={clientes.map((c) => ({ value: String(c.id), label: c.nome }))}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Select
+          label="Categoria"
+          value={values.tipo}
+          onChange={(e) => update("tipo", e.target.value as CompromissoInput["tipo"])}
+          options={TIPO_OPTIONS}
+        />
+        <Select
+          label="Cliente"
+          placeholder="Sem cliente vinculado"
+          value={values.cliente_id ? String(values.cliente_id) : ""}
+          onChange={(e) => update("cliente_id", e.target.value ? Number(e.target.value) : null)}
+          options={clientes.map((c) => ({ value: String(c.id), label: c.nome }))}
+        />
+      </div>
 
       <Textarea
         label="Descrição"

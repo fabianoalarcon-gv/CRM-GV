@@ -64,6 +64,7 @@ export type Database = {
           fim: string | null
           id: number
           inicio: string
+          tipo: string | null
           titulo: string
           updated_at: string
         }
@@ -75,6 +76,7 @@ export type Database = {
           fim?: string | null
           id?: never
           inicio: string
+          tipo?: string | null
           titulo: string
           updated_at?: string
         }
@@ -86,6 +88,7 @@ export type Database = {
           fim?: string | null
           id?: never
           inicio?: string
+          tipo?: string | null
           titulo?: string
           updated_at?: string
         }

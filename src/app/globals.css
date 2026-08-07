@@ -41,6 +41,12 @@
   /* Status de proposta no Dashboard (DASH-04/08): reaproveita frio/quente do
      Termômetro para em_analise/reprovado; aprovado ganha um verde próprio. */
   --status-aprovado: #22c55e;
+
+  /* Categorias de compromisso no Calendário (CAL): reaproveita brand-accent
+     (fretes) e temp-quente (urgente); reunião/embarque ganham cor própria.
+     Paleta validada com a skill dataviz (validate_palette.js). */
+  --cal-reuniao: #4c5fa8;
+  --cal-embarque: #0891b2;
 }
 
 @theme inline {
@@ -62,6 +68,9 @@
   --color-temp-quente: var(--temp-quente);
 
   --color-status-aprovado: var(--status-aprovado);
+
+  --color-cal-reuniao: var(--cal-reuniao);
+  --color-cal-embarque: var(--cal-embarque);
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);

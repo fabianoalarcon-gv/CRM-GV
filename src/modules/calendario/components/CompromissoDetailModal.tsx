@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { deleteCompromisso, updateCompromisso } from "../actions";
-import { toDatetimeLocalValue } from "../utils";
+import { TIPO_COLOR, TIPO_LABEL, toDatetimeLocalValue } from "../utils";
 import { CompromissoForm } from "./CompromissoForm";
 import type { ClienteOption, Compromisso } from "../types";
 
@@ -66,6 +66,7 @@ export function CompromissoDetailModal({
             descricao: compromisso.descricao ?? "",
             inicio: toDatetimeLocalValue(new Date(compromisso.inicio)),
             fim: compromisso.fim ? toDatetimeLocalValue(new Date(compromisso.fim)) : "",
+            tipo: compromisso.tipo ?? "outro",
             cliente_id: compromisso.cliente_id,
           }}
           submitLabel="Salvar alterações"
@@ -80,6 +81,23 @@ export function CompromissoDetailModal({
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={compromisso.titulo} className="max-w-lg">
       <div className="flex flex-col gap-4">
+        {compromisso.tipo && (
+          <span
+            className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
+            style={{
+              backgroundColor: `color-mix(in srgb, ${TIPO_COLOR[compromisso.tipo]} 15%, transparent)`,
+              color: TIPO_COLOR[compromisso.tipo],
+            }}
+          >
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: TIPO_COLOR[compromisso.tipo] }}
+            />
+            {TIPO_LABEL[compromisso.tipo]}
+          </span>
+        )}
+
         <div>
           <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
             Início

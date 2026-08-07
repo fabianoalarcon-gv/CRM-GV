@@ -1,12 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import type { ClienteOption, Compromisso } from "./types";
+import type { ClienteOption, Compromisso, CompromissoTipo } from "./types";
 
 export async function getCompromissos(): Promise<Compromisso[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("compromissos")
     .select(
-      "id, titulo, descricao, inicio, fim, cliente_id, clientes(nome), criado_por:profiles(full_name)",
+      "id, titulo, descricao, inicio, fim, tipo, cliente_id, clientes(nome), criado_por:profiles(full_name)",
     )
     .order("inicio");
 
@@ -18,6 +18,7 @@ export async function getCompromissos(): Promise<Compromisso[]> {
     descricao: c.descricao,
     inicio: c.inicio,
     fim: c.fim,
+    tipo: c.tipo as CompromissoTipo | null,
     cliente_id: c.cliente_id,
     cliente_nome: c.clientes?.nome ?? null,
     criado_por_nome: c.criado_por?.full_name ?? null,
