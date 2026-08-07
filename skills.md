@@ -12,6 +12,10 @@ Skills ficam em `.agents/skills/<nome>` (fonte universal) com um symlink em `.cl
   - **Por quê**: orienta decisões de design visual (paleta, tipografia, layout) para não cair em UI genérica de IA. Útil conforme avançarmos nos módulos com telas reais (Pipeline, Clientes, Dashboard, Calendário) além do design system provisório do PREP.
   - **Instalado em**: 2026-08-06
 
+- [x] **webapp-testing** — `anthropics/skills`
+  - **Por quê**: toolkit com Playwright para testar a aplicação local (screenshots, logs do navegador, verificação de funcionalidade). Substitui a abordagem manual com Chrome headless usada para validar o layout no PREP-13; será útil para testar os módulos PIPE/CLI/DASH/CAL conforme forem implementados.
+  - **Instalado em**: 2026-08-06
+
 ---
 
 ## Como instalar uma nova skill
