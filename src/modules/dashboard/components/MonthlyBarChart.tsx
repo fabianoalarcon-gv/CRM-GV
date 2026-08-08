@@ -34,7 +34,7 @@ export function MonthlyBarChart({ monthly }: MonthlyBarChartProps) {
 
   return (
     <Card>
-      <CardContent className="flex flex-col gap-4 p-5">
+      <CardContent className="flex flex-col gap-4 px-5 pt-6 pb-5">
         <Header />
 
         <div className="flex h-48 items-end justify-around gap-3 border-b border-border pb-0">
