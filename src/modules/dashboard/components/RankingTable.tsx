@@ -26,7 +26,7 @@ export interface RankingTableProps {
 export function RankingTable({ propostas }: RankingTableProps) {
   return (
     <Card>
-      <CardContent className="flex flex-col gap-4 p-5">
+      <CardContent className="flex flex-col gap-4 px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
           <CardIcon name="leaderboard" color="var(--color-temp-morno)" />
           <div>

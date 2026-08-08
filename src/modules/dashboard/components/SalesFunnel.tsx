@@ -12,7 +12,7 @@ export function SalesFunnel({ stages }: SalesFunnelProps) {
 
   return (
     <Card>
-      <CardContent className="flex flex-col gap-4 p-5">
+      <CardContent className="flex flex-col gap-4 px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
           <CardIcon name="filter_alt" color="var(--color-brand-accent)" />
           <div>

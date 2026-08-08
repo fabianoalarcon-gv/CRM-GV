@@ -22,7 +22,7 @@ export function MonthlyBarChart({ monthly }: MonthlyBarChartProps) {
   if (monthly.length === 0) {
     return (
       <Card>
-        <CardContent className="flex flex-col gap-4 p-5">
+        <CardContent className="flex flex-col gap-4 px-5 pt-6 pb-5">
           <Header />
           <p className="text-sm text-brand-graphite-light">Nenhuma proposta no período selecionado.</p>
         </CardContent>
