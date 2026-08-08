@@ -8,17 +8,6 @@ export const STATUS_ORDER: StatusKey[] = [
   "fechado",
 ];
 
-// Estágios do funil = dado ordenado (magnitude ao longo do progresso), então a
-// cor segue a regra "sequencial": um hue só, mais escuro = mais perto do
-// fechamento. Reaproveita o laranja de marca em vez de introduzir uma paleta nova.
-export const STATUS_COLORS: Record<StatusKey, string> = {
-  prospeccao: "color-mix(in srgb, var(--color-brand-accent) 30%, white)",
-  qualificacao: "color-mix(in srgb, var(--color-brand-accent) 50%, white)",
-  proposta: "color-mix(in srgb, var(--color-brand-accent) 70%, white)",
-  negociacao: "color-mix(in srgb, var(--color-brand-accent) 90%, white)",
-  fechado: "var(--color-brand-accent-dark)",
-};
-
 const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 export function formatCurrency(value: number): string {

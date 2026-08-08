@@ -17,7 +17,6 @@ import { KpiCard } from "./KpiCard";
 import { MonthlyBarChart } from "./MonthlyBarChart";
 import { RankingTable } from "./RankingTable";
 import { SalesFunnel } from "./SalesFunnel";
-import { StatusBarChart } from "./StatusBarChart";
 import type { DashboardFilters, DashboardProposta, StatusKey } from "../types";
 
 const TIPO_SERVICO_OPTIONS = [
@@ -170,11 +169,9 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <StatusBarChart aggregates={statusAggregates} />
+        <MonthlyBarChart monthly={monthly} />
         <SalesFunnel stages={funnelStages} />
       </div>
-
-      <MonthlyBarChart monthly={monthly} />
 
       <RankingTable propostas={ranking} />
     </div>
