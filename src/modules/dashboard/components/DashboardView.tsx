@@ -59,7 +59,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-6">
         <div>
           <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">
             Visão geral
@@ -71,45 +71,45 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
             Acompanhamento do pipeline de propostas da Granvale Logística.
           </p>
         </div>
-      </div>
 
-      <div className="flex flex-wrap items-end gap-3">
-        <Input
-          label="De"
-          type="date"
-          value={filters.dataInicio}
-          onChange={(e) => setFilters((prev) => ({ ...prev, dataInicio: e.target.value }))}
-          className="w-40"
-        />
-        <Input
-          label="Até"
-          type="date"
-          value={filters.dataFim}
-          onChange={(e) => setFilters((prev) => ({ ...prev, dataFim: e.target.value }))}
-          className="w-40"
-        />
-        <Select
-          label="Tipo de serviço"
-          placeholder="Todos os tipos"
-          value={filters.tipoServico}
-          onChange={(e) =>
-            setFilters((prev) => ({
-              ...prev,
-              tipoServico: e.target.value as DashboardFilters["tipoServico"],
-            }))
-          }
-          options={TIPO_SERVICO_OPTIONS}
-          className="w-40"
-        />
-        {(filters.dataInicio || filters.dataFim || filters.tipoServico) && (
-          <button
-            type="button"
-            onClick={() => setFilters(EMPTY_FILTERS)}
-            className="h-10 text-sm text-brand-graphite-light hover:text-brand-accent"
-          >
-            Limpar filtros
-          </button>
-        )}
+        <div className="flex flex-wrap items-end gap-3">
+          <Input
+            label="De"
+            type="date"
+            value={filters.dataInicio}
+            onChange={(e) => setFilters((prev) => ({ ...prev, dataInicio: e.target.value }))}
+            className="w-40"
+          />
+          <Input
+            label="Até"
+            type="date"
+            value={filters.dataFim}
+            onChange={(e) => setFilters((prev) => ({ ...prev, dataFim: e.target.value }))}
+            className="w-40"
+          />
+          <Select
+            label="Tipo de serviço"
+            placeholder="Todos os tipos"
+            value={filters.tipoServico}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                tipoServico: e.target.value as DashboardFilters["tipoServico"],
+              }))
+            }
+            options={TIPO_SERVICO_OPTIONS}
+            className="w-40"
+          />
+          {(filters.dataInicio || filters.dataFim || filters.tipoServico) && (
+            <button
+              type="button"
+              onClick={() => setFilters(EMPTY_FILTERS)}
+              className="h-10 text-sm text-brand-graphite-light hover:text-brand-accent"
+            >
+              Limpar filtros
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
