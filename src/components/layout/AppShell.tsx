@@ -4,7 +4,6 @@ import { ReactNode, useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Sidebar } from "./Sidebar";
 import { Icon } from "@/components/ui/Icon";
-import { Logo } from "@/components/brand/Logo";
 import { cn } from "@/lib/cn";
 
 const COLLAPSE_STORAGE_KEY = "logihub_sidebar_collapsed";
@@ -40,22 +39,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             isCollapsed ? "w-16" : "w-64",
           )}
         >
-          <div
-            className={cn(
-              "flex h-16 shrink-0 items-center border-b border-border",
-              isCollapsed ? "justify-center px-2" : "px-4",
-            )}
-          >
-            {isCollapsed ? (
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-accent text-sm font-bold text-white">
-                L
-              </span>
-            ) : (
-              <Logo height={24} />
-            )}
-          </div>
-
-          <Sidebar collapsed={isCollapsed} className="flex-1" />
+          <Sidebar collapsed={isCollapsed} className="flex-1 pt-4" />
 
           <button
             type="button"
@@ -83,8 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClick={() => setIsMobileNavOpen(false)}
             />
             <div className="relative z-50 flex h-full w-64 flex-col bg-surface">
-              <div className="flex h-16 items-center justify-between border-b border-border px-4">
-                <Logo height={24} />
+              <div className="flex h-16 shrink-0 items-center justify-end border-b border-border px-4">
                 <button
                   type="button"
                   onClick={() => setIsMobileNavOpen(false)}
@@ -94,7 +77,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Icon name="close" />
                 </button>
               </div>
-              <Sidebar onNavigate={() => setIsMobileNavOpen(false)} />
+              <Sidebar onNavigate={() => setIsMobileNavOpen(false)} className="pt-4" />
             </div>
           </div>
         )}

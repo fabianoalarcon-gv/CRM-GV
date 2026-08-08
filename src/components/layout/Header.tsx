@@ -38,7 +38,7 @@ export function Header({ onMenuClick }: HeaderProps) {
         >
           <Icon name="menu" />
         </button>
-        <Link href="/" className="flex items-center lg:hidden">
+        <Link href="/" className="flex items-center">
           <Logo height={28} />
         </Link>
       </div>
