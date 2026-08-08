@@ -29,33 +29,30 @@ export function AppShell({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
       <Header onMenuClick={() => setIsMobileNavOpen(true)} />
 
-      <div className="flex flex-1">
+      <div className="flex min-h-0 flex-1">
         <aside
           className={cn(
-            "hidden shrink-0 flex-col border-r border-border bg-surface transition-[width] duration-200 lg:flex",
-            isCollapsed ? "w-16" : "w-64",
+            "hidden shrink-0 flex-col overflow-hidden border-r border-border bg-surface transition-[width] duration-200 lg:flex",
+            isCollapsed ? "w-16" : "w-56",
           )}
         >
-          <Sidebar collapsed={isCollapsed} className="flex-1 pt-4" />
+          <Sidebar collapsed={isCollapsed} className="min-h-0 flex-1 overflow-y-auto pt-4" />
 
           <button
             type="button"
             onClick={toggleCollapsed}
+            title={isCollapsed ? "Expandir menu" : "Retrair menu"}
             aria-label={isCollapsed ? "Expandir menu" : "Retrair menu"}
-            className={cn(
-              "flex items-center gap-2 border-t border-border py-3 text-sm font-medium text-brand-graphite-light transition-colors hover:bg-black/[.03] hover:text-foreground",
-              isCollapsed ? "justify-center px-2" : "px-4",
-            )}
+            className="flex shrink-0 items-center justify-center gap-2 border-t border-border py-3 text-brand-graphite-light transition-colors hover:bg-black/[.03] hover:text-foreground"
           >
             <Icon
               name="left_panel_close"
               className={cn("shrink-0 transition-transform", isCollapsed && "rotate-180")}
               size={18}
             />
-            {!isCollapsed && "Retrair menu"}
           </button>
         </aside>
 
@@ -77,12 +74,17 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <Icon name="close" />
                 </button>
               </div>
-              <Sidebar onNavigate={() => setIsMobileNavOpen(false)} className="pt-4" />
+              <Sidebar
+                onNavigate={() => setIsMobileNavOpen(false)}
+                className="min-h-0 flex-1 overflow-y-auto pt-4"
+              />
             </div>
           </div>
         )}
 
-        <main className="flex-1 bg-background p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="min-w-0 flex-1 overflow-auto bg-background p-4 sm:p-6 lg:p-8">
+          {children}
+        </main>
       </div>
     </div>
   );
