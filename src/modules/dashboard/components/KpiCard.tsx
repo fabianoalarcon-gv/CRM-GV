@@ -15,9 +15,9 @@ export interface KpiCardProps {
 export function KpiCard({ label, value, caption, accent, icon, color, valueClassName }: KpiCardProps) {
   return (
     <Card className={cn("h-full", accent && "border-brand-accent/30 bg-brand-accent/5")}>
-      <CardContent className="flex h-full items-center gap-3 p-4">
+      <CardContent className="flex h-full items-center justify-center gap-3 p-4">
         <CardIcon name={icon} color={color} />
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0">
           <CardDescription>{label}</CardDescription>
           <CardTitle
             className={cn(
