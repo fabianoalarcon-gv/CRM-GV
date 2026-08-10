@@ -3,16 +3,15 @@
 import { useState, useTransition } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { Column } from "./Column";
-import { usePipelineData } from "../context";
 import { updateProposalStatus } from "../actions";
-import type { Proposta } from "../types";
+import type { ProposalStatus, Proposta } from "../types";
 
 export interface BoardProps {
   initialPropostas: Proposta[];
+  columnStatuses: ProposalStatus[];
 }
 
-export function Board({ initialPropostas }: BoardProps) {
-  const { statuses } = usePipelineData();
+export function Board({ initialPropostas, columnStatuses }: BoardProps) {
   const [propostas, setPropostas] = useState(initialPropostas);
   const [, startTransition] = useTransition();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
@@ -44,7 +43,7 @@ export function Board({ initialPropostas }: BoardProps) {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="flex flex-1 items-start gap-4 overflow-x-auto pb-4">
-        {statuses.map((status) => (
+        {columnStatuses.map((status) => (
           <Column
             key={status.id}
             status={status}

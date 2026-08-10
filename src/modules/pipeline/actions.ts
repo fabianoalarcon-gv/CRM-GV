@@ -17,6 +17,7 @@ export async function updateProposalStatus(proposalId: number, statusId: number)
   }
 
   revalidatePath("/pipeline");
+  revalidatePath("/leads");
   return { error: null };
 }
 
@@ -30,6 +31,7 @@ export async function updateProposalResultado(proposalId: number, resultado: Res
   if (error) return { error: error.message };
 
   revalidatePath("/pipeline");
+  revalidatePath("/leads");
   return { error: null };
 }
 
@@ -71,6 +73,7 @@ export async function createProposal(input: ProposalInput) {
   if (error) return { error: friendlyError(error) };
 
   revalidatePath("/pipeline");
+  revalidatePath("/leads");
   return { error: null };
 }
 
@@ -85,6 +88,7 @@ export async function updateProposal(proposalId: number, input: ProposalInput) {
   if (error) return { error: friendlyError(error) };
 
   revalidatePath("/pipeline");
+  revalidatePath("/leads");
   return { error: null };
 }
 
@@ -95,6 +99,7 @@ export async function deleteProposal(proposalId: number) {
   if (error) return { error: error.message };
 
   revalidatePath("/pipeline");
+  revalidatePath("/leads");
   return { error: null };
 }
 
@@ -114,5 +119,6 @@ export async function addProposalHistoryEntry(proposalId: number, texto: string)
   if (error) return { error: error.message };
 
   revalidatePath("/pipeline");
+  revalidatePath("/leads");
   return { error: null };
 }

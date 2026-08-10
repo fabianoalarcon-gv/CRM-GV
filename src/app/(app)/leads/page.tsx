@@ -10,9 +10,9 @@ import {
   getPropostas,
   getProximosCompromissos,
 } from "@/modules/pipeline/queries";
-import { PIPELINE_STATUS_KEYS } from "@/modules/pipeline/types";
+import { LEADS_STATUS_KEYS } from "@/modules/pipeline/types";
 
-export default async function PipelinePage() {
+export default async function LeadsPage() {
   const [statuses, propostas, clientes, profiles, history, contatosPrincipais, proximosCompromissos] =
     await Promise.all([
       getProposalStatuses(),
@@ -25,7 +25,7 @@ export default async function PipelinePage() {
     ]);
 
   const columnStatuses = statuses.filter((s) =>
-    (PIPELINE_STATUS_KEYS as readonly string[]).includes(s.key),
+    (LEADS_STATUS_KEYS as readonly string[]).includes(s.key),
   );
 
   return (
@@ -39,10 +39,10 @@ export default async function PipelinePage() {
               Comercial
             </p>
             <h1 className="mt-1 font-display text-2xl font-semibold text-foreground sm:text-3xl">
-              Pipeline
+              Leads
             </h1>
             <p className="mt-1 text-sm text-brand-graphite-light">
-              Arraste os cards entre as colunas para atualizar o status da proposta.
+              Arraste os cards entre as colunas para atualizar o status do lead.
             </p>
           </div>
           <NewProposalButton columnStatuses={columnStatuses} />

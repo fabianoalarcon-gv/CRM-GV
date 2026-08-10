@@ -3,20 +3,23 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { usePipelineData } from "../context";
 import { createProposal } from "../actions";
 import { ProposalForm } from "./ProposalForm";
-import type { ProposalInput } from "../types";
+import type { ProposalInput, ProposalStatus } from "../types";
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function NewProposalButton() {
-  const { statuses } = usePipelineData();
+export interface NewProposalButtonProps {
+  columnStatuses: ProposalStatus[];
+}
+
+export function NewProposalButton({ columnStatuses }: NewProposalButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const defaultStatusId = statuses.find((s) => s.is_default)?.id ?? statuses[0]?.id ?? 0;
+  const defaultStatusId =
+    columnStatuses.find((s) => s.is_default)?.id ?? columnStatuses[0]?.id ?? 0;
 
   const initialValues: ProposalInput = {
     numero_proposta: "",

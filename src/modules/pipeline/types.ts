@@ -11,6 +11,11 @@ export interface ProposalStatus {
   is_default: boolean;
 }
 
+// Chaves de status exibidas como colunas em cada board — Leads cobre o
+// início do funil, Pipeline as etapas de proposta em diante.
+export const LEADS_STATUS_KEYS = ["prospeccao", "qualificacao"] as const;
+export const PIPELINE_STATUS_KEYS = ["proposta", "negociacao", "fechado"] as const;
+
 export interface Proposta {
   id: number;
   numero_proposta: string;
