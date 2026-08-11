@@ -64,6 +64,7 @@ export type Database = {
           fim: string | null
           id: number
           inicio: string
+          proposta_id: number | null
           tipo: string | null
           titulo: string
           updated_at: string
@@ -76,6 +77,7 @@ export type Database = {
           fim?: string | null
           id?: never
           inicio: string
+          proposta_id?: number | null
           tipo?: string | null
           titulo: string
           updated_at?: string
@@ -88,6 +90,7 @@ export type Database = {
           fim?: string | null
           id?: never
           inicio?: string
+          proposta_id?: number | null
           tipo?: string | null
           titulo?: string
           updated_at?: string
@@ -105,6 +108,13 @@ export type Database = {
             columns: ["criado_por"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compromissos_proposta_id_fkey"
+            columns: ["proposta_id"]
+            isOneToOne: false
+            referencedRelation: "propostas"
             referencedColumns: ["id"]
           },
         ]
@@ -192,6 +202,21 @@ export type Database = {
           },
         ]
       }
+      lead_number_counters: {
+        Row: {
+          ano: number
+          ultimo_numero: number
+        }
+        Insert: {
+          ano: number
+          ultimo_numero?: number
+        }
+        Update: {
+          ano?: number
+          ultimo_numero?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -257,15 +282,17 @@ export type Database = {
           data_envio: string
           descricao: string | null
           id: number
-          numero_proposta: string
+          numero_lead: string | null
+          numero_proposta: string | null
           responsavel_id: string | null
           resultado: string | null
+          segmento: string | null
           servico: string | null
           status_id: number
           termometro: string
-          tipo_servico: string
+          tipo_servico: string | null
           updated_at: string
-          valor: number
+          valor: number | null
         }
         Insert: {
           cliente_id: number
@@ -274,15 +301,17 @@ export type Database = {
           data_envio?: string
           descricao?: string | null
           id?: never
-          numero_proposta: string
+          numero_lead?: string | null
+          numero_proposta?: string | null
           responsavel_id?: string | null
           resultado?: string | null
+          segmento?: string | null
           servico?: string | null
           status_id: number
           termometro?: string
-          tipo_servico: string
+          tipo_servico?: string | null
           updated_at?: string
-          valor?: number
+          valor?: number | null
         }
         Update: {
           cliente_id?: number
@@ -291,15 +320,17 @@ export type Database = {
           data_envio?: string
           descricao?: string | null
           id?: never
-          numero_proposta?: string
+          numero_lead?: string | null
+          numero_proposta?: string | null
           responsavel_id?: string | null
           resultado?: string | null
+          segmento?: string | null
           servico?: string | null
           status_id?: number
           termometro?: string
-          tipo_servico?: string
+          tipo_servico?: string | null
           updated_at?: string
-          valor?: number
+          valor?: number | null
         }
         Relationships: [
           {
@@ -339,6 +370,7 @@ export type Database = {
           id: number
           proposta_id: number
           texto: string
+          tipo: string
         }
         Insert: {
           autor_id?: string | null
@@ -346,6 +378,7 @@ export type Database = {
           id?: never
           proposta_id: number
           texto: string
+          tipo?: string
         }
         Update: {
           autor_id?: string | null
@@ -353,6 +386,7 @@ export type Database = {
           id?: never
           proposta_id?: number
           texto?: string
+          tipo?: string
         }
         Relationships: [
           {

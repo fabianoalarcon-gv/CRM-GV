@@ -284,7 +284,7 @@ export function ClienteDetailView({
               >
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-xs text-brand-graphite-light">
-                    {proposta.numero_proposta}
+                    {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
                   </span>
                   <span className="text-foreground">{proposta.status_label}</span>
                   <Badge variant={proposta.termometro}>
@@ -294,7 +294,7 @@ export function ClienteDetailView({
                 <div className="flex items-center gap-3 text-brand-graphite-light">
                   <span>{dateFormatter.format(new Date(proposta.data_envio))}</span>
                   <span className="font-mono font-semibold text-foreground">
-                    {currencyFormatter.format(proposta.valor)}
+                    {proposta.valor != null ? currencyFormatter.format(proposta.valor) : "—"}
                   </span>
                 </div>
               </div>

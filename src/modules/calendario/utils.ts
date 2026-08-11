@@ -10,19 +10,26 @@ export const TIPO_OPTIONS: { value: CompromissoTipo; label: string }[] = [
   { value: "urgente", label: "Urgente" },
   { value: "embarque", label: "Embarques" },
   { value: "outro", label: "Outro" },
+  { value: "ligacao", label: "Ligação" },
+  { value: "email", label: "E-mail" },
+  { value: "visita", label: "Visita" },
 ];
 
 export const TIPO_LABEL: Record<CompromissoTipo, string> = Object.fromEntries(
   TIPO_OPTIONS.map((o) => [o.value, o.label]),
 ) as Record<CompromissoTipo, string>;
 
-// Cor por categoria (validada com a skill dataviz — ver globals.css).
+// Cor por categoria (validada com a skill dataviz — ver globals.css). Ordem
+// fixa (mesma de CompromissoTipo/TIPO_OPTIONS) — não reordenar sem revalidar.
 export const TIPO_COLOR: Record<CompromissoTipo, string> = {
   fretes: "var(--color-brand-accent)",
   reuniao: "var(--color-cal-reuniao)",
   urgente: "var(--color-temp-quente)",
   embarque: "var(--color-cal-embarque)",
   outro: "var(--color-brand-graphite-light)",
+  ligacao: "var(--color-cal-ligacao)",
+  email: "var(--color-cal-email)",
+  visita: "var(--color-cal-visita)",
 };
 
 export function toDatetimeLocalValue(date: Date): string {

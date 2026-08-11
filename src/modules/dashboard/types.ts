@@ -4,7 +4,8 @@ export type TipoServico = "fixo" | "spot";
 
 export interface DashboardProposta {
   id: number;
-  numero_proposta: string;
+  numero_proposta: string | null;
+  numero_lead: string | null;
   cliente_nome: string;
   valor: number;
   data_envio: string;

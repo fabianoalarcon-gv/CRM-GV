@@ -1,5 +1,6 @@
 import { BoardClient } from "@/modules/pipeline/components/BoardClient";
 import { NewProposalButton } from "@/modules/pipeline/components/NewProposalButton";
+import { ProposalCard } from "@/modules/pipeline/components/ProposalCard";
 import { PipelineDataProvider } from "@/modules/pipeline/context";
 import {
   getClientesOptions,
@@ -48,7 +49,11 @@ export default async function PipelinePage() {
           <NewProposalButton columnStatuses={columnStatuses} />
         </div>
 
-        <BoardClient initialPropostas={propostas} columnStatuses={columnStatuses} />
+        <BoardClient
+          initialPropostas={propostas}
+          columnStatuses={columnStatuses}
+          CardComponent={ProposalCard}
+        />
       </div>
     </PipelineDataProvider>
   );

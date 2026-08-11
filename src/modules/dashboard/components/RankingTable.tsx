@@ -50,7 +50,9 @@ export function RankingTable({ propostas }: RankingTableProps) {
             <TableBody>
               {propostas.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="font-mono text-xs">{p.numero_proposta}</TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {p.numero_proposta ?? p.numero_lead ?? "—"}
+                  </TableCell>
                   <TableCell>{p.cliente_nome}</TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(p)}>{statusLabel(p)}</Badge>

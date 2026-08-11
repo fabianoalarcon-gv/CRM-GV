@@ -1,6 +1,18 @@
 export type Termometro = "frio" | "morno" | "quente";
 export type TipoServico = "fixo" | "spot";
 export type Resultado = "aprovado" | "reprovado";
+export type Segmento = "armazenagem" | "servico" | "transporte";
+export type HistoricoTipo = "andamento" | "observacao";
+
+export const SEGMENTO_OPTIONS: { value: Segmento; label: string }[] = [
+  { value: "armazenagem", label: "Armazenagem" },
+  { value: "servico", label: "Serviço" },
+  { value: "transporte", label: "Transporte" },
+];
+
+export const SEGMENTO_LABEL: Record<Segmento, string> = Object.fromEntries(
+  SEGMENTO_OPTIONS.map((o) => [o.value, o.label]),
+) as Record<Segmento, string>;
 
 export interface ProposalStatus {
   id: number;
@@ -18,17 +30,19 @@ export const PIPELINE_STATUS_KEYS = ["proposta", "negociacao", "fechado"] as con
 
 export interface Proposta {
   id: number;
-  numero_proposta: string;
+  numero_proposta: string | null;
+  numero_lead: string | null;
   data_envio: string;
   cliente_id: number;
   cliente_nome: string;
   cliente_setor: string | null;
   servico: string | null;
   descricao: string | null;
-  valor: number;
+  segmento: Segmento | null;
+  valor: number | null;
   status_id: number;
   termometro: Termometro;
-  tipo_servico: TipoServico;
+  tipo_servico: TipoServico | null;
   responsavel_id: string | null;
   resultado: Resultado | null;
   created_at: string;
@@ -60,6 +74,7 @@ export interface ProposalHistoryEntry {
   proposta_id: number;
   autor_nome: string | null;
   texto: string;
+  tipo: HistoricoTipo;
   created_at: string;
 }
 

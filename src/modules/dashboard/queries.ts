@@ -6,7 +6,7 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, valor, data_envio, tipo_servico, resultado, clientes(nome), proposal_statuses(key, label, sort_order)",
+      "id, numero_proposta, numero_lead, valor, data_envio, tipo_servico, resultado, clientes(nome), proposal_statuses(key, label, sort_order)",
     )
     .order("data_envio");
 
@@ -15,8 +15,11 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
   return (data ?? []).map((p) => ({
     id: p.id,
     numero_proposta: p.numero_proposta,
+    numero_lead: p.numero_lead,
     cliente_nome: p.clientes?.nome ?? "—",
-    valor: Number(p.valor),
+    // Lead sem valor estimado conta como R$0 nos totais/gráficos — não dá
+    // pra somar um valor que ainda não existe.
+    valor: p.valor == null ? 0 : Number(p.valor),
     data_envio: p.data_envio,
     tipo_servico: p.tipo_servico as TipoServico,
     status_key: (p.proposal_statuses?.key ?? "prospeccao") as StatusKey,

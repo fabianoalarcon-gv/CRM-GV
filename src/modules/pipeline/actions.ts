@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isValidNumeroProposta } from "./validation";
-import type { ProposalInput, Resultado } from "./types";
+import type { HistoricoTipo, ProposalInput, Resultado } from "./types";
 
 export async function updateProposalStatus(proposalId: number, statusId: number) {
   const supabase = await createClient();
@@ -103,7 +103,11 @@ export async function deleteProposal(proposalId: number) {
   return { error: null };
 }
 
-export async function addProposalHistoryEntry(proposalId: number, texto: string) {
+export async function addProposalHistoryEntry(
+  proposalId: number,
+  texto: string,
+  tipo: HistoricoTipo = "observacao",
+) {
   const trimmed = texto.trim();
   if (!trimmed) return { error: "Escreva algo antes de salvar." };
 
@@ -114,7 +118,7 @@ export async function addProposalHistoryEntry(proposalId: number, texto: string)
 
   const { error } = await supabase
     .from("propostas_historico")
-    .insert({ proposta_id: proposalId, autor_id: user?.id ?? null, texto: trimmed });
+    .insert({ proposta_id: proposalId, autor_id: user?.id ?? null, texto: trimmed, tipo });
 
   if (error) return { error: error.message };
 

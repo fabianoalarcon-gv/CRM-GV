@@ -37,9 +37,10 @@ export interface ContatoInput {
 
 export interface PropostaResumo {
   id: number;
-  numero_proposta: string;
+  numero_proposta: string | null;
+  numero_lead: string | null;
   data_envio: string;
-  valor: number;
+  valor: number | null;
   termometro: "frio" | "morno" | "quente";
   status_label: string;
 }

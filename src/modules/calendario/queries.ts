@@ -6,7 +6,7 @@ export async function getCompromissos(): Promise<Compromisso[]> {
   const { data, error } = await supabase
     .from("compromissos")
     .select(
-      "id, titulo, descricao, inicio, fim, tipo, cliente_id, clientes(nome), criado_por:profiles(full_name)",
+      "id, titulo, descricao, inicio, fim, tipo, cliente_id, proposta_id, created_at, clientes(nome), criado_por:profiles(full_name)",
     )
     .order("inicio");
 
@@ -22,6 +22,8 @@ export async function getCompromissos(): Promise<Compromisso[]> {
     cliente_id: c.cliente_id,
     cliente_nome: c.clientes?.nome ?? null,
     criado_por_nome: c.criado_por?.full_name ?? null,
+    proposta_id: c.proposta_id,
+    created_at: c.created_at,
   }));
 }
 

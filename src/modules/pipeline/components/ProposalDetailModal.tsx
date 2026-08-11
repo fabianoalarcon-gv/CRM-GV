@@ -91,15 +91,15 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
       >
         <ProposalForm
           initialValues={{
-            numero_proposta: proposta.numero_proposta,
+            numero_proposta: proposta.numero_proposta ?? "",
             data_envio: proposta.data_envio,
             cliente_id: proposta.cliente_id,
             servico: proposta.servico ?? "",
             descricao: proposta.descricao ?? "",
-            valor: proposta.valor,
+            valor: proposta.valor ?? 0,
             status_id: proposta.status_id,
             termometro: proposta.termometro,
-            tipo_servico: proposta.tipo_servico,
+            tipo_servico: proposta.tipo_servico ?? "spot",
             responsavel_id: proposta.responsavel_id,
             resultado: proposta.resultado,
           }}
@@ -116,7 +116,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={proposta.numero_proposta}
+      title={proposta.numero_proposta ?? proposta.numero_lead ?? undefined}
       className="max-w-2xl"
     >
       <div className="flex flex-col gap-5">
@@ -134,7 +134,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           <div>
             <dt className="text-brand-graphite-light">Valor</dt>
             <dd className="font-mono font-semibold text-foreground">
-              {currencyFormatter.format(proposta.valor)}
+              {proposta.valor != null ? currencyFormatter.format(proposta.valor) : "—"}
             </dd>
           </div>
           <div>
@@ -154,7 +154,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           <div>
             <dt className="text-brand-graphite-light">Tipo</dt>
             <dd className="text-foreground">
-              {proposta.tipo_servico === "fixo" ? "Fixo" : "Spot"}
+              {proposta.tipo_servico == null ? "—" : proposta.tipo_servico === "fixo" ? "Fixo" : "Spot"}
             </dd>
           </div>
           <div>

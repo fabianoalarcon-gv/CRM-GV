@@ -47,6 +47,12 @@
      Paleta validada com a skill dataviz (validate_palette.js). */
   --cal-reuniao: #4c5fa8;
   --cal-embarque: #0891b2;
+
+  /* Categorias de Ação (LEAD): mesma lista de categorias do Calendário,
+     3 cores novas — validadas junto com as 5 já existentes (validate_palette.js). */
+  --cal-ligacao: #7c3aed;
+  --cal-email: #db2777;
+  --cal-visita: #92400e;
 }
 
 @theme inline {
@@ -71,6 +77,9 @@
 
   --color-cal-reuniao: var(--cal-reuniao);
   --color-cal-embarque: var(--cal-embarque);
+  --color-cal-ligacao: var(--cal-ligacao);
+  --color-cal-email: var(--cal-email);
+  --color-cal-visita: var(--cal-visita);
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);

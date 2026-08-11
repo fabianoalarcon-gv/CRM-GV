@@ -1,8 +1,8 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { cn } from "@/lib/cn";
-import { ProposalCard } from "./ProposalCard";
 import type { ProposalStatus, Proposta } from "../types";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -13,11 +13,12 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
 export interface ColumnProps {
   status: ProposalStatus;
   propostas: Proposta[];
+  CardComponent: ComponentType<{ proposta: Proposta }>;
 }
 
-export function Column({ status, propostas }: ColumnProps) {
+export function Column({ status, propostas, CardComponent }: ColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id: String(status.id) });
-  const total = propostas.reduce((sum, p) => sum + p.valor, 0);
+  const total = propostas.reduce((sum, p) => sum + (p.valor ?? 0), 0);
 
   return (
     <div className="flex w-80 shrink-0 flex-col rounded-xl bg-black/[.02]">
@@ -40,7 +41,7 @@ export function Column({ status, propostas }: ColumnProps) {
         )}
       >
         {propostas.map((proposta) => (
-          <ProposalCard key={proposta.id} proposta={proposta} />
+          <CardComponent key={proposta.id} proposta={proposta} />
         ))}
         {propostas.length === 0 && (
           <p className="p-2 text-center text-xs text-brand-graphite-light">

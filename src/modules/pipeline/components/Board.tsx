@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, type ComponentType } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
 import { Column } from "./Column";
 import { updateProposalStatus } from "../actions";
@@ -9,9 +9,10 @@ import type { ProposalStatus, Proposta } from "../types";
 export interface BoardProps {
   initialPropostas: Proposta[];
   columnStatuses: ProposalStatus[];
+  CardComponent: ComponentType<{ proposta: Proposta }>;
 }
 
-export function Board({ initialPropostas, columnStatuses }: BoardProps) {
+export function Board({ initialPropostas, columnStatuses, CardComponent }: BoardProps) {
   const [propostas, setPropostas] = useState(initialPropostas);
   const [, startTransition] = useTransition();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
@@ -48,6 +49,7 @@ export function Board({ initialPropostas, columnStatuses }: BoardProps) {
             key={status.id}
             status={status}
             propostas={propostas.filter((p) => p.status_id === status.id)}
+            CardComponent={CardComponent}
           />
         ))}
       </div>

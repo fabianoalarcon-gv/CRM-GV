@@ -27,7 +27,7 @@ export async function getPropostas(): Promise<Proposta[]> {
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, data_envio, cliente_id, servico, descricao, valor, status_id, termometro, tipo_servico, responsavel_id, resultado, created_at, updated_at, clientes(nome, setor)",
+      "id, numero_proposta, numero_lead, data_envio, cliente_id, servico, descricao, segmento, valor, status_id, termometro, tipo_servico, responsavel_id, resultado, created_at, updated_at, clientes(nome, setor)",
     )
     .order("created_at", { ascending: false });
 
@@ -36,16 +36,18 @@ export async function getPropostas(): Promise<Proposta[]> {
   return (data ?? []).map((p) => ({
     id: p.id,
     numero_proposta: p.numero_proposta,
+    numero_lead: p.numero_lead,
     data_envio: p.data_envio,
     cliente_id: p.cliente_id,
     cliente_nome: p.clientes?.nome ?? "—",
     cliente_setor: p.clientes?.setor ?? null,
     servico: p.servico,
     descricao: p.descricao,
-    valor: Number(p.valor),
+    segmento: p.segmento as Proposta["segmento"],
+    valor: p.valor == null ? null : Number(p.valor),
     status_id: p.status_id,
     termometro: p.termometro as Termometro,
-    tipo_servico: p.tipo_servico as TipoServico,
+    tipo_servico: p.tipo_servico as TipoServico | null,
     responsavel_id: p.responsavel_id,
     resultado: p.resultado as Proposta["resultado"],
     created_at: p.created_at,
@@ -117,7 +119,7 @@ export async function getProposalHistory(): Promise<ProposalHistoryEntry[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("propostas_historico")
-    .select("id, proposta_id, texto, created_at, autor:profiles(full_name)")
+    .select("id, proposta_id, texto, tipo, created_at, autor:profiles(full_name)")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -127,6 +129,7 @@ export async function getProposalHistory(): Promise<ProposalHistoryEntry[]> {
     proposta_id: h.proposta_id,
     autor_nome: h.autor?.full_name ?? null,
     texto: h.texto,
+    tipo: h.tipo as ProposalHistoryEntry["tipo"],
     created_at: h.created_at,
   }));
 }

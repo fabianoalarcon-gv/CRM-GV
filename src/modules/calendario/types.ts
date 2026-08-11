@@ -1,4 +1,15 @@
-export type CompromissoTipo = "fretes" | "reuniao" | "urgente" | "embarque" | "outro";
+// Ordem fixa (também usada em TIPO_OPTIONS) — validada com a skill dataviz
+// (validate_palette.js) para manter a separação de cor entre categorias
+// vizinhas; não reordenar sem revalidar.
+export type CompromissoTipo =
+  | "fretes"
+  | "reuniao"
+  | "urgente"
+  | "embarque"
+  | "outro"
+  | "ligacao"
+  | "email"
+  | "visita";
 
 export interface Compromisso {
   id: number;
@@ -10,6 +21,8 @@ export interface Compromisso {
   cliente_id: number | null;
   cliente_nome: string | null;
   criado_por_nome: string | null;
+  proposta_id: number | null;
+  created_at: string;
 }
 
 export interface CompromissoInput {

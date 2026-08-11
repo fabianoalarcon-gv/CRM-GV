@@ -79,7 +79,7 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
         <CardContent className="flex flex-col gap-2 p-3">
           <div className="flex items-center justify-between gap-2">
             <span className="font-mono text-xs text-brand-graphite-light">
-              {proposta.numero_proposta}
+              {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
             </span>
             <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
           </div>
@@ -165,9 +165,11 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
             )}
           </div>
 
-          <p className="font-mono text-sm font-semibold text-foreground">
-            {currencyFormatter.format(proposta.valor)}
-          </p>
+          {proposta.valor != null && (
+            <p className="font-mono text-sm font-semibold text-foreground">
+              {currencyFormatter.format(proposta.valor)}
+            </p>
+          )}
         </CardContent>
       </Card>
 
