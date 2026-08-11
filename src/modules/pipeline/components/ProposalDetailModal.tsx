@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/Textarea";
@@ -11,14 +10,6 @@ import { addProposalHistoryEntry, deleteProposal, updateProposal } from "../acti
 import { ProposalForm } from "./ProposalForm";
 import type { Proposta } from "../types";
 
-const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
-  frio: "Frio",
-  morno: "Morno",
-  quente: "Quente",
-};
-
-const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
   timeStyle: "short",
@@ -31,9 +22,8 @@ export interface ProposalDetailModalProps {
 }
 
 export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetailModalProps) {
-  const { history, statuses, profiles } = usePipelineData();
+  const { history } = usePipelineData();
   const isAdmin = useIsAdmin();
-  const [isEditing, setIsEditing] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [isSavingNote, setIsSavingNote] = useState(false);
   const [noteError, setNoteError] = useState<string | null>(null);
@@ -41,12 +31,9 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const statusLabel = statuses.find((s) => s.id === proposta.status_id)?.label ?? "—";
-  const responsavelNome = profiles.find((p) => p.id === proposta.responsavel_id)?.full_name;
   const entries = history.filter((h) => h.proposta_id === proposta.id);
 
   function handleClose() {
-    setIsEditing(false);
     setConfirmingDelete(false);
     setNoteText("");
     setNoteError(null);
@@ -81,36 +68,19 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     handleClose();
   }
 
-  if (isEditing) {
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={handleClose}
-        title={`Editar proposta ${proposta.numero_proposta}`}
-        className="max-w-2xl"
-      >
-        <ProposalForm
-          initialValues={{
-            numero_proposta: proposta.numero_proposta ?? "",
-            data_envio: proposta.data_envio,
-            cliente_id: proposta.cliente_id,
-            servico: proposta.servico ?? "",
-            descricao: proposta.descricao ?? "",
-            valor: proposta.valor ?? 0,
-            status_id: proposta.status_id,
-            termometro: proposta.termometro,
-            tipo_servico: proposta.tipo_servico ?? "spot",
-            responsavel_id: proposta.responsavel_id,
-            resultado: proposta.resultado,
-          }}
-          submitLabel="Salvar alterações"
-          onSubmit={(input) => updateProposal(proposta.id, input)}
-          onSuccess={() => setIsEditing(false)}
-          onCancel={() => setIsEditing(false)}
-        />
-      </Modal>
-    );
-  }
+  const initialValues = {
+    numero_proposta: proposta.numero_proposta ?? "",
+    data_envio: proposta.data_envio,
+    cliente_id: proposta.cliente_id,
+    servico: proposta.servico ?? "",
+    descricao: proposta.descricao ?? "",
+    valor: proposta.valor ?? 0,
+    status_id: proposta.status_id,
+    termometro: proposta.termometro,
+    tipo_servico: proposta.tipo_servico ?? "spot" as const,
+    responsavel_id: proposta.responsavel_id,
+    resultado: proposta.resultado,
+  };
 
   return (
     <Modal
@@ -120,63 +90,13 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
       className="max-w-2xl"
     >
       <div className="flex flex-col gap-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-lg font-semibold text-foreground">{proposta.cliente_nome}</p>
-            <p className="text-sm text-brand-graphite-light">
-              {proposta.servico || "Serviço não informado"}
-            </p>
-          </div>
-          <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
-        </div>
-
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="text-brand-graphite-light">Valor</dt>
-            <dd className="font-mono font-semibold text-foreground">
-              {proposta.valor != null ? currencyFormatter.format(proposta.valor) : "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-brand-graphite-light">Status</dt>
-            <dd className="text-foreground">
-              {statusLabel}
-              {proposta.resultado && (
-                <Badge
-                  variant={proposta.resultado === "aprovado" ? "success" : "danger"}
-                  className="ml-2"
-                >
-                  {proposta.resultado === "aprovado" ? "Aprovado" : "Reprovado"}
-                </Badge>
-              )}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-brand-graphite-light">Tipo</dt>
-            <dd className="text-foreground">
-              {proposta.tipo_servico == null ? "—" : proposta.tipo_servico === "fixo" ? "Fixo" : "Spot"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-brand-graphite-light">Data de envio</dt>
-            <dd className="text-foreground">
-              {dateFormatter.format(new Date(`${proposta.data_envio}T00:00:00`))}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-brand-graphite-light">Responsável</dt>
-            <dd className="text-foreground">{responsavelNome ?? "—"}</dd>
-          </div>
-        </dl>
-
-        {proposta.descricao && (
-          <div>
-            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-              Descrição
-            </p>
-            <p className="mt-1 text-sm text-foreground">{proposta.descricao}</p>
-          </div>
-        )}
+        <ProposalForm
+          initialValues={initialValues}
+          submitLabel="Salvar alterações"
+          onSubmit={(input) => updateProposal(proposta.id, input)}
+          onSuccess={() => {}}
+          onCancel={handleClose}
+        />
 
         <div className="border-t border-border pt-4">
           <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
@@ -221,11 +141,10 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           </div>
         </div>
 
-        {isAdmin && deleteError && <p className="text-sm text-temp-quente">{deleteError}</p>}
-
-        <div className="flex items-center justify-between border-t border-border pt-4">
-          {isAdmin ? (
-            confirmingDelete ? (
+        {isAdmin && (
+          <div className="border-t border-border pt-4">
+            {deleteError && <p className="mb-2 text-sm text-temp-quente">{deleteError}</p>}
+            {confirmingDelete ? (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-brand-graphite-light">Excluir esta proposta?</span>
                 <Button
@@ -255,14 +174,9 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
               >
                 Excluir
               </Button>
-            )
-          ) : (
-            <span />
-          )}
-          <Button type="button" onClick={() => setIsEditing(true)}>
-            Editar
-          </Button>
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </Modal>
   );

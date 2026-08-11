@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -45,9 +45,17 @@ export function ProposalForm({
   const [numeroError, setNumeroError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [justSaved, setJustSaved] = useState(false);
+
+  useEffect(() => {
+    if (!justSaved) return;
+    const timeout = setTimeout(() => setJustSaved(false), 3000);
+    return () => clearTimeout(timeout);
+  }, [justSaved]);
 
   function update<K extends keyof ProposalInput>(key: K, value: ProposalInput[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
+    setJustSaved(false);
   }
 
   const selectedStatus = statuses.find((s) => s.id === values.status_id);
@@ -72,6 +80,7 @@ export function ProposalForm({
       return;
     }
 
+    setJustSaved(true);
     onSuccess();
   }
 
@@ -169,7 +178,8 @@ export function ProposalForm({
 
       {formError && <p className="text-sm text-temp-quente">{formError}</p>}
 
-      <div className="mt-2 flex justify-end gap-2">
+      <div className="mt-2 flex items-center justify-end gap-3">
+        {justSaved && <span className="text-sm text-status-aprovado">Alterações salvas.</span>}
         <Button type="button" variant="ghost" onClick={onCancel}>
           Cancelar
         </Button>
