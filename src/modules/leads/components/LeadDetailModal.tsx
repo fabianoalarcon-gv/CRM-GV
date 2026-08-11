@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/Textarea";
 import { useIsAdmin } from "@/lib/auth/context";
 import { deleteProposal, addProposalHistoryEntry } from "@/modules/pipeline/actions";
-import { SEGMENTO_LABEL, type Proposta } from "@/modules/pipeline/types";
+import type { Proposta } from "@/modules/pipeline/types";
 import { TIPO_COLOR, TIPO_LABEL, toDatetimeLocalValue } from "@/modules/calendario/utils";
 import { useLeadsData } from "../context";
 import { createAcao, updateLead } from "../actions";
@@ -15,13 +14,6 @@ import type { AcaoInput, LeadInput } from "../types";
 import { LeadForm } from "./LeadForm";
 import { AcaoForm } from "./AcaoForm";
 
-const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
-  frio: "Frio",
-  morno: "Morno",
-  quente: "Quente",
-};
-
-const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
 export interface LeadDetailModalProps {
@@ -31,10 +23,9 @@ export interface LeadDetailModalProps {
 }
 
 export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalProps) {
-  const { statuses, history, compromissos } = useLeadsData();
+  const { history, compromissos } = useLeadsData();
   const isAdmin = useIsAdmin();
 
-  const [isEditing, setIsEditing] = useState(false);
   const [isCreatingAcao, setIsCreatingAcao] = useState(false);
 
   const [andamentoText, setAndamentoText] = useState("");
@@ -49,8 +40,6 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const statusLabel = statuses.find((s) => s.id === proposta.status_id)?.label ?? "—";
-  const segmentoLabel = proposta.segmento ? SEGMENTO_LABEL[proposta.segmento] : "—";
   const andamentos = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "andamento");
   const observacoes = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "observacao");
   const acoes = compromissos
@@ -59,7 +48,6 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
   function handleClose() {
-    setIsEditing(false);
     setIsCreatingAcao(false);
     setAndamentoText("");
     setObsText("");
@@ -113,67 +101,25 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     handleClose();
   }
 
-  if (isEditing) {
-    const initialValues: LeadInput = {
-      cliente_id: proposta.cliente_id,
-      termometro: proposta.termometro,
-      descricao: proposta.descricao ?? "",
-      segmento: proposta.segmento,
-      valor_estimado: proposta.valor,
-      status_id: proposta.status_id,
-    };
-
-    return (
-      <Modal isOpen={isOpen} onClose={handleClose} title={`Editar lead ${proposta.numero_lead ?? ""}`} className="max-w-2xl">
-        <LeadForm
-          initialValues={initialValues}
-          submitLabel="Salvar alterações"
-          onSubmit={(input) => updateLead(proposta.id, input)}
-          onSuccess={() => setIsEditing(false)}
-          onCancel={() => setIsEditing(false)}
-        />
-      </Modal>
-    );
-  }
+  const initialValues: LeadInput = {
+    cliente_id: proposta.cliente_id,
+    termometro: proposta.termometro,
+    descricao: proposta.descricao ?? "",
+    segmento: proposta.segmento,
+    valor_estimado: proposta.valor,
+    status_id: proposta.status_id,
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={proposta.numero_lead ?? undefined} className="max-w-2xl">
       <div className="flex flex-col gap-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="text-lg font-semibold text-foreground">{proposta.cliente_nome}</p>
-            {proposta.cliente_setor && (
-              <p className="text-sm text-brand-graphite-light">{proposta.cliente_setor}</p>
-            )}
-          </div>
-          <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
-        </div>
-
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
-          <div>
-            <dt className="text-brand-graphite-light">Segmento proposta</dt>
-            <dd className="text-foreground">{segmentoLabel}</dd>
-          </div>
-          <div>
-            <dt className="text-brand-graphite-light">Valor estimado</dt>
-            <dd className="font-mono font-semibold text-foreground">
-              {proposta.valor != null ? currencyFormatter.format(proposta.valor) : "—"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-brand-graphite-light">Status</dt>
-            <dd className="text-foreground">{statusLabel}</dd>
-          </div>
-        </dl>
-
-        {proposta.descricao && (
-          <div>
-            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-              Descrição do lead
-            </p>
-            <p className="mt-1 text-sm text-foreground">{proposta.descricao}</p>
-          </div>
-        )}
+        <LeadForm
+          initialValues={initialValues}
+          submitLabel="Salvar alterações"
+          onSubmit={(input) => updateLead(proposta.id, input)}
+          onSuccess={() => {}}
+          onCancel={handleClose}
+        />
 
         <HistoricoSection
           title="Andamento"
@@ -234,11 +180,10 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
           </div>
         </div>
 
-        {isAdmin && deleteError && <p className="text-sm text-temp-quente">{deleteError}</p>}
-
-        <div className="flex items-center justify-between border-t border-border pt-4">
-          {isAdmin ? (
-            confirmingDelete ? (
+        {isAdmin && (
+          <div className="border-t border-border pt-4">
+            {deleteError && <p className="mb-2 text-sm text-temp-quente">{deleteError}</p>}
+            {confirmingDelete ? (
               <div className="flex items-center gap-2">
                 <span className="text-sm text-brand-graphite-light">Excluir este lead?</span>
                 <Button type="button" variant="danger" size="sm" disabled={isDeleting} onClick={handleDelete}>
@@ -252,14 +197,9 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
               <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmingDelete(true)}>
                 Excluir
               </Button>
-            )
-          ) : (
-            <span />
-          )}
-          <Button type="button" onClick={() => setIsEditing(true)}>
-            Editar
-          </Button>
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       <Modal

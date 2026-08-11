@@ -3,23 +3,17 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
-import { SEGMENTO_OPTIONS, type Proposta, type Segmento, type Termometro } from "@/modules/pipeline/types";
-import { updateLeadSegmento, updateLeadTermometro } from "../actions";
+import { SEGMENTO_LABEL, type Proposta } from "@/modules/pipeline/types";
 import { LeadDetailModal } from "./LeadDetailModal";
 
-const TERMOMETRO_OPTIONS: { value: Termometro; label: string }[] = [
-  { value: "frio", label: "Frio" },
-  { value: "morno", label: "Morno" },
-  { value: "quente", label: "Quente" },
-];
-
-const TERMOMETRO_SELECT_CLASS: Record<Termometro, string> = {
-  frio: "bg-temp-frio/15 text-sky-700",
-  morno: "bg-temp-morno/20 text-yellow-800",
-  quente: "bg-temp-quente/15 text-temp-quente",
+const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
+  frio: "Frio",
+  morno: "Morno",
+  quente: "Quente",
 };
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -39,28 +33,6 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
   });
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  const [termometro, setTermometro] = useState(proposta.termometro);
-  const [isSavingTermometro, setIsSavingTermometro] = useState(false);
-  async function handleTermometroChange(next: Termometro) {
-    const previous = termometro;
-    setTermometro(next);
-    setIsSavingTermometro(true);
-    const result = await updateLeadTermometro(proposta.id, next);
-    setIsSavingTermometro(false);
-    if (result.error) setTermometro(previous);
-  }
-
-  const [segmento, setSegmento] = useState(proposta.segmento);
-  const [isSavingSegmento, setIsSavingSegmento] = useState(false);
-  async function handleSegmentoChange(next: Segmento | null) {
-    const previous = segmento;
-    setSegmento(next);
-    setIsSavingSegmento(true);
-    const result = await updateLeadSegmento(proposta.id, next);
-    setIsSavingSegmento(false);
-    if (result.error) setSegmento(previous);
-  }
-
   return (
     <>
       <Card
@@ -78,39 +50,8 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
           <span className="font-mono text-xs text-brand-graphite-light">{proposta.numero_lead}</span>
 
           <div className="flex flex-wrap items-center gap-1.5">
-            <select
-              value={termometro}
-              disabled={isSavingTermometro}
-              onClick={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}
-              onChange={(e) => handleTermometroChange(e.target.value as Termometro)}
-              className={cn(
-                "h-6 cursor-pointer rounded-md border-0 pr-6 pl-2 text-[11px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent",
-                TERMOMETRO_SELECT_CLASS[termometro],
-              )}
-            >
-              {TERMOMETRO_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={segmento ?? ""}
-              disabled={isSavingSegmento}
-              onClick={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}
-              onChange={(e) => handleSegmentoChange((e.target.value || null) as Segmento | null)}
-              className="h-6 cursor-pointer rounded-md border-0 bg-black/[.05] pr-6 pl-2 text-[11px] font-medium text-brand-graphite-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
-            >
-              <option value="">Segmento…</option>
-              {SEGMENTO_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+            <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
+            {proposta.segmento && <Badge variant="default">{SEGMENTO_LABEL[proposta.segmento]}</Badge>}
           </div>
 
           <div>

@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { Segmento, Termometro } from "@/modules/pipeline/types";
 import type { AcaoInput, LeadInput } from "./types";
 
 function revalidateLeadPaths() {
@@ -49,26 +48,6 @@ export async function updateLead(leadId: number, input: LeadInput) {
       status_id: input.status_id,
     })
     .eq("id", leadId);
-
-  if (error) return { error: error.message };
-
-  revalidateLeadPaths();
-  return { error: null };
-}
-
-export async function updateLeadTermometro(leadId: number, termometro: Termometro) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("propostas").update({ termometro }).eq("id", leadId);
-
-  if (error) return { error: error.message };
-
-  revalidateLeadPaths();
-  return { error: null };
-}
-
-export async function updateLeadSegmento(leadId: number, segmento: Segmento | null) {
-  const supabase = await createClient();
-  const { error } = await supabase.from("propostas").update({ segmento }).eq("id", leadId);
 
   if (error) return { error: error.message };
 
