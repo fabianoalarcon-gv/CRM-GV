@@ -15,6 +15,17 @@ export interface BoardProps {
 export function Board({ initialPropostas, columnStatuses, CardComponent }: BoardProps) {
   const [propostas, setPropostas] = useState(initialPropostas);
   const [, startTransition] = useTransition();
+
+  // initialPropostas chega de novo (com dados atualizados) sempre que uma
+  // Server Action revalida a rota — sem isso, o board só refletiria edições
+  // feitas no modal (Salvar, Excluir, Ações) depois de um reload completo.
+  // Ajuste de estado durante a renderização (padrão recomendado pelo React
+  // pra "resetar" estado quando uma prop muda), não em useEffect.
+  const [prevInitialPropostas, setPrevInitialPropostas] = useState(initialPropostas);
+  if (initialPropostas !== prevInitialPropostas) {
+    setPrevInitialPropostas(initialPropostas);
+    setPropostas(initialPropostas);
+  }
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
 
   function handleDragEnd(event: DragEndEvent) {
