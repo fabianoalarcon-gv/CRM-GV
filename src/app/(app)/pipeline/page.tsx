@@ -39,7 +39,7 @@ export default async function PipelinePage() {
       <div className="flex h-full flex-col gap-6">
         <BoardView
           title="Pipeline"
-          subtitle="Arraste os cards entre as colunas para atualizar o status da proposta."
+          subtitle="Mova os cards entre as colunas para alterar seus status."
           initialPropostas={propostas}
           columnStatuses={columnStatuses}
           CardComponent={ProposalCard}
