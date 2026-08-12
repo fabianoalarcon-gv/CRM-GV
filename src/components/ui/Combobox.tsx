@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { cn } from "@/lib/cn";
 import { Icon } from "./Icon";
 
@@ -19,35 +19,71 @@ export interface ComboboxProps {
   error?: string;
 }
 
-// Select customizado (não é um <select> nativo): o painel de opções tem
-// altura máxima fixa (~10 itens visíveis) com rolagem pro resto — algo que
-// não dá pra controlar de forma confiável no dropdown nativo do navegador.
+// Select customizado (não é um <select> nativo): digitar filtra a lista de
+// opções, mas só um clique/Enter numa opção da lista atualiza o valor
+// selecionado — texto digitado sem selecionar nunca vira o valor salvo (ao
+// fechar sem escolher, o campo volta a mostrar a opção já selecionada). O
+// painel de opções tem altura máxima (~10 itens visíveis) com rolagem pro
+// resto, algo que o dropdown nativo do navegador não permite controlar.
 export function Combobox({ label, required, placeholder = "Selecione...", value, onChange, options, error }: ComboboxProps) {
+  const selected = options.find((o) => o.value === value);
+
   const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState(selected?.label ?? "");
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const id = useId();
+  const listboxId = `${id}-listbox`;
 
-  useEffect(() => {
-    if (!isOpen) return;
+  const filteredOptions = query.trim()
+    ? options.filter((o) => o.label.toLowerCase().includes(query.trim().toLowerCase()))
+    : options;
 
-    function handlePointerDown(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+  function openWithFreshQuery() {
+    setIsOpen(true);
+    setQuery("");
+    setHighlightedIndex(0);
+  }
+
+  function closeAndRevert() {
+    setIsOpen(false);
+    setQuery(selected?.label ?? "");
+  }
+
+  function selectOption(option: ComboboxOption) {
+    onChange(option.value);
+    setQuery(option.label);
+    setIsOpen(false);
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Escape") {
+      closeAndRevert();
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (!isOpen) {
+        openWithFreshQuery();
+        return;
+      }
+      setHighlightedIndex((i) => Math.min(i + 1, filteredOptions.length - 1));
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setHighlightedIndex((i) => Math.max(i - 1, 0));
+      return;
+    }
+    if (event.key === "Enter") {
+      // Dentro de um <form>, Enter num input dispararia o submit — aqui o
+      // significado é "selecionar a opção destacada", nunca enviar texto livre.
+      event.preventDefault();
+      if (isOpen && filteredOptions[highlightedIndex]) {
+        selectOption(filteredOptions[highlightedIndex]);
       }
     }
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setIsOpen(false);
-    }
-
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
-
-  const selected = options.find((o) => o.value === value);
+  }
 
   return (
     <div className="flex flex-col gap-1.5" ref={containerRef}>
@@ -58,46 +94,57 @@ export function Combobox({ label, required, placeholder = "Selecione...", value,
         </label>
       )}
       <div className="relative">
-        <button
-          type="button"
+        <input
           id={id}
-          onClick={() => setIsOpen((v) => !v)}
-          aria-haspopup="listbox"
+          type="text"
+          role="combobox"
+          aria-autocomplete="list"
           aria-expanded={isOpen}
+          aria-controls={listboxId}
+          autoComplete="off"
+          value={query}
+          placeholder={placeholder}
+          onFocus={openWithFreshQuery}
+          onClick={() => !isOpen && openWithFreshQuery()}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setHighlightedIndex(0);
+            if (!isOpen) setIsOpen(true);
+          }}
+          onKeyDown={handleKeyDown}
+          onBlur={closeAndRevert}
           className={cn(
-            "flex h-10 w-full items-center justify-between rounded-lg border border-border bg-surface px-3 text-left text-sm text-foreground",
+            "h-10 w-full rounded-lg border border-border bg-surface px-3 pr-9 text-sm text-foreground placeholder:text-brand-graphite-light",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent",
             error && "border-temp-quente focus-visible:ring-temp-quente",
           )}
-        >
-          <span className={cn("truncate", !selected && "text-brand-graphite-light")}>
-            {selected ? selected.label : placeholder}
-          </span>
-          <Icon name="expand_more" size={18} className="shrink-0 text-brand-graphite-light" />
-        </button>
+        />
+        <Icon
+          name="expand_more"
+          size={18}
+          className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-brand-graphite-light"
+        />
 
         {isOpen && (
           <ul
+            id={listboxId}
             role="listbox"
-            aria-labelledby={label ? id : undefined}
             className="absolute z-20 mt-1 max-h-[340px] w-full overflow-y-auto rounded-lg border border-border bg-surface py-1 shadow-lg"
           >
-            {options.length === 0 && (
-              <li className="px-3 py-2 text-sm text-brand-graphite-light">Nenhuma opção cadastrada.</li>
+            {filteredOptions.length === 0 && (
+              <li className="px-3 py-2 text-sm text-brand-graphite-light">Nenhum resultado encontrado.</li>
             )}
-            {options.map((option) => (
+            {filteredOptions.map((option, index) => (
               <li key={option.value} role="option" aria-selected={option.value === value}>
                 <button
                   type="button"
-                  onClick={() => {
-                    onChange(option.value);
-                    setIsOpen(false);
-                  }}
+                  // Evita que o input perca foco (e feche/reverta) antes do clique registrar.
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => selectOption(option)}
                   className={cn(
-                    "block w-full px-3 py-2 text-left text-sm hover:bg-black/[.03]",
-                    option.value === value
-                      ? "bg-brand-accent/10 font-medium text-brand-accent"
-                      : "text-foreground",
+                    "block w-full px-3 py-2 text-left text-sm",
+                    index === highlightedIndex ? "bg-black/[.05]" : "hover:bg-black/[.03]",
+                    option.value === value ? "font-medium text-brand-accent" : "text-foreground",
                   )}
                 >
                   {option.label}
