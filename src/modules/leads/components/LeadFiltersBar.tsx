@@ -5,11 +5,16 @@ import { Select } from "@/components/ui/Select";
 import { SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
 import { EMPTY_LEAD_FILTERS, type LeadFilters } from "../utils";
 
-const TERMOMETRO_OPTIONS: { value: Termometro; label: string }[] = [
+// "Todos" entra como opção normal (não placeholder) pra continuar
+// selecionável depois de escolher um valor específico.
+const TERMOMETRO_FILTER_OPTIONS: { value: Termometro | ""; label: string }[] = [
+  { value: "", label: "Todos" },
   { value: "frio", label: "Frio" },
   { value: "morno", label: "Morno" },
   { value: "quente", label: "Quente" },
 ];
+
+const SEGMENTO_FILTER_OPTIONS = [{ value: "", label: "Todos" }, ...SEGMENTO_OPTIONS];
 
 export interface LeadFiltersBarProps {
   value: LeadFilters;
@@ -38,18 +43,16 @@ export function LeadFiltersBar({ value, onChange }: LeadFiltersBarProps) {
       />
       <Select
         label="Termômetro"
-        placeholder="Todos"
         value={value.termometro}
         onChange={(e) => onChange({ ...value, termometro: e.target.value as LeadFilters["termometro"] })}
-        options={TERMOMETRO_OPTIONS}
+        options={TERMOMETRO_FILTER_OPTIONS}
         className="w-32"
       />
       <Select
         label="Segmento"
-        placeholder="Todos"
         value={value.segmento}
         onChange={(e) => onChange({ ...value, segmento: e.target.value as LeadFilters["segmento"] })}
-        options={SEGMENTO_OPTIONS}
+        options={SEGMENTO_FILTER_OPTIONS}
         className="w-36"
       />
       {hasActiveFilters && (
