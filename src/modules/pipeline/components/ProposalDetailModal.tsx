@@ -18,6 +18,7 @@ const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
   timeStyle: "short",
 });
+const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 
 export interface ProposalDetailModalProps {
   proposta: Proposta;
@@ -103,6 +104,11 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     handleClose();
   }
 
+  const numeroLabel = proposta.numero_proposta ?? proposta.numero_lead ?? undefined;
+  const modalTitle = numeroLabel
+    ? `${numeroLabel} - Criado em ${dateFormatter.format(new Date(proposta.created_at))}`
+    : undefined;
+
   const initialValues = {
     numero_proposta: proposta.numero_proposta ?? "",
     data_envio: proposta.data_envio,
@@ -121,7 +127,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={proposta.numero_proposta ?? proposta.numero_lead ?? undefined}
+      title={modalTitle}
       className="max-w-2xl"
     >
       <div className="flex flex-col gap-5">

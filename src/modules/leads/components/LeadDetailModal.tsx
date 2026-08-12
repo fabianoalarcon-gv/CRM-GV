@@ -15,6 +15,7 @@ import { LeadForm } from "./LeadForm";
 import { AcaoForm } from "./AcaoForm";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
+const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 
 export interface LeadDetailModalProps {
   proposta: Proposta;
@@ -120,6 +121,10 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     handleClose();
   }
 
+  const modalTitle = proposta.numero_lead
+    ? `${proposta.numero_lead} - Criado em ${dateFormatter.format(new Date(proposta.created_at))}`
+    : undefined;
+
   const initialValues: LeadInput = {
     cliente_id: proposta.cliente_id,
     termometro: proposta.termometro,
@@ -130,7 +135,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={proposta.numero_lead ?? undefined} className="max-w-2xl">
+    <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle} className="max-w-2xl">
       <div className="flex flex-col gap-5">
         <LeadForm
           initialValues={initialValues}
