@@ -157,8 +157,13 @@ export async function createAcao(leadId: number, clienteId: number, input: AcaoI
 
   const baseInicio = new Date(input.inicio);
   const baseFim = input.fim ? new Date(input.fim) : null;
+  // quantidadeRepeticoes é quantas vezes a ação SE REPETE além da original
+  // (ex: semanal + 1 repetição = evento de hoje + 1 daqui a uma semana = 2
+  // ocorrências no total).
   const totalOcorrencias =
-    input.repeticao === "nao_repete" ? 1 : Math.min(Math.max(input.quantidadeRepeticoes, 1), MAX_REPETICOES);
+    input.repeticao === "nao_repete"
+      ? 1
+      : Math.min(Math.max(input.quantidadeRepeticoes, 1), MAX_REPETICOES) + 1;
 
   const rows = Array.from({ length: totalOcorrencias }, (_, i) => {
     const inicio = shiftDate(baseInicio, input.repeticao, i);
