@@ -64,7 +64,7 @@ export function LeadFiltersBar({ value, onChange }: LeadFiltersBarProps) {
           aria-label="Limpar filtros"
           className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"
         >
-          <Icon name="filter_alt_off" size={20} />
+          <Icon name="close" size={20} />
         </button>
       )}
     </div>
