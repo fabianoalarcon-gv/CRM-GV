@@ -274,6 +274,21 @@ export type Database = {
         }
         Relationships: []
       }
+      proposta_number_counters: {
+        Row: {
+          ano: number
+          ultimo_numero: number
+        }
+        Insert: {
+          ano: number
+          ultimo_numero?: number
+        }
+        Update: {
+          ano?: number
+          ultimo_numero?: number
+        }
+        Relationships: []
+      }
       propostas: {
         Row: {
           cliente_id: number
@@ -281,6 +296,7 @@ export type Database = {
           created_by: string | null
           data_envio: string
           descricao: string | null
+          gerado_de_lead: boolean
           id: number
           numero_lead: string | null
           numero_proposta: string | null
@@ -300,6 +316,7 @@ export type Database = {
           created_by?: string | null
           data_envio?: string
           descricao?: string | null
+          gerado_de_lead?: boolean
           id?: never
           numero_lead?: string | null
           numero_proposta?: string | null
@@ -319,6 +336,7 @@ export type Database = {
           created_by?: string | null
           data_envio?: string
           descricao?: string | null
+          gerado_de_lead?: boolean
           id?: never
           numero_lead?: string | null
           numero_proposta?: string | null
@@ -410,7 +428,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      gerar_numero_proposta: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { useIsAdmin } from "@/lib/auth/context";
 import { usePipelineData } from "../context";
 import { addProposalHistoryEntry, deleteProposal, updateProposal } from "../actions";
+import { reverterParaQualificacao } from "@/modules/leads/actions";
 import { ProposalForm } from "./ProposalForm";
 import type { Proposta } from "../types";
 
@@ -22,7 +23,7 @@ export interface ProposalDetailModalProps {
 }
 
 export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetailModalProps) {
-  const { history } = usePipelineData();
+  const { history, statuses } = usePipelineData();
   const isAdmin = useIsAdmin();
   const [noteText, setNoteText] = useState("");
   const [isSavingNote, setIsSavingNote] = useState(false);
@@ -31,13 +32,21 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
+  const [isReverting, setIsReverting] = useState(false);
+  const [revertError, setRevertError] = useState<string | null>(null);
+  const [confirmingRevert, setConfirmingRevert] = useState(false);
+
   const entries = history.filter((h) => h.proposta_id === proposta.id);
+  const canRevert =
+    proposta.gerado_de_lead && statuses.find((s) => s.id === proposta.status_id)?.key === "proposta";
 
   function handleClose() {
     setConfirmingDelete(false);
     setNoteText("");
     setNoteError(null);
     setDeleteError(null);
+    setConfirmingRevert(false);
+    setRevertError(null);
     onClose();
   }
 
@@ -53,6 +62,18 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
       return;
     }
     setNoteText("");
+  }
+
+  async function handleRevert() {
+    setIsReverting(true);
+    setRevertError(null);
+    const result = await reverterParaQualificacao(proposta.id);
+    setIsReverting(false);
+    if (result.error) {
+      setRevertError(result.error);
+      return;
+    }
+    handleClose();
   }
 
   async function handleDelete() {
@@ -90,6 +111,13 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
       className="max-w-2xl"
     >
       <div className="flex flex-col gap-5">
+        {proposta.gerado_de_lead && proposta.numero_lead && (
+          <p className="text-xs text-brand-graphite-light">
+            Gerada a partir do lead{" "}
+            <span className="font-mono font-medium text-foreground">{proposta.numero_lead}</span>
+          </p>
+        )}
+
         <ProposalForm
           initialValues={initialValues}
           submitLabel="Salvar alterações"
@@ -141,39 +169,68 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           </div>
         </div>
 
-        {isAdmin && (
-          <div className="border-t border-border pt-4">
-            {deleteError && <p className="mb-2 text-sm text-temp-quente">{deleteError}</p>}
-            {confirmingDelete ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-brand-graphite-light">Excluir esta proposta?</span>
-                <Button
-                  type="button"
-                  variant="danger"
-                  size="sm"
-                  disabled={isDeleting}
-                  onClick={handleDelete}
-                >
-                  {isDeleting ? "Excluindo…" : "Confirmar"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setConfirmingDelete(false)}
-                >
-                  Cancelar
-                </Button>
+        {(isAdmin || canRevert) && (
+          <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
+            <div>
+              {isAdmin && (
+                <>
+                  {deleteError && <p className="mb-2 text-sm text-temp-quente">{deleteError}</p>}
+                  {confirmingDelete ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-brand-graphite-light">Excluir esta proposta?</span>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        disabled={isDeleting}
+                        onClick={handleDelete}
+                      >
+                        {isDeleting ? "Excluindo…" : "Confirmar"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setConfirmingDelete(false)}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmingDelete(true)}
+                    >
+                      Excluir
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+
+            {canRevert && (
+              <div>
+                {revertError && <p className="mb-2 text-sm text-temp-quente">{revertError}</p>}
+                {confirmingRevert ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-brand-graphite-light">
+                      Reverter esta proposta para Qualificação?
+                    </span>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmingRevert(false)}>
+                      Cancelar
+                    </Button>
+                    <Button type="button" size="sm" disabled={isReverting} onClick={handleRevert}>
+                      {isReverting ? "Revertendo…" : "Confirmar"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button type="button" variant="outline" onClick={() => setConfirmingRevert(true)}>
+                    Reverter para Qualificação
+                  </Button>
+                )}
               </div>
-            ) : (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setConfirmingDelete(true)}
-              >
-                Excluir
-              </Button>
             )}
           </div>
         )}

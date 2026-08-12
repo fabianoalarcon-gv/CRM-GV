@@ -9,7 +9,7 @@ import { deleteProposal, addProposalHistoryEntry } from "@/modules/pipeline/acti
 import type { Proposta } from "@/modules/pipeline/types";
 import { TIPO_COLOR, TIPO_LABEL, toDatetimeLocalValue } from "@/modules/calendario/utils";
 import { useLeadsData } from "../context";
-import { createAcao, updateLead } from "../actions";
+import { createAcao, gerarProposta, updateLead } from "../actions";
 import type { AcaoInput, LeadInput } from "../types";
 import { LeadForm } from "./LeadForm";
 import { AcaoForm } from "./AcaoForm";
@@ -23,10 +23,14 @@ export interface LeadDetailModalProps {
 }
 
 export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalProps) {
-  const { history, compromissos } = useLeadsData();
+  const { statuses, history, compromissos } = useLeadsData();
   const isAdmin = useIsAdmin();
 
   const [isCreatingAcao, setIsCreatingAcao] = useState(false);
+
+  const [isGerandoProposta, setIsGerandoProposta] = useState(false);
+  const [gerarError, setGerarError] = useState<string | null>(null);
+  const [confirmingGerarProposta, setConfirmingGerarProposta] = useState(false);
 
   const [andamentoText, setAndamentoText] = useState("");
   const [isSavingAndamento, setIsSavingAndamento] = useState(false);
@@ -40,6 +44,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
+  const isQualificacao = statuses.find((s) => s.id === proposta.status_id)?.key === "qualificacao";
   const andamentos = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "andamento");
   const observacoes = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "observacao");
   const acoes = compromissos
@@ -55,6 +60,8 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     setObsError(null);
     setConfirmingDelete(false);
     setDeleteError(null);
+    setConfirmingGerarProposta(false);
+    setGerarError(null);
     onClose();
   }
 
@@ -87,6 +94,18 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
   async function handleCreateAcao(input: AcaoInput) {
     const result = await createAcao(proposta.id, proposta.cliente_id, input);
     return result;
+  }
+
+  async function handleGerarProposta() {
+    setIsGerandoProposta(true);
+    setGerarError(null);
+    const result = await gerarProposta(proposta.id);
+    setIsGerandoProposta(false);
+    if (result.error) {
+      setGerarError(result.error);
+      return;
+    }
+    handleClose();
   }
 
   async function handleDelete() {
@@ -180,23 +199,66 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
           </div>
         </div>
 
-        {isAdmin && (
-          <div className="border-t border-border pt-4">
-            {deleteError && <p className="mb-2 text-sm text-temp-quente">{deleteError}</p>}
-            {confirmingDelete ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-brand-graphite-light">Excluir este lead?</span>
-                <Button type="button" variant="danger" size="sm" disabled={isDeleting} onClick={handleDelete}>
-                  {isDeleting ? "Excluindo…" : "Confirmar"}
-                </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmingDelete(false)}>
-                  Cancelar
-                </Button>
+        {(isAdmin || isQualificacao) && (
+          <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
+            <div>
+              {isAdmin && (
+                <>
+                  {deleteError && <p className="mb-2 text-sm text-temp-quente">{deleteError}</p>}
+                  {confirmingDelete ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-brand-graphite-light">Excluir este lead?</span>
+                      <Button
+                        type="button"
+                        variant="danger"
+                        size="sm"
+                        disabled={isDeleting}
+                        onClick={handleDelete}
+                      >
+                        {isDeleting ? "Excluindo…" : "Confirmar"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setConfirmingDelete(false)}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmingDelete(true)}>
+                      Excluir
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+
+            {isQualificacao && (
+              <div>
+                {gerarError && <p className="mb-2 text-sm text-temp-quente">{gerarError}</p>}
+                {confirmingGerarProposta ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-brand-graphite-light">Gerar proposta a partir deste lead?</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmingGerarProposta(false)}
+                    >
+                      Cancelar
+                    </Button>
+                    <Button type="button" size="sm" disabled={isGerandoProposta} onClick={handleGerarProposta}>
+                      {isGerandoProposta ? "Gerando…" : "Confirmar"}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button type="button" onClick={() => setConfirmingGerarProposta(true)}>
+                    Gerar Proposta
+                  </Button>
+                )}
               </div>
-            ) : (
-              <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmingDelete(true)}>
-                Excluir
-              </Button>
             )}
           </div>
         )}
