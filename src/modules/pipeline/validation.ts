@@ -1,5 +1,7 @@
-// PIPE-10: padrão NNN/AA, com sufixo opcional de revisão (ex: "028/25" ou "028/25.1").
-const NUMERO_PROPOSTA_PATTERN = /^\d{3}\/\d{2}(\.\d+)?$/;
+// PIPE-10: padrão NNN/AA, com sufixo opcional de revisão (ex: "028/25" ou
+// "028/25.1"). Prefixo "P" opcional (ex: "P021/26") — formato usado quando o
+// número é gerado automaticamente a partir de um Lead (Gerar Proposta).
+const NUMERO_PROPOSTA_PATTERN = /^P?\d{3}\/\d{2}(\.\d+)?$/;
 
 export function isValidNumeroProposta(value: string): boolean {
   return NUMERO_PROPOSTA_PATTERN.test(value.trim());
