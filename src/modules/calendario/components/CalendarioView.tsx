@@ -284,7 +284,10 @@ function MonthView({ currentDate, compromissosOn, onSelect, onCreate }: DayListP
           <button
             key={day.toISOString()}
             type="button"
-            onClick={() => (dayCompromissos.length > 0 ? onSelect(dayCompromissos[0]) : onCreate(day))}
+            // Clicar no fundo da célula sempre cria um novo compromisso, mesmo
+            // que o dia já tenha outros — cada chip de evento já tem seu
+            // próprio onClick (com stopPropagation) pra abrir o existente.
+            onClick={() => onCreate(day)}
             className={cn(
               "flex min-h-24 flex-col gap-1 bg-surface p-1.5 text-left align-top hover:bg-black/[.02]",
               !inCurrentMonth && "opacity-40",
