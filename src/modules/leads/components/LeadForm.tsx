@@ -3,7 +3,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Combobox } from "@/components/ui/Combobox";
-import { Input } from "@/components/ui/Input";
+import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
@@ -85,7 +85,7 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
         onChange={(e) => update("descricao", e.target.value)}
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Select
           label="Termômetro"
           value={values.termometro}
@@ -99,22 +99,21 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
           onChange={(e) => update("segmento", (e.target.value || null) as LeadInput["segmento"])}
           options={SEGMENTO_OPTIONS}
         />
-        <Input
-          label="Valor estimado (R$)"
-          type="number"
-          min="0"
-          step="0.01"
-          value={values.valor_estimado ?? ""}
-          onChange={(e) => update("valor_estimado", e.target.value === "" ? null : Number(e.target.value))}
-        />
       </div>
 
-      <Select
-        label="Status"
-        value={String(values.status_id)}
-        onChange={(e) => update("status_id", Number(e.target.value))}
-        options={statuses.map((s) => ({ value: String(s.id), label: s.label }))}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <CurrencyInput
+          label="Valor estimado"
+          value={values.valor_estimado}
+          onChange={(v) => update("valor_estimado", v)}
+        />
+        <Select
+          label="Status"
+          value={String(values.status_id)}
+          onChange={(e) => update("status_id", Number(e.target.value))}
+          options={statuses.map((s) => ({ value: String(s.id), label: s.label }))}
+        />
+      </div>
 
       {formError && <p className="text-sm text-temp-quente">{formError}</p>}
 
