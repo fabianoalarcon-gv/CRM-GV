@@ -13,6 +13,7 @@ export interface BoardViewProps {
   CardComponent: ComponentType<{ proposta: Proposta }>;
   ListComponent: ComponentType<{ propostas: Proposta[] }>;
   newButton: ReactNode;
+  filters?: ReactNode;
 }
 
 export function BoardView({
@@ -23,6 +24,7 @@ export function BoardView({
   CardComponent,
   ListComponent,
   newButton,
+  filters,
 }: BoardViewProps) {
   const [viewMode, setViewMode] = useState<BoardViewMode>("kanban");
 
@@ -41,9 +43,12 @@ export function BoardView({
           </h1>
           <p className="mt-1 text-sm text-brand-graphite-light">{subtitle}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <ViewToggle value={viewMode} onChange={setViewMode} />
-          {newButton}
+        <div className="flex flex-wrap items-end gap-3">
+          {filters}
+          <div className="flex items-center gap-2">
+            <ViewToggle value={viewMode} onChange={setViewMode} />
+            {newButton}
+          </div>
         </div>
       </div>
 

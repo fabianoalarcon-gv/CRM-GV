@@ -1,10 +1,10 @@
-import { BoardView } from "@/modules/pipeline/components/BoardView";
 import { getClientesOptions, getProposalHistory, getProposalStatuses, getPropostas } from "@/modules/pipeline/queries";
 import { LEADS_STATUS_KEYS } from "@/modules/pipeline/types";
 import { getCompromissos } from "@/modules/calendario/queries";
 import { LeadsDataProvider } from "@/modules/leads/context";
 import { LeadCard } from "@/modules/leads/components/LeadCard";
 import { LeadListView } from "@/modules/leads/components/LeadListView";
+import { LeadsBoardSection } from "@/modules/leads/components/LeadsBoardSection";
 import { NewLeadButton } from "@/modules/leads/components/NewLeadButton";
 
 export default async function LeadsPage() {
@@ -23,7 +23,7 @@ export default async function LeadsPage() {
   return (
     <LeadsDataProvider value={{ statuses: columnStatuses, clientes, history, compromissos }}>
       <div className="flex h-full flex-col gap-6">
-        <BoardView
+        <LeadsBoardSection
           title="Leads"
           subtitle="Arraste os cards entre as colunas para atualizar o status do lead."
           initialPropostas={propostas}
