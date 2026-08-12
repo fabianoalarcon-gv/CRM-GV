@@ -71,7 +71,6 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Combobox
         label="Empresa"
-        required
         placeholder="Selecione um cliente"
         value={values.cliente_id ? String(values.cliente_id) : ""}
         onChange={(v) => update("cliente_id", Number(v))}
@@ -80,7 +79,7 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
       />
 
       <Textarea
-        label="Descrição do lead"
+        label="Descrição do Lead"
         value={values.descricao}
         onChange={(e) => update("descricao", e.target.value)}
       />
@@ -93,7 +92,7 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
           options={TERMOMETRO_OPTIONS}
         />
         <Select
-          label="Segmento proposta"
+          label="Segmento"
           placeholder="Sem segmento"
           value={values.segmento ?? ""}
           onChange={(e) => update("segmento", (e.target.value || null) as LeadInput["segmento"])}
@@ -103,7 +102,7 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <CurrencyInput
-          label="Valor estimado"
+          label="Valor Estimado"
           value={values.valor_estimado}
           onChange={(v) => update("valor_estimado", v)}
         />
