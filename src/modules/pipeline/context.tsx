@@ -9,6 +9,7 @@ import type {
   ProposalStatus,
   ProximoCompromisso,
 } from "./types";
+import type { Compromisso } from "@/modules/calendario/types";
 
 export interface PipelineDataValue {
   statuses: ProposalStatus[];
@@ -17,6 +18,7 @@ export interface PipelineDataValue {
   history: ProposalHistoryEntry[];
   contatosPrincipais: Map<number, ContatoPrincipal>;
   proximosCompromissos: Map<number, ProximoCompromisso>;
+  compromissos: Compromisso[];
 }
 
 const PipelineDataContext = createContext<PipelineDataValue | null>(null);

@@ -278,6 +278,8 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
             fim: "",
             tipo: "reuniao",
             descricao: "",
+            repeticao: "nao_repete",
+            quantidadeRepeticoes: 1,
           }}
           onSubmit={handleCreateAcao}
           onSuccess={() => setIsCreatingAcao(false)}

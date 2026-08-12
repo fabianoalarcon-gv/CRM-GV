@@ -10,10 +10,14 @@ export interface LeadInput {
   status_id: number;
 }
 
+export type Repeticao = "nao_repete" | "diaria" | "semanal" | "mensal" | "anual" | "dias_uteis";
+
 export interface AcaoInput {
   titulo: string;
   inicio: string;
   fim: string;
   tipo: CompromissoTipo;
   descricao: string;
+  repeticao: Repeticao;
+  quantidadeRepeticoes: number;
 }

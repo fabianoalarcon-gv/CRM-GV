@@ -7,7 +7,10 @@ import { Textarea } from "@/components/ui/Textarea";
 import { useIsAdmin } from "@/lib/auth/context";
 import { usePipelineData } from "../context";
 import { addProposalHistoryEntry, deleteProposal, updateProposal } from "../actions";
-import { reverterParaQualificacao } from "@/modules/leads/actions";
+import { createAcao, reverterParaQualificacao } from "@/modules/leads/actions";
+import type { AcaoInput } from "@/modules/leads/types";
+import { AcaoForm } from "@/modules/leads/components/AcaoForm";
+import { TIPO_COLOR, TIPO_LABEL, toDatetimeLocalValue } from "@/modules/calendario/utils";
 import { ProposalForm } from "./ProposalForm";
 import type { Proposta } from "../types";
 
@@ -23,7 +26,7 @@ export interface ProposalDetailModalProps {
 }
 
 export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetailModalProps) {
-  const { history, statuses } = usePipelineData();
+  const { history, statuses, compromissos } = usePipelineData();
   const isAdmin = useIsAdmin();
   const [noteText, setNoteText] = useState("");
   const [isSavingNote, setIsSavingNote] = useState(false);
@@ -36,7 +39,13 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
   const [revertError, setRevertError] = useState<string | null>(null);
   const [confirmingRevert, setConfirmingRevert] = useState(false);
 
+  const [isCreatingAcao, setIsCreatingAcao] = useState(false);
+
   const entries = history.filter((h) => h.proposta_id === proposta.id);
+  const acoes = compromissos
+    .filter((c) => c.proposta_id === proposta.id)
+    .slice()
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   const canRevert =
     proposta.gerado_de_lead && statuses.find((s) => s.id === proposta.status_id)?.key === "proposta";
 
@@ -47,7 +56,12 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     setDeleteError(null);
     setConfirmingRevert(false);
     setRevertError(null);
+    setIsCreatingAcao(false);
     onClose();
+  }
+
+  async function handleCreateAcao(input: AcaoInput) {
+    return createAcao(proposta.id, proposta.cliente_id, input);
   }
 
   async function handleAddNote() {
@@ -169,6 +183,45 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           </div>
         </div>
 
+        <div className="border-t border-border pt-4">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">Ações</p>
+            <Button type="button" variant="outline" size="sm" onClick={() => setIsCreatingAcao(true)}>
+              + Ações
+            </Button>
+          </div>
+
+          <div className="mt-2 flex max-h-48 flex-col gap-2 overflow-y-auto pr-1">
+            {acoes.length === 0 && (
+              <p className="text-sm text-brand-graphite-light">Nenhuma ação registrada ainda.</p>
+            )}
+            {acoes.map((acao) => (
+              <div key={acao.id} className="rounded-lg bg-black/[.02] p-2.5 text-sm">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    {acao.tipo && (
+                      <span
+                        className="rounded-full px-2 py-0.5 text-[11px] font-medium"
+                        style={{
+                          backgroundColor: `color-mix(in srgb, ${TIPO_COLOR[acao.tipo]} 12%, transparent)`,
+                          color: TIPO_COLOR[acao.tipo],
+                        }}
+                      >
+                        {TIPO_LABEL[acao.tipo]}
+                      </span>
+                    )}
+                    <span className="font-medium text-foreground">{acao.titulo}</span>
+                  </div>
+                  <span className="text-xs text-brand-graphite-light">
+                    {dateTimeFormatter.format(new Date(acao.inicio))}
+                  </span>
+                </div>
+                {acao.descricao && <p className="mt-1 text-foreground">{acao.descricao}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {(isAdmin || canRevert) && (
           <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
             <div>
@@ -235,6 +288,29 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           </div>
         )}
       </div>
+
+      <Modal
+        isOpen={isCreatingAcao}
+        onClose={() => setIsCreatingAcao(false)}
+        title="Nova ação"
+        className="max-w-2xl"
+      >
+        <AcaoForm
+          clienteNome={proposta.cliente_nome}
+          initialValues={{
+            titulo: "",
+            inicio: toDatetimeLocalValue(new Date()),
+            fim: "",
+            tipo: "reuniao",
+            descricao: "",
+            repeticao: "nao_repete",
+            quantidadeRepeticoes: 1,
+          }}
+          onSubmit={handleCreateAcao}
+          onSuccess={() => setIsCreatingAcao(false)}
+          onCancel={() => setIsCreatingAcao(false)}
+        />
+      </Modal>
     </Modal>
   );
 }

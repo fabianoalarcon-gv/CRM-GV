@@ -2,11 +2,49 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { AcaoInput, LeadInput } from "./types";
+import type { AcaoInput, LeadInput, Repeticao } from "./types";
+
+const MAX_REPETICOES = 100;
 
 function revalidateLeadPaths() {
   revalidatePath("/leads");
   revalidatePath("/pipeline");
+}
+
+// Desloca uma data pra frente conforme o padrão de repetição — index 0 é
+// sempre a data original (primeira ocorrência), sem deslocamento.
+function shiftDate(date: Date, repeticao: Repeticao, occurrenceIndex: number): Date {
+  if (occurrenceIndex === 0) return date;
+  const shifted = new Date(date);
+
+  switch (repeticao) {
+    case "diaria":
+      shifted.setDate(shifted.getDate() + occurrenceIndex);
+      break;
+    case "semanal":
+      shifted.setDate(shifted.getDate() + occurrenceIndex * 7);
+      break;
+    case "mensal":
+      shifted.setMonth(shifted.getMonth() + occurrenceIndex);
+      break;
+    case "anual":
+      shifted.setFullYear(shifted.getFullYear() + occurrenceIndex);
+      break;
+    case "dias_uteis": {
+      let remaining = occurrenceIndex;
+      while (remaining > 0) {
+        shifted.setDate(shifted.getDate() + 1);
+        const day = shifted.getDay();
+        if (day !== 0 && day !== 6) remaining--;
+      }
+      break;
+    }
+    case "nao_repete":
+    default:
+      break;
+  }
+
+  return shifted;
 }
 
 export async function createLead(input: LeadInput) {
@@ -117,16 +155,27 @@ export async function createAcao(leadId: number, clienteId: number, input: AcaoI
   } = await supabase.auth.getUser();
   if (!user) return { error: "Sessão expirada, faça login novamente." };
 
-  const { error } = await supabase.from("compromissos").insert({
-    titulo: input.titulo.trim(),
-    descricao: input.descricao.trim() || null,
-    inicio: new Date(input.inicio).toISOString(),
-    fim: input.fim ? new Date(input.fim).toISOString() : null,
-    tipo: input.tipo,
-    cliente_id: clienteId,
-    proposta_id: leadId,
-    criado_por: user.id,
+  const baseInicio = new Date(input.inicio);
+  const baseFim = input.fim ? new Date(input.fim) : null;
+  const totalOcorrencias =
+    input.repeticao === "nao_repete" ? 1 : Math.min(Math.max(input.quantidadeRepeticoes, 1), MAX_REPETICOES);
+
+  const rows = Array.from({ length: totalOcorrencias }, (_, i) => {
+    const inicio = shiftDate(baseInicio, input.repeticao, i);
+    const fim = baseFim ? shiftDate(baseFim, input.repeticao, i) : null;
+    return {
+      titulo: input.titulo.trim(),
+      descricao: input.descricao.trim() || null,
+      inicio: inicio.toISOString(),
+      fim: fim ? fim.toISOString() : null,
+      tipo: input.tipo,
+      cliente_id: clienteId,
+      proposta_id: leadId,
+      criado_por: user.id,
+    };
   });
+
+  const { error } = await supabase.from("compromissos").insert(rows);
 
   if (error) return { error: error.message };
 

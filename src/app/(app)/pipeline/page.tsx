@@ -13,9 +13,10 @@ import {
   getProximosCompromissos,
 } from "@/modules/pipeline/queries";
 import { PIPELINE_STATUS_KEYS } from "@/modules/pipeline/types";
+import { getCompromissos } from "@/modules/calendario/queries";
 
 export default async function PipelinePage() {
-  const [statuses, propostas, clientes, profiles, history, contatosPrincipais, proximosCompromissos] =
+  const [statuses, propostas, clientes, profiles, history, contatosPrincipais, proximosCompromissos, compromissos] =
     await Promise.all([
       getProposalStatuses(),
       getPropostas(),
@@ -24,6 +25,7 @@ export default async function PipelinePage() {
       getProposalHistory(),
       getContatosPrincipais(),
       getProximosCompromissos(),
+      getCompromissos(),
     ]);
 
   const columnStatuses = statuses.filter((s) =>
@@ -32,7 +34,7 @@ export default async function PipelinePage() {
 
   return (
     <PipelineDataProvider
-      value={{ statuses, clientes, profiles, history, contatosPrincipais, proximosCompromissos }}
+      value={{ statuses, clientes, profiles, history, contatosPrincipais, proximosCompromissos, compromissos }}
     >
       <div className="flex h-full flex-col gap-6">
         <BoardView

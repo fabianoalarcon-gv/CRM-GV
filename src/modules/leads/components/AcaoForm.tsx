@@ -6,7 +6,20 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { TIPO_OPTIONS } from "@/modules/calendario/utils";
-import type { AcaoInput } from "../types";
+import type { AcaoInput, Repeticao } from "../types";
+
+const REPETICAO_OPTIONS: { value: Repeticao; label: string }[] = [
+  { value: "nao_repete", label: "Não se repete" },
+  { value: "diaria", label: "Todos os dias" },
+  { value: "semanal", label: "Semanal" },
+  { value: "mensal", label: "Mensal" },
+  { value: "anual", label: "Anual" },
+  { value: "dias_uteis", label: "Segunda a Sexta" },
+];
+
+// Trava de segurança contra um número digitado por engano (ex: "9999")
+// gerando uma quantidade absurda de ocorrências de uma vez.
+const MAX_REPETICOES = 100;
 
 export interface AcaoFormProps {
   clienteNome: string;
@@ -79,6 +92,31 @@ export function AcaoForm({ clienteNome, initialValues, onSubmit, onSuccess, onCa
             {clienteNome}
           </p>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Select
+          label="Repetir"
+          value={values.repeticao}
+          onChange={(e) => update("repeticao", e.target.value as Repeticao)}
+          options={REPETICAO_OPTIONS}
+        />
+        {values.repeticao !== "nao_repete" && (
+          <Input
+            label="Quantidade de repetições"
+            type="number"
+            min={1}
+            max={MAX_REPETICOES}
+            step={1}
+            required
+            value={values.quantidadeRepeticoes}
+            onChange={(e) => {
+              const parsed = Math.trunc(Number(e.target.value));
+              const clamped = Number.isFinite(parsed) ? Math.min(Math.max(parsed, 1), MAX_REPETICOES) : 1;
+              update("quantidadeRepeticoes", clamped);
+            }}
+          />
+        )}
       </div>
 
       <Textarea
