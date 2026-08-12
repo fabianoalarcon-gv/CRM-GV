@@ -31,6 +31,8 @@ export interface ProposalFormProps {
   onSubmit: (input: ProposalInput) => Promise<{ error: string | null }>;
   onSuccess: () => void;
   onCancel: () => void;
+  /** "create" esconde Número da proposta — o sistema gera sozinho. */
+  mode?: "create" | "edit";
 }
 
 export function ProposalForm({
@@ -39,6 +41,7 @@ export function ProposalForm({
   onSubmit,
   onSuccess,
   onCancel,
+  mode = "edit",
 }: ProposalFormProps) {
   const { statuses, clientes, profiles } = usePipelineData();
   const [values, setValues] = useState<ProposalInput>(initialValues);
@@ -65,7 +68,7 @@ export function ProposalForm({
     event.preventDefault();
     setFormError(null);
 
-    if (!isValidNumeroProposta(values.numero_proposta)) {
+    if (mode === "edit" && !isValidNumeroProposta(values.numero_proposta)) {
       setNumeroError(NUMERO_PROPOSTA_HINT);
       return;
     }
@@ -86,15 +89,17 @@ export function ProposalForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input
-          label="Número da proposta"
-          placeholder="028/25"
-          required
-          value={values.numero_proposta}
-          error={numeroError ?? undefined}
-          onChange={(e) => update("numero_proposta", e.target.value)}
-        />
+      <div className={mode === "edit" ? "grid grid-cols-1 gap-4 sm:grid-cols-2" : undefined}>
+        {mode === "edit" && (
+          <Input
+            label="Número da proposta"
+            placeholder="028/25"
+            required
+            value={values.numero_proposta}
+            error={numeroError ?? undefined}
+            onChange={(e) => update("numero_proposta", e.target.value)}
+          />
+        )}
         <Input
           label="Data de envio"
           type="date"

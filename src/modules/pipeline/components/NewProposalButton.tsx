@@ -48,6 +48,7 @@ export function NewProposalButton({ columnStatuses }: NewProposalButtonProps) {
         className="max-w-2xl"
       >
         <ProposalForm
+          mode="create"
           initialValues={initialValues}
           submitLabel="Criar proposta"
           onSubmit={createProposal}

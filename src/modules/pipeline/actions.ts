@@ -57,18 +57,20 @@ function friendlyError(error: { code?: string; message: string }): string {
 }
 
 export async function createProposal(input: ProposalInput) {
-  if (!isValidNumeroProposta(input.numero_proposta)) {
-    return { error: "Número da proposta inválido. Use o formato NNN/AA (ex: 028/25)." };
-  }
-
   const supabase = await createClient();
+
+  // Número da proposta é sempre gerado pelo sistema na criação (PNNN/AA,
+  // mesmo contador usado em "Gerar Proposta") — o usuário não digita mais.
+  const { data: numeroProposta, error: numeroError } = await supabase.rpc("gerar_numero_proposta");
+  if (numeroError) return { error: numeroError.message };
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { error } = await supabase
     .from("propostas")
-    .insert({ ...toRow(input), created_by: user?.id ?? null });
+    .insert({ ...toRow(input), numero_proposta: numeroProposta, created_by: user?.id ?? null });
 
   if (error) return { error: friendlyError(error) };
 
