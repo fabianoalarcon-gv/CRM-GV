@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
+import { Combobox } from "@/components/ui/Combobox";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
@@ -26,6 +27,7 @@ export interface LeadFormProps {
 export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCancel }: LeadFormProps) {
   const { statuses, clientes } = useLeadsData();
   const [values, setValues] = useState<LeadInput>(initialValues);
+  const [clienteError, setClienteError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
@@ -39,11 +41,18 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
   function update<K extends keyof LeadInput>(key: K, value: LeadInput[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
     setJustSaved(false);
+    if (key === "cliente_id") setClienteError(null);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
+
+    if (!values.cliente_id) {
+      setClienteError("Selecione a empresa.");
+      return;
+    }
+    setClienteError(null);
 
     setIsSubmitting(true);
     const result = await onSubmit(values);
@@ -60,13 +69,14 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <Select
+      <Combobox
         label="Empresa"
         required
         placeholder="Selecione um cliente"
         value={values.cliente_id ? String(values.cliente_id) : ""}
-        onChange={(e) => update("cliente_id", Number(e.target.value))}
+        onChange={(v) => update("cliente_id", Number(v))}
         options={clientes.map((c) => ({ value: String(c.id), label: c.nome }))}
+        error={clienteError ?? undefined}
       />
 
       <Textarea
