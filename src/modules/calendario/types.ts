@@ -9,7 +9,8 @@ export type CompromissoTipo =
   | "outro"
   | "ligacao"
   | "email"
-  | "visita";
+  | "visita"
+  | "follow_up";
 
 export interface Compromisso {
   id: number;

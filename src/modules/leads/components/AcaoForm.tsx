@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { TIPO_OPTIONS } from "@/modules/calendario/utils";
+import { ACAO_TIPO_OPTIONS } from "@/modules/calendario/utils";
 import type { AcaoInput, Repeticao } from "../types";
 
 const REPETICAO_OPTIONS: { value: Repeticao; label: string }[] = [
@@ -84,7 +84,7 @@ export function AcaoForm({ clienteNome, initialValues, onSubmit, onSuccess, onCa
           label="Categoria"
           value={values.tipo}
           onChange={(e) => update("tipo", e.target.value as AcaoInput["tipo"])}
-          options={TIPO_OPTIONS}
+          options={ACAO_TIPO_OPTIONS}
         />
         <div className="flex flex-col gap-1.5">
           <span className="text-sm font-medium text-foreground">Cliente</span>

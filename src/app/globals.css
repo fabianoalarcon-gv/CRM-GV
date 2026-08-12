@@ -53,6 +53,10 @@
   --cal-ligacao: #7c3aed;
   --cal-email: #db2777;
   --cal-visita: #92400e;
+
+  /* Follow-Up (LEAD): 9ª cor da categoria, validada junto com as 8 já
+     existentes (validate_palette.js). */
+  --cal-followup: #16a34a;
 }
 
 @theme inline {
@@ -80,6 +84,7 @@
   --color-cal-ligacao: var(--cal-ligacao);
   --color-cal-email: var(--cal-email);
   --color-cal-visita: var(--cal-visita);
+  --color-cal-followup: var(--cal-followup);
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);

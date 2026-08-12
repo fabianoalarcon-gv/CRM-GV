@@ -13,6 +13,18 @@ export const TIPO_OPTIONS: { value: CompromissoTipo; label: string }[] = [
   { value: "ligacao", label: "Ligação" },
   { value: "email", label: "E-mail" },
   { value: "visita", label: "Visita" },
+  { value: "follow_up", label: "Follow-Up" },
+];
+
+// Categorias de Ação (LEAD/pipeline): subconjunto fixo de TIPO_OPTIONS — só
+// as categorias relevantes para uma ação de cliente aparecem no formulário.
+export const ACAO_TIPO_OPTIONS: { value: CompromissoTipo; label: string }[] = [
+  { value: "reuniao", label: "Reunião" },
+  { value: "ligacao", label: "Ligação" },
+  { value: "email", label: "E-mail" },
+  { value: "visita", label: "Visita" },
+  { value: "follow_up", label: "Follow-Up" },
+  { value: "outro", label: "Outro" },
 ];
 
 export const TIPO_LABEL: Record<CompromissoTipo, string> = Object.fromEntries(
@@ -30,6 +42,7 @@ export const TIPO_COLOR: Record<CompromissoTipo, string> = {
   ligacao: "var(--color-cal-ligacao)",
   email: "var(--color-cal-email)",
   visita: "var(--color-cal-visita)",
+  follow_up: "var(--color-cal-followup)",
 };
 
 export function toDatetimeLocalValue(date: Date): string {
