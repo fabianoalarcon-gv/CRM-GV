@@ -25,7 +25,7 @@ export default async function LeadsPage() {
       <div className="flex h-full flex-col gap-6">
         <LeadsBoardSection
           title="Leads"
-          subtitle="Arraste os cards entre as colunas para atualizar o status do lead."
+          subtitle="Mova os cards entre as colunas para alterar seus status."
           initialPropostas={propostas}
           columnStatuses={columnStatuses}
           CardComponent={LeadCard}
