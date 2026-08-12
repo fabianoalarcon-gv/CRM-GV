@@ -1,6 +1,7 @@
-import { BoardClient } from "@/modules/pipeline/components/BoardClient";
+import { BoardView } from "@/modules/pipeline/components/BoardView";
 import { NewProposalButton } from "@/modules/pipeline/components/NewProposalButton";
 import { ProposalCard } from "@/modules/pipeline/components/ProposalCard";
+import { ProposalListView } from "@/modules/pipeline/components/ProposalListView";
 import { PipelineDataProvider } from "@/modules/pipeline/context";
 import {
   getClientesOptions,
@@ -34,25 +35,14 @@ export default async function PipelinePage() {
       value={{ statuses, clientes, profiles, history, contatosPrincipais, proximosCompromissos }}
     >
       <div className="flex h-full flex-col gap-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">
-              Comercial
-            </p>
-            <h1 className="mt-1 font-display text-2xl font-semibold text-foreground sm:text-3xl">
-              Pipeline
-            </h1>
-            <p className="mt-1 text-sm text-brand-graphite-light">
-              Arraste os cards entre as colunas para atualizar o status da proposta.
-            </p>
-          </div>
-          <NewProposalButton columnStatuses={columnStatuses} />
-        </div>
-
-        <BoardClient
+        <BoardView
+          title="Pipeline"
+          subtitle="Arraste os cards entre as colunas para atualizar o status da proposta."
           initialPropostas={propostas}
           columnStatuses={columnStatuses}
           CardComponent={ProposalCard}
+          ListComponent={ProposalListView}
+          newButton={<NewProposalButton key="new-proposal-button" columnStatuses={columnStatuses} />}
         />
       </div>
     </PipelineDataProvider>
