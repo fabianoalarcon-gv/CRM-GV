@@ -70,7 +70,7 @@ export interface CalendarioViewProps {
 }
 
 export function CalendarioView({ compromissos, clientes }: CalendarioViewProps) {
-  const [viewMode, setViewMode] = useState<ViewMode>("semana");
+  const [viewMode, setViewMode] = useState<ViewMode>("mes");
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [selected, setSelected] = useState<Compromisso | null>(null);
   const [createDefaults, setCreateDefaults] = useState<CompromissoInput | null>(null);
@@ -268,7 +268,7 @@ function MonthView({ currentDate, compromissosOn, onSelect, onCreate }: DayListP
   const today = new Date();
 
   return (
-    <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border">
+    <div className="grid shrink-0 grid-cols-7 gap-px overflow-hidden rounded-lg border border-border bg-border">
       {WEEKDAY_LABELS.map((label) => (
         <div
           key={label}
