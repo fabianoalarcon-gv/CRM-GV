@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { isBeforeToday } from "@/modules/calendario/utils";
 import type { AcaoInput, LeadInput, Repeticao } from "./types";
 
 const MAX_REPETICOES = 100;
@@ -181,6 +182,45 @@ export async function createAcao(leadId: number, clienteId: number, input: AcaoI
   });
 
   const { error } = await supabase.from("compromissos").insert(rows);
+
+  if (error) return { error: error.message };
+
+  revalidateLeadPaths();
+  revalidatePath("/calendario");
+  return { error: null };
+}
+
+// Ações já realizadas (inicio antes de hoje) não podem ser excluídas — só
+// valida no servidor de novo aqui porque a UI já bloqueia, mas quem chama a
+// action direto (ou com estado desatualizado) não pode contornar a regra.
+// "esta_e_futuras" apaga a partir da data desta ação (inclusive), só dentro
+// do mesmo Lead/Proposta — outro Lead/Proposta do mesmo cliente não é tocado.
+export async function deleteAcao(
+  compromissoId: number,
+  propostaId: number,
+  escopo: "somente_esta" | "esta_e_futuras",
+) {
+  const supabase = await createClient();
+
+  const { data: acao, error: fetchError } = await supabase
+    .from("compromissos")
+    .select("inicio")
+    .eq("id", compromissoId)
+    .single();
+  if (fetchError || !acao) return { error: fetchError?.message ?? "Ação não encontrada." };
+
+  if (isBeforeToday(acao.inicio)) {
+    return { error: "Ações que já passaram não podem ser excluídas." };
+  }
+
+  const { error } =
+    escopo === "somente_esta"
+      ? await supabase.from("compromissos").delete().eq("id", compromissoId)
+      : await supabase
+          .from("compromissos")
+          .delete()
+          .eq("proposta_id", propostaId)
+          .gte("inicio", acao.inicio);
 
   if (error) return { error: error.message };
 

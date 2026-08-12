@@ -36,6 +36,16 @@ export function toDatetimeLocalValue(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+// Compara só a data (ignora hora) — usado pra travar exclusão de Ações que
+// já aconteceram (dia de hoje ainda conta como "não passado").
+export function isBeforeToday(dateIso: string): boolean {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const date = new Date(dateIso);
+  date.setHours(0, 0, 0, 0);
+  return date < today;
+}
+
 export function isSameDay(a: Date, b: Date): boolean {
   return (
     a.getFullYear() === b.getFullYear() &&

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { deleteAcao } from "@/modules/leads/actions";
 import { deleteCompromisso, updateCompromisso } from "../actions";
-import { TIPO_COLOR, TIPO_LABEL, toDatetimeLocalValue } from "../utils";
+import { TIPO_COLOR, TIPO_LABEL, isBeforeToday, toDatetimeLocalValue } from "../utils";
 import { CompromissoForm } from "./CompromissoForm";
 import type { ClienteOption, Compromisso } from "../types";
 
@@ -29,11 +30,16 @@ export function CompromissoDetailModal({
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [deleteScope, setDeleteScope] = useState<"somente_esta" | "esta_e_futuras">("somente_esta");
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const isAcao = compromisso.proposta_id != null;
+  const isPastAcao = isAcao && isBeforeToday(compromisso.inicio);
 
   function handleClose() {
     setIsEditing(false);
     setConfirmingDelete(false);
+    setDeleteScope("somente_esta");
     setDeleteError(null);
     onClose();
   }
@@ -41,7 +47,9 @@ export function CompromissoDetailModal({
   async function handleDelete() {
     setIsDeleting(true);
     setDeleteError(null);
-    const result = await deleteCompromisso(compromisso.id);
+    const result = compromisso.proposta_id
+      ? await deleteAcao(compromisso.id, compromisso.proposta_id, deleteScope)
+      : await deleteCompromisso(compromisso.id);
     setIsDeleting(false);
 
     if (result.error) {
@@ -148,26 +156,56 @@ export function CompromissoDetailModal({
 
         <div className="flex items-center justify-between border-t border-border pt-4">
           {confirmingDelete ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-brand-graphite-light">Excluir compromisso?</span>
-              <Button
-                type="button"
-                variant="danger"
-                size="sm"
-                disabled={isDeleting}
-                onClick={handleDelete}
-              >
-                {isDeleting ? "Excluindo…" : "Confirmar"}
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setConfirmingDelete(false)}
-              >
-                Cancelar
-              </Button>
+            <div className="flex flex-col gap-2">
+              {isAcao && (
+                <div className="flex flex-col gap-1.5 text-sm text-foreground">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="delete-scope"
+                      checked={deleteScope === "somente_esta"}
+                      onChange={() => setDeleteScope("somente_esta")}
+                    />
+                    Excluir somente esta ação
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="delete-scope"
+                      checked={deleteScope === "esta_e_futuras"}
+                      onChange={() => setDeleteScope("esta_e_futuras")}
+                    />
+                    Excluir esta e as futuras deste Lead/Proposta
+                  </label>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-brand-graphite-light">
+                  {isAcao ? "Confirmar exclusão?" : "Excluir compromisso?"}
+                </span>
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  disabled={isDeleting}
+                  onClick={handleDelete}
+                >
+                  {isDeleting ? "Excluindo…" : "Confirmar"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirmingDelete(false)}
+                >
+                  Cancelar
+                </Button>
+              </div>
             </div>
+          ) : isPastAcao ? (
+            <p className="text-sm text-brand-graphite-light">
+              Ações que já passaram não podem ser excluídas.
+            </p>
           ) : (
             <Button
               type="button"
