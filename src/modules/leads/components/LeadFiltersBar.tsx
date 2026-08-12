@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
@@ -32,14 +33,14 @@ export function LeadFiltersBar({ value, onChange }: LeadFiltersBarProps) {
         type="date"
         value={value.dataInicio}
         onChange={(e) => onChange({ ...value, dataInicio: e.target.value })}
-        className="w-40"
+        className="w-32"
       />
       <Input
         label="Criado até"
         type="date"
         value={value.dataFim}
         onChange={(e) => onChange({ ...value, dataFim: e.target.value })}
-        className="w-40"
+        className="w-32"
       />
       <Select
         label="Termômetro"
@@ -59,9 +60,11 @@ export function LeadFiltersBar({ value, onChange }: LeadFiltersBarProps) {
         <button
           type="button"
           onClick={() => onChange(EMPTY_LEAD_FILTERS)}
-          className="h-10 text-sm text-brand-graphite-light hover:text-brand-accent"
+          title="Limpar filtros"
+          aria-label="Limpar filtros"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"
         >
-          Limpar filtros
+          <Icon name="filter_alt_off" size={20} />
         </button>
       )}
     </div>
