@@ -72,7 +72,7 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
           {isFechado && (
             <div
               className={cn(
-                "flex w-full items-center justify-center rounded-lg py-1.5 text-sm font-medium",
+                "flex w-full items-center justify-center rounded-lg py-1 text-sm font-medium",
                 proposta.resultado === "aprovado" && "bg-status-aprovado/15 text-status-aprovado",
                 proposta.resultado === "reprovado" && "bg-temp-quente/15 text-temp-quente",
                 !proposta.resultado && "bg-black/[.05] text-brand-graphite-light",
