@@ -58,6 +58,7 @@ export async function createLead(input: LeadInput) {
 
   const { error } = await supabase.from("propostas").insert({
     cliente_id: input.cliente_id,
+    data_inicio_lead: input.data_inicio_lead,
     termometro: input.termometro,
     descricao: input.descricao.trim() || null,
     segmento: input.segmento,
@@ -80,6 +81,7 @@ export async function updateLead(leadId: number, input: LeadInput) {
     .from("propostas")
     .update({
       cliente_id: input.cliente_id,
+      data_inicio_lead: input.data_inicio_lead,
       termometro: input.termometro,
       descricao: input.descricao.trim() || null,
       segmento: input.segmento,

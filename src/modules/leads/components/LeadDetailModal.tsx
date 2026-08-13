@@ -121,12 +121,11 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     handleClose();
   }
 
-  const modalTitle = proposta.numero_lead
-    ? `${proposta.numero_lead} - Criado em ${dateFormatter.format(new Date(proposta.created_at))}`
-    : undefined;
+  const modalTitle = `Criado em ${dateFormatter.format(new Date(proposta.created_at))}`;
 
   const initialValues: LeadInput = {
     cliente_id: proposta.cliente_id,
+    data_inicio_lead: proposta.data_inicio_lead,
     termometro: proposta.termometro,
     descricao: proposta.descricao ?? "",
     segmento: proposta.segmento,
@@ -138,6 +137,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle} className="max-w-2xl">
       <div className="flex flex-col gap-5">
         <LeadForm
+          numeroLead={proposta.numero_lead}
           initialValues={initialValues}
           submitLabel="Salvar alterações"
           onSubmit={(input) => updateLead(proposta.id, input)}

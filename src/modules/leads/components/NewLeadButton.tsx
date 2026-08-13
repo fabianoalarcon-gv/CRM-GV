@@ -16,6 +16,7 @@ export function NewLeadButton() {
 
   const initialValues: LeadInput = {
     cliente_id: 0,
+    data_inicio_lead: new Date().toISOString().slice(0, 10),
     termometro: "morno",
     descricao: "",
     segmento: null,

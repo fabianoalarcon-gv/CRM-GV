@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Combobox } from "@/components/ui/Combobox";
 import { CurrencyInput } from "@/components/ui/CurrencyInput";
+import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
@@ -17,6 +18,7 @@ const TERMOMETRO_OPTIONS: { value: Termometro; label: string }[] = [
 ];
 
 export interface LeadFormProps {
+  numeroLead?: string | null;
   initialValues: LeadInput;
   submitLabel: string;
   onSubmit: (input: LeadInput) => Promise<{ error: string | null }>;
@@ -24,7 +26,7 @@ export interface LeadFormProps {
   onCancel: () => void;
 }
 
-export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCancel }: LeadFormProps) {
+export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onSuccess, onCancel }: LeadFormProps) {
   const { statuses, clientes } = useLeadsData();
   const [values, setValues] = useState<LeadInput>(initialValues);
   const [clienteError, setClienteError] = useState<string | null>(null);
@@ -69,6 +71,16 @@ export function LeadForm({ initialValues, submitLabel, onSubmit, onSuccess, onCa
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input label="Número Lead" value={numeroLead ?? "Gerado automaticamente"} disabled />
+        <Input
+          label="Data Início Lead"
+          type="date"
+          value={values.data_inicio_lead}
+          onChange={(e) => update("data_inicio_lead", e.target.value)}
+        />
+      </div>
+
       <Combobox
         label="Empresa"
         placeholder="Selecione um cliente"

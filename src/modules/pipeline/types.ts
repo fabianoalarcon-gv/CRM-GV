@@ -33,6 +33,7 @@ export interface Proposta {
   numero_proposta: string | null;
   numero_lead: string | null;
   data_envio: string;
+  data_inicio_lead: string;
   cliente_id: number;
   cliente_nome: string;
   cliente_setor: string | null;

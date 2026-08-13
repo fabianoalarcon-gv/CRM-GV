@@ -295,6 +295,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           data_envio: string
+          data_inicio_lead: string
           descricao: string | null
           gerado_de_lead: boolean
           id: number
@@ -315,6 +316,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           data_envio?: string
+          data_inicio_lead?: string
           descricao?: string | null
           gerado_de_lead?: boolean
           id?: never
@@ -335,6 +337,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           data_envio?: string
+          data_inicio_lead?: string
           descricao?: string | null
           gerado_de_lead?: boolean
           id?: never
