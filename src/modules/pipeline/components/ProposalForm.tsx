@@ -8,7 +8,7 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { usePipelineData } from "../context";
 import { isValidNumeroProposta, NUMERO_PROPOSTA_HINT } from "../validation";
-import type { ProposalInput, Termometro, TipoServico } from "../types";
+import { SEGMENTO_OPTIONS, type ProposalInput, type Termometro, type TipoServico } from "../types";
 
 const TERMOMETRO_OPTIONS = [
   { value: "frio", label: "Frio" },
@@ -173,13 +173,22 @@ export function ProposalForm({
         />
       </div>
 
-      <Select
-        label="Responsável"
-        placeholder="Sem responsável definido"
-        value={values.responsavel_id ?? ""}
-        onChange={(e) => update("responsavel_id", e.target.value || null)}
-        options={profiles.map((p) => ({ value: p.id, label: p.full_name }))}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Select
+          label="Responsável"
+          placeholder="Sem responsável definido"
+          value={values.responsavel_id ?? ""}
+          onChange={(e) => update("responsavel_id", e.target.value || null)}
+          options={profiles.map((p) => ({ value: p.id, label: p.full_name }))}
+        />
+        <Select
+          label="Segmento"
+          placeholder="Sem segmento"
+          value={values.segmento ?? ""}
+          onChange={(e) => update("segmento", (e.target.value || null) as ProposalInput["segmento"])}
+          options={SEGMENTO_OPTIONS}
+        />
+      </div>
 
       {isFechado && (
         <Select

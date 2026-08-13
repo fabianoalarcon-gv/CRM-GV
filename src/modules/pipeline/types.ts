@@ -87,6 +87,7 @@ export interface ProposalInput {
   cliente_id: number;
   servico: string;
   descricao: string;
+  segmento: Segmento | null;
   valor: number;
   status_id: number;
   termometro: Termometro;

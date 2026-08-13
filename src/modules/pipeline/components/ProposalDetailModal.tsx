@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Textarea } from "@/components/ui/Textarea";
 import { useIsAdmin } from "@/lib/auth/context";
 import { usePipelineData } from "../context";
 import { addProposalHistoryEntry, deleteProposal, updateProposal } from "../actions";
+import { HistoricoSection } from "./HistoricoSection";
 import { createAcao, reverterParaQualificacao } from "@/modules/leads/actions";
 import type { AcaoInput } from "@/modules/leads/types";
 import { AcaoForm } from "@/modules/leads/components/AcaoForm";
@@ -29,9 +29,15 @@ export interface ProposalDetailModalProps {
 export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetailModalProps) {
   const { history, statuses, compromissos } = usePipelineData();
   const isAdmin = useIsAdmin();
-  const [noteText, setNoteText] = useState("");
-  const [isSavingNote, setIsSavingNote] = useState(false);
-  const [noteError, setNoteError] = useState<string | null>(null);
+
+  const [andamentoText, setAndamentoText] = useState("");
+  const [isSavingAndamento, setIsSavingAndamento] = useState(false);
+  const [andamentoError, setAndamentoError] = useState<string | null>(null);
+
+  const [obsText, setObsText] = useState("");
+  const [isSavingObs, setIsSavingObs] = useState(false);
+  const [obsError, setObsError] = useState<string | null>(null);
+
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -42,7 +48,8 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
 
   const [isCreatingAcao, setIsCreatingAcao] = useState(false);
 
-  const entries = history.filter((h) => h.proposta_id === proposta.id);
+  const andamentos = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "andamento");
+  const observacoes = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "observacao");
   const acoes = compromissos
     .filter((c) => c.proposta_id === proposta.id)
     .slice()
@@ -52,8 +59,10 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
 
   function handleClose() {
     setConfirmingDelete(false);
-    setNoteText("");
-    setNoteError(null);
+    setAndamentoText("");
+    setAndamentoError(null);
+    setObsText("");
+    setObsError(null);
     setDeleteError(null);
     setConfirmingRevert(false);
     setRevertError(null);
@@ -65,18 +74,30 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     return createAcao(proposta.id, proposta.cliente_id, input);
   }
 
-  async function handleAddNote() {
-    if (!noteText.trim()) return;
-    setIsSavingNote(true);
-    setNoteError(null);
-    const result = await addProposalHistoryEntry(proposta.id, noteText);
-    setIsSavingNote(false);
-
+  async function handleAddAndamento() {
+    if (!andamentoText.trim()) return;
+    setIsSavingAndamento(true);
+    setAndamentoError(null);
+    const result = await addProposalHistoryEntry(proposta.id, andamentoText, "andamento");
+    setIsSavingAndamento(false);
     if (result.error) {
-      setNoteError(result.error);
+      setAndamentoError(result.error);
       return;
     }
-    setNoteText("");
+    setAndamentoText("");
+  }
+
+  async function handleAddObservacao() {
+    if (!obsText.trim()) return;
+    setIsSavingObs(true);
+    setObsError(null);
+    const result = await addProposalHistoryEntry(proposta.id, obsText, "observacao");
+    setIsSavingObs(false);
+    if (result.error) {
+      setObsError(result.error);
+      return;
+    }
+    setObsText("");
   }
 
   async function handleRevert() {
@@ -115,6 +136,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     cliente_id: proposta.cliente_id,
     servico: proposta.servico ?? "",
     descricao: proposta.descricao ?? "",
+    segmento: proposta.segmento,
     valor: proposta.valor ?? 0,
     status_id: proposta.status_id,
     termometro: proposta.termometro,
@@ -146,48 +168,25 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           onCancel={handleClose}
         />
 
-        <div className="border-t border-border pt-4">
-          <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-            Observações
-          </p>
+        <HistoricoSection
+          title="Andamento"
+          entries={andamentos}
+          text={andamentoText}
+          onTextChange={setAndamentoText}
+          onSubmit={handleAddAndamento}
+          isSaving={isSavingAndamento}
+          error={andamentoError}
+        />
 
-          <div className="mt-2 flex max-h-48 flex-col gap-3 overflow-y-auto pr-1">
-            {entries.length === 0 && (
-              <p className="text-sm text-brand-graphite-light">
-                Nenhuma observação registrada ainda.
-              </p>
-            )}
-            {entries.map((entry) => (
-              <div key={entry.id} className="rounded-lg bg-black/[.02] p-2.5 text-sm">
-                <p className="text-foreground">{entry.texto}</p>
-                <p className="mt-1 text-xs text-brand-graphite-light">
-                  {entry.autor_nome ?? "Desconhecido"} ·{" "}
-                  {dateTimeFormatter.format(new Date(entry.created_at))}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-3 flex flex-col gap-2">
-            <Textarea
-              placeholder="Adicionar uma observação..."
-              rows={2}
-              value={noteText}
-              onChange={(e) => setNoteText(e.target.value)}
-            />
-            {noteError && <p className="text-sm text-temp-quente">{noteError}</p>}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="self-end"
-              disabled={isSavingNote || !noteText.trim()}
-              onClick={handleAddNote}
-            >
-              {isSavingNote ? "Salvando…" : "Adicionar observação"}
-            </Button>
-          </div>
-        </div>
+        <HistoricoSection
+          title="Observações"
+          entries={observacoes}
+          text={obsText}
+          onTextChange={setObsText}
+          onSubmit={handleAddObservacao}
+          isSaving={isSavingObs}
+          error={obsError}
+        />
 
         <div className="border-t border-border pt-4">
           <div className="flex items-center justify-between">

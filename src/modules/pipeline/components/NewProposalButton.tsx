@@ -27,6 +27,7 @@ export function NewProposalButton({ columnStatuses }: NewProposalButtonProps) {
     cliente_id: 0,
     servico: "",
     descricao: "",
+    segmento: null,
     valor: 0,
     status_id: defaultStatusId,
     termometro: "morno",
