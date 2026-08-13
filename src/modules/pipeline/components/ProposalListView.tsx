@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import { cn } from "@/lib/cn";
 import { usePipelineData } from "../context";
 import { ProposalDetailModal } from "./ProposalDetailModal";
-import type { Proposta } from "../types";
+import { SEGMENTO_LABEL, type Proposta } from "../types";
 
 const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
   frio: "Frio",
@@ -29,13 +30,15 @@ export function ProposalListView({ propostas }: { propostas: Proposta[] }) {
             <TableHead>Cliente</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Termômetro</TableHead>
+            <TableHead>Segmento</TableHead>
+            <TableHead>Resultado</TableHead>
             <TableHead>Valor</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {propostas.length === 0 && (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-brand-graphite-light">
+              <TableCell colSpan={7} className="text-center text-brand-graphite-light">
                 Nenhuma proposta encontrada.
               </TableCell>
             </TableRow>
@@ -53,6 +56,23 @@ export function ProposalListView({ propostas }: { propostas: Proposta[] }) {
               <TableCell>{statuses.find((s) => s.id === proposta.status_id)?.label ?? "—"}</TableCell>
               <TableCell>
                 <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
+              </TableCell>
+              <TableCell>{proposta.segmento ? SEGMENTO_LABEL[proposta.segmento] : "—"}</TableCell>
+              <TableCell>
+                {proposta.resultado ? (
+                  <span
+                    className={cn(
+                      "inline-flex h-6 w-6 items-center justify-center rounded-full font-bold",
+                      proposta.resultado === "aprovado" && "bg-status-aprovado/15 text-status-aprovado",
+                      proposta.resultado === "reprovado" && "bg-temp-quente/15 text-temp-quente",
+                    )}
+                    title={proposta.resultado === "aprovado" ? "Aprovado" : "Reprovado"}
+                  >
+                    {proposta.resultado === "aprovado" ? "✓" : "✗"}
+                  </span>
+                ) : (
+                  "—"
+                )}
               </TableCell>
               <TableCell className="font-mono font-semibold">
                 {proposta.valor != null ? currencyFormatter.format(proposta.valor) : "—"}
