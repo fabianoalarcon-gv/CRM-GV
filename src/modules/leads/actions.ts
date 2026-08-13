@@ -148,6 +148,58 @@ export async function reverterParaQualificacao(propostaId: number) {
   return { error: null };
 }
 
+// Arquiva um Lead (Prospecção/Qualificação): guarda o status atual em
+// status_anterior_id pra "Reativar" saber pra onde voltar.
+export async function arquivarLead(leadId: number, statusAtualId: number) {
+  const supabase = await createClient();
+
+  const { data: status, error: statusError } = await supabase
+    .from("proposal_statuses")
+    .select("id")
+    .eq("key", "arquivado")
+    .single();
+  if (statusError || !status) return { error: "Não foi possível encontrar o status Arquivado." };
+
+  const { error } = await supabase
+    .from("propostas")
+    .update({ status_id: status.id, status_anterior_id: statusAtualId })
+    .eq("id", leadId);
+
+  if (error) return { error: error.message };
+
+  revalidateLeadPaths();
+  return { error: null };
+}
+
+// Desfaz arquivarLead: volta pro status guardado em status_anterior_id (ou
+// Prospecção, se por algum motivo não tiver sido guardado).
+export async function reativarLead(leadId: number, statusAnteriorId: number | null) {
+  const supabase = await createClient();
+
+  let targetStatusId = statusAnteriorId;
+  if (!targetStatusId) {
+    const { data: prospeccaoStatus, error: statusError } = await supabase
+      .from("proposal_statuses")
+      .select("id")
+      .eq("key", "prospeccao")
+      .single();
+    if (statusError || !prospeccaoStatus) {
+      return { error: "Não foi possível encontrar o status Prospecção." };
+    }
+    targetStatusId = prospeccaoStatus.id;
+  }
+
+  const { error } = await supabase
+    .from("propostas")
+    .update({ status_id: targetStatusId, status_anterior_id: null })
+    .eq("id", leadId);
+
+  if (error) return { error: error.message };
+
+  revalidateLeadPaths();
+  return { error: null };
+}
+
 export async function createAcao(leadId: number, clienteId: number, input: AcaoInput) {
   if (!input.titulo.trim()) return { error: "Informe o título da ação." };
   if (!input.inicio) return { error: "Informe a data/hora de início." };

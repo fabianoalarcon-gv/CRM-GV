@@ -53,7 +53,7 @@ export async function getPropostasByCliente(clienteId: number): Promise<Proposta
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, numero_lead, data_envio, valor, termometro, proposal_statuses(label)",
+      "id, numero_proposta, numero_lead, data_envio, valor, termometro, proposal_statuses!status_id(label)",
     )
     .eq("cliente_id", clienteId)
     .order("data_envio", { ascending: false });

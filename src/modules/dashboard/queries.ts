@@ -6,7 +6,7 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, numero_lead, valor, data_envio, tipo_servico, resultado, clientes(nome), proposal_statuses(key, label, sort_order)",
+      "id, numero_proposta, numero_lead, valor, data_envio, tipo_servico, resultado, clientes(nome), proposal_statuses!status_id(key, label, sort_order)",
     )
     .order("data_envio");
 

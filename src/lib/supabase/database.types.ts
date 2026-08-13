@@ -305,6 +305,7 @@ export type Database = {
           resultado: string | null
           segmento: string | null
           servico: string | null
+          status_anterior_id: number | null
           status_id: number
           termometro: string
           tipo_servico: string | null
@@ -326,6 +327,7 @@ export type Database = {
           resultado?: string | null
           segmento?: string | null
           servico?: string | null
+          status_anterior_id?: number | null
           status_id: number
           termometro?: string
           tipo_servico?: string | null
@@ -347,6 +349,7 @@ export type Database = {
           resultado?: string | null
           segmento?: string | null
           servico?: string | null
+          status_anterior_id?: number | null
           status_id?: number
           termometro?: string
           tipo_servico?: string | null
@@ -373,6 +376,13 @@ export type Database = {
             columns: ["responsavel_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "propostas_status_anterior_id_fkey"
+            columns: ["status_anterior_id"]
+            isOneToOne: false
+            referencedRelation: "proposal_statuses"
             referencedColumns: ["id"]
           },
           {

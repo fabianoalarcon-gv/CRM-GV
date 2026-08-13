@@ -9,7 +9,7 @@ import { deleteProposal, addProposalHistoryEntry } from "@/modules/pipeline/acti
 import type { Proposta } from "@/modules/pipeline/types";
 import { TIPO_COLOR, TIPO_LABEL, toDatetimeLocalValue } from "@/modules/calendario/utils";
 import { useLeadsData } from "../context";
-import { createAcao, gerarProposta, updateLead } from "../actions";
+import { arquivarLead, createAcao, gerarProposta, reativarLead, updateLead } from "../actions";
 import type { AcaoInput, LeadInput } from "../types";
 import { LeadForm } from "./LeadForm";
 import { AcaoForm } from "./AcaoForm";
@@ -45,7 +45,15 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
-  const isQualificacao = statuses.find((s) => s.id === proposta.status_id)?.key === "qualificacao";
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [archiveError, setArchiveError] = useState<string | null>(null);
+  const [confirmingArchive, setConfirmingArchive] = useState(false);
+
+  const currentStatus = statuses.find((s) => s.id === proposta.status_id);
+  const isQualificacao = currentStatus?.key === "qualificacao";
+  const isArquivado = currentStatus?.key === "arquivado";
+  const canArchive = currentStatus?.key === "prospeccao" || isQualificacao;
+  const statusAnteriorLabel = statuses.find((s) => s.id === proposta.status_anterior_id)?.label;
   const andamentos = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "andamento");
   const observacoes = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "observacao");
   const acoes = compromissos
@@ -63,6 +71,8 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     setDeleteError(null);
     setConfirmingGerarProposta(false);
     setGerarError(null);
+    setConfirmingArchive(false);
+    setArchiveError(null);
     onClose();
   }
 
@@ -116,6 +126,30 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     setIsDeleting(false);
     if (result.error) {
       setDeleteError(result.error);
+      return;
+    }
+    handleClose();
+  }
+
+  async function handleArchive() {
+    setIsArchiving(true);
+    setArchiveError(null);
+    const result = await arquivarLead(proposta.id, proposta.status_id);
+    setIsArchiving(false);
+    if (result.error) {
+      setArchiveError(result.error);
+      return;
+    }
+    handleClose();
+  }
+
+  async function handleReactivate() {
+    setIsArchiving(true);
+    setArchiveError(null);
+    const result = await reativarLead(proposta.id, proposta.status_anterior_id);
+    setIsArchiving(false);
+    if (result.error) {
+      setArchiveError(result.error);
       return;
     }
     handleClose();
@@ -206,7 +240,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
 
         {(isAdmin || isQualificacao) && (
           <div className="flex items-center justify-between gap-3 border-t border-border pt-4">
-            <div>
+            <div className="flex flex-wrap items-center gap-3">
               {isAdmin && (
                 <>
                   {deleteError && <p className="mb-2 text-sm text-temp-quente">{deleteError}</p>}
@@ -234,6 +268,46 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
                   ) : (
                     <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmingDelete(true)}>
                       Excluir
+                    </Button>
+                  )}
+                </>
+              )}
+
+              {isAdmin && (canArchive || isArquivado) && (
+                <>
+                  {archiveError && <p className="mb-2 text-sm text-temp-quente">{archiveError}</p>}
+                  {confirmingArchive ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-brand-graphite-light">
+                        {isArquivado
+                          ? `Reativar este lead${statusAnteriorLabel ? ` (volta pra ${statusAnteriorLabel})` : ""}?`
+                          : "Arquivar este lead?"}
+                      </span>
+                      <Button
+                        type="button"
+                        size="sm"
+                        disabled={isArchiving}
+                        onClick={isArquivado ? handleReactivate : handleArchive}
+                      >
+                        {isArchiving ? "Salvando…" : "Confirmar"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setConfirmingArchive(false)}
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmingArchive(true)}
+                    >
+                      {isArquivado ? "Reativar" : "Arquivar"}
                     </Button>
                   )}
                 </>

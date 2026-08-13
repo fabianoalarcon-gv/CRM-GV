@@ -25,7 +25,7 @@ export interface ProposalStatus {
 
 // Chaves de status exibidas como colunas em cada board — Leads cobre o
 // início do funil, Pipeline as etapas de proposta em diante.
-export const LEADS_STATUS_KEYS = ["prospeccao", "qualificacao"] as const;
+export const LEADS_STATUS_KEYS = ["prospeccao", "qualificacao", "arquivado"] as const;
 export const PIPELINE_STATUS_KEYS = ["proposta", "negociacao", "fechado"] as const;
 
 export interface Proposta {
@@ -42,6 +42,7 @@ export interface Proposta {
   segmento: Segmento | null;
   valor: number | null;
   status_id: number;
+  status_anterior_id: number | null;
   termometro: Termometro;
   tipo_servico: TipoServico | null;
   responsavel_id: string | null;

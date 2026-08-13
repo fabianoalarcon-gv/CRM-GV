@@ -122,7 +122,11 @@ export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onS
           label="Status"
           value={String(values.status_id)}
           onChange={(e) => update("status_id", Number(e.target.value))}
-          options={statuses.map((s) => ({ value: String(s.id), label: s.label }))}
+          // Arquivado só entra na lista quando já é o status atual (senão vira
+          // atalho pra arquivar sem confirmação, driblando o botão Arquivar).
+          options={statuses
+            .filter((s) => s.key !== "arquivado" || s.id === initialValues.status_id)
+            .map((s) => ({ value: String(s.id), label: s.label }))}
         />
       </div>
 
