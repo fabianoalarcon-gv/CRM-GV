@@ -158,22 +158,21 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
                 <Icon name="history" size={13} />
                 {daysAgoLabel(proposta.updated_at)}
               </span>
+              {responsavel && (
+                <div
+                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-navy text-[9px] font-bold text-white"
+                  title={responsavel.full_name}
+                >
+                  {initials(responsavel.full_name)}
+                </div>
+              )}
             </div>
-            {responsavel && (
-              <div
-                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-navy text-[9px] font-bold text-white"
-                title={responsavel.full_name}
-              >
-                {initials(responsavel.full_name)}
-              </div>
+            {proposta.valor != null && (
+              <span className="font-mono text-sm font-semibold text-foreground">
+                {currencyFormatter.format(proposta.valor)}
+              </span>
             )}
           </div>
-
-          {proposta.valor != null && (
-            <p className="font-mono text-sm font-semibold text-foreground">
-              {currencyFormatter.format(proposta.valor)}
-            </p>
-          )}
         </CardContent>
       </Card>
 
