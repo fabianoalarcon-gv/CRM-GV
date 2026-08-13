@@ -1,7 +1,12 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
-import type { ClienteOption, ProposalHistoryEntry, ProposalStatus } from "@/modules/pipeline/types";
+import type {
+  ClienteOption,
+  ProposalHistoryEntry,
+  ProposalStatus,
+  ProximoCompromisso,
+} from "@/modules/pipeline/types";
 import type { Compromisso } from "@/modules/calendario/types";
 
 export interface LeadsDataValue {
@@ -9,6 +14,7 @@ export interface LeadsDataValue {
   clientes: ClienteOption[];
   history: ProposalHistoryEntry[];
   compromissos: Compromisso[];
+  proximosCompromissos: Map<number, ProximoCompromisso>;
 }
 
 const LeadsDataContext = createContext<LeadsDataValue | null>(null);

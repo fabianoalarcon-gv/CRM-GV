@@ -22,6 +22,9 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   currency: "BRL",
 });
 
+const compromissoDateFormatter = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" });
+const compromissoTimeFormatter = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
 function daysAgoLabel(dateStr: string): string {
   const diffMs = Date.now() - new Date(dateStr).getTime();
   const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
@@ -29,7 +32,8 @@ function daysAgoLabel(dateStr: string): string {
 }
 
 export function LeadCard({ proposta }: { proposta: Proposta }) {
-  const { statuses } = useLeadsData();
+  const { statuses, proximosCompromissos } = useLeadsData();
+  const proximoCompromisso = proximosCompromissos.get(proposta.id);
   // Um lead Arquivado só volta pra outra coluna via "Reativar" no modal —
   // arrastar pra fora daqui ficaria sem confirmação e sem status_anterior_id.
   const isArquivado = statuses.find((s) => s.id === proposta.status_id)?.key === "arquivado";
@@ -73,6 +77,23 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
 
           {proposta.descricao && (
             <p className="line-clamp-2 text-xs text-brand-graphite-light">{proposta.descricao}</p>
+          )}
+
+          {proximoCompromisso && (
+            <div
+              className="flex w-fit items-center gap-1 rounded-md px-1.5 py-1 text-[11px] font-medium"
+              style={{
+                backgroundColor: "color-mix(in srgb, var(--color-cal-reuniao) 12%, transparent)",
+                color: "var(--color-cal-reuniao)",
+              }}
+              title={proximoCompromisso.titulo}
+            >
+              <Icon name="event" size={13} />
+              <span className="truncate">
+                {compromissoDateFormatter.format(new Date(proximoCompromisso.inicio))} ·{" "}
+                {compromissoTimeFormatter.format(new Date(proximoCompromisso.inicio))}
+              </span>
+            </div>
           )}
 
           <div className="mt-1 flex items-center justify-between border-t border-border pt-2">

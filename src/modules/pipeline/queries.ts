@@ -78,14 +78,15 @@ export async function getContatosPrincipais(): Promise<Map<number, ContatoPrinci
   return map;
 }
 
-// Próximo compromisso agendado (a partir de agora) de cada cliente, usado na
-// tag do card do Kanban.
+// Próximo compromisso agendado (a partir de agora) de cada Lead/Proposta,
+// usado na tag do card do Kanban. Chaveado por proposta_id (não cliente_id)
+// pra não vazar a Ação de um card pros outros cards do mesmo cliente.
 export async function getProximosCompromissos(): Promise<Map<number, ProximoCompromisso>> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("compromissos")
-    .select("cliente_id, titulo, inicio")
-    .not("cliente_id", "is", null)
+    .select("proposta_id, titulo, inicio")
+    .not("proposta_id", "is", null)
     .gte("inicio", new Date().toISOString())
     .order("inicio");
 
@@ -93,8 +94,8 @@ export async function getProximosCompromissos(): Promise<Map<number, ProximoComp
 
   const map = new Map<number, ProximoCompromisso>();
   for (const c of data ?? []) {
-    if (c.cliente_id === null) continue;
-    if (!map.has(c.cliente_id)) map.set(c.cliente_id, { titulo: c.titulo, inicio: c.inicio });
+    if (c.proposta_id === null) continue;
+    if (!map.has(c.proposta_id)) map.set(c.proposta_id, { titulo: c.titulo, inicio: c.inicio });
   }
   return map;
 }

@@ -1,4 +1,10 @@
-import { getClientesOptions, getProposalHistory, getProposalStatuses, getPropostas } from "@/modules/pipeline/queries";
+import {
+  getClientesOptions,
+  getProposalHistory,
+  getProposalStatuses,
+  getPropostas,
+  getProximosCompromissos,
+} from "@/modules/pipeline/queries";
 import { LEADS_STATUS_KEYS } from "@/modules/pipeline/types";
 import { getCompromissos } from "@/modules/calendario/queries";
 import { LeadsDataProvider } from "@/modules/leads/context";
@@ -8,12 +14,13 @@ import { LeadsBoardSection } from "@/modules/leads/components/LeadsBoardSection"
 import { NewLeadButton } from "@/modules/leads/components/NewLeadButton";
 
 export default async function LeadsPage() {
-  const [statuses, propostas, clientes, history, compromissos] = await Promise.all([
+  const [statuses, propostas, clientes, history, compromissos, proximosCompromissos] = await Promise.all([
     getProposalStatuses(),
     getPropostas(),
     getClientesOptions(),
     getProposalHistory(),
     getCompromissos(),
+    getProximosCompromissos(),
   ]);
 
   const columnStatuses = statuses.filter((s) =>
@@ -21,7 +28,9 @@ export default async function LeadsPage() {
   );
 
   return (
-    <LeadsDataProvider value={{ statuses: columnStatuses, clientes, history, compromissos }}>
+    <LeadsDataProvider
+      value={{ statuses: columnStatuses, clientes, history, compromissos, proximosCompromissos }}
+    >
       <div className="flex h-full flex-col gap-6">
         <LeadsBoardSection
           title="Leads"

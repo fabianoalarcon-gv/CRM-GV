@@ -48,7 +48,7 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
 
   const responsavel = profiles.find((p) => p.id === proposta.responsavel_id);
   const contato = contatosPrincipais.get(proposta.cliente_id);
-  const proximoCompromisso = proximosCompromissos.get(proposta.cliente_id);
+  const proximoCompromisso = proximosCompromissos.get(proposta.id);
   const isFechado = statuses.find((s) => s.id === proposta.status_id)?.key === "fechado";
 
   const [resultado, setResultado] = useState(proposta.resultado);
