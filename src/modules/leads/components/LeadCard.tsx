@@ -109,6 +109,13 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
                 <Icon name="schedule" size={13} />
                 {daysAgoLabel(proposta.created_at)}
               </span>
+              <span
+                className="flex items-center gap-0.5"
+                title={`Última alteração há ${daysAgoLabel(proposta.updated_at)}`}
+              >
+                <Icon name="history" size={13} />
+                {daysAgoLabel(proposta.updated_at)}
+              </span>
               {responsavel && <ResponsavelAvatar fullName={responsavel.full_name} />}
             </div>
             {proposta.valor != null && (
