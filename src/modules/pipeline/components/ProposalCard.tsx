@@ -8,11 +8,10 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { usePipelineData } from "../context";
-import { updateProposalResultado } from "../actions";
 import { ProposalDetailModal } from "./ProposalDetailModal";
 import { ResponsavelAvatar } from "./ResponsavelAvatar";
 import { TERMOMETRO_COLOR, TermometroBadge } from "./TermometroBadge";
-import { SEGMENTO_LABEL, type Proposta, type Resultado } from "../types";
+import { SEGMENTO_LABEL, type Proposta } from "../types";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -39,18 +38,6 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
   const contato = contatosPrincipais.get(proposta.cliente_id);
   const proximoCompromisso = proximosCompromissos.get(proposta.id);
   const isFechado = statuses.find((s) => s.id === proposta.status_id)?.key === "fechado";
-
-  const [resultado, setResultado] = useState(proposta.resultado);
-  const [isSavingResultado, setIsSavingResultado] = useState(false);
-
-  async function handleResultadoChange(next: Resultado | null) {
-    const previous = resultado;
-    setResultado(next);
-    setIsSavingResultado(true);
-    const result = await updateProposalResultado(proposta.id, next);
-    setIsSavingResultado(false);
-    if (result.error) setResultado(previous);
-  }
 
   return (
     <>
@@ -83,23 +70,18 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
           )}
 
           {isFechado && (
-            <select
-              value={resultado ?? ""}
-              disabled={isSavingResultado}
-              onClick={(e) => e.stopPropagation()}
-              onPointerDown={(e) => e.stopPropagation()}
-              onChange={(e) => handleResultadoChange((e.target.value || null) as Resultado | null)}
+            <div
               className={cn(
-                "h-6 w-fit cursor-pointer rounded-md border-0 pr-6 pl-2 text-[11px] font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent",
-                resultado === "aprovado" && "bg-status-aprovado/15 text-status-aprovado",
-                resultado === "reprovado" && "bg-temp-quente/15 text-temp-quente",
-                !resultado && "bg-black/[.05] text-brand-graphite-light",
+                "flex w-full items-center justify-center rounded-lg py-1.5 text-sm font-medium",
+                proposta.resultado === "aprovado" && "bg-status-aprovado/15 text-status-aprovado",
+                proposta.resultado === "reprovado" && "bg-temp-quente/15 text-temp-quente",
+                !proposta.resultado && "bg-black/[.05] text-brand-graphite-light",
               )}
             >
-              <option value="">Definir resultado…</option>
-              <option value="aprovado">✓ Aprovado</option>
-              <option value="reprovado">✗ Reprovado</option>
-            </select>
+              {proposta.resultado === "aprovado" && "✓ Aprovado"}
+              {proposta.resultado === "reprovado" && "✗ Reprovado"}
+              {!proposta.resultado && "Resultado pendente"}
+            </div>
           )}
 
           <div>

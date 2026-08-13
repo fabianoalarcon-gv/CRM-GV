@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isValidNumeroProposta } from "./validation";
-import type { HistoricoTipo, ProposalInput, Resultado } from "./types";
+import type { HistoricoTipo, ProposalInput } from "./types";
 
 export async function updateProposalStatus(proposalId: number, statusId: number) {
   const supabase = await createClient();
@@ -15,20 +15,6 @@ export async function updateProposalStatus(proposalId: number, statusId: number)
   if (error) {
     return { error: error.message };
   }
-
-  revalidatePath("/pipeline");
-  revalidatePath("/leads");
-  return { error: null };
-}
-
-export async function updateProposalResultado(proposalId: number, resultado: Resultado | null) {
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("propostas")
-    .update({ resultado })
-    .eq("id", proposalId);
-
-  if (error) return { error: error.message };
 
   revalidatePath("/pipeline");
   revalidatePath("/leads");
