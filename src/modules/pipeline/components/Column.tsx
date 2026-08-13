@@ -17,7 +17,12 @@ export interface ColumnProps {
 }
 
 export function Column({ status, propostas, CardComponent }: ColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({ id: String(status.id) });
+  // Arquivado só é alcançável pelo botão "Arquivar" (com confirmação) no
+  // modal do card — arrastar direto pra cá ficaria sem essa confirmação.
+  const { setNodeRef, isOver } = useDroppable({
+    id: String(status.id),
+    disabled: status.key === "arquivado",
+  });
   const total = propostas.reduce((sum, p) => sum + (p.valor ?? 0), 0);
 
   return (
