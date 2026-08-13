@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
+import type { ColumnItemLabel } from "./Column";
 import type { ProposalStatus, Proposta } from "../types";
 
 // dnd-kit gera ids internos (aria-describedby) que não batem entre servidor e
@@ -25,6 +26,7 @@ export interface BoardClientProps {
   initialPropostas: Proposta[];
   columnStatuses: ProposalStatus[];
   CardComponent: ComponentType<{ proposta: Proposta }>;
+  itemLabel?: ColumnItemLabel;
 }
 
 export function BoardClient(props: BoardClientProps) {

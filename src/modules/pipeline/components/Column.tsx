@@ -10,13 +10,31 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   currency: "BRL",
 });
 
+export interface ColumnItemLabel {
+  singular: string;
+  plural: string;
+  empty: string;
+}
+
+const DEFAULT_ITEM_LABEL: ColumnItemLabel = {
+  singular: "proposta",
+  plural: "propostas",
+  empty: "Nenhuma proposta nesta coluna.",
+};
+
 export interface ColumnProps {
   status: ProposalStatus;
   propostas: Proposta[];
   CardComponent: ComponentType<{ proposta: Proposta }>;
+  itemLabel?: ColumnItemLabel;
 }
 
-export function Column({ status, propostas, CardComponent }: ColumnProps) {
+export function Column({
+  status,
+  propostas,
+  CardComponent,
+  itemLabel = DEFAULT_ITEM_LABEL,
+}: ColumnProps) {
   // Arquivado só é alcançável pelo botão "Arquivar" (com confirmação) no
   // modal do card — arrastar direto pra cá ficaria sem essa confirmação.
   const { setNodeRef, isOver } = useDroppable({
@@ -31,7 +49,7 @@ export function Column({ status, propostas, CardComponent }: ColumnProps) {
         <div>
           <h2 className="text-sm font-semibold text-foreground">{status.label}</h2>
           <p className="text-xs text-brand-graphite-light">
-            {propostas.length} {propostas.length === 1 ? "proposta" : "propostas"}
+            {propostas.length} {propostas.length === 1 ? itemLabel.singular : itemLabel.plural}
           </p>
         </div>
         <span className="font-mono text-xs text-brand-graphite-light">
@@ -49,9 +67,7 @@ export function Column({ status, propostas, CardComponent }: ColumnProps) {
           <CardComponent key={proposta.id} proposta={proposta} />
         ))}
         {propostas.length === 0 && (
-          <p className="p-2 text-center text-xs text-brand-graphite-light">
-            Nenhuma proposta nesta coluna.
-          </p>
+          <p className="p-2 text-center text-xs text-brand-graphite-light">{itemLabel.empty}</p>
         )}
       </div>
     </div>

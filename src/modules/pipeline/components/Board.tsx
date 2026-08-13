@@ -2,7 +2,7 @@
 
 import { useState, useTransition, type ComponentType } from "react";
 import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
-import { Column } from "./Column";
+import { Column, type ColumnItemLabel } from "./Column";
 import { updateProposalStatus } from "../actions";
 import type { ProposalStatus, Proposta } from "../types";
 
@@ -10,9 +10,10 @@ export interface BoardProps {
   initialPropostas: Proposta[];
   columnStatuses: ProposalStatus[];
   CardComponent: ComponentType<{ proposta: Proposta }>;
+  itemLabel?: ColumnItemLabel;
 }
 
-export function Board({ initialPropostas, columnStatuses, CardComponent }: BoardProps) {
+export function Board({ initialPropostas, columnStatuses, CardComponent, itemLabel }: BoardProps) {
   const [propostas, setPropostas] = useState(initialPropostas);
   const [, startTransition] = useTransition();
 
@@ -61,6 +62,7 @@ export function Board({ initialPropostas, columnStatuses, CardComponent }: Board
             status={status}
             propostas={propostas.filter((p) => p.status_id === status.id)}
             CardComponent={CardComponent}
+            itemLabel={itemLabel}
           />
         ))}
       </div>

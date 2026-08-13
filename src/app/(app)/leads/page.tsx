@@ -40,6 +40,7 @@ export default async function LeadsPage() {
           CardComponent={LeadCard}
           ListComponent={LeadListView}
           newButton={<NewLeadButton key="new-lead-button" />}
+          itemLabel={{ singular: "lead", plural: "leads", empty: "Nenhum lead nesta coluna." }}
         />
       </div>
     </LeadsDataProvider>

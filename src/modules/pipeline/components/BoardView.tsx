@@ -2,6 +2,7 @@
 
 import { useState, type ComponentType, type ReactNode } from "react";
 import { BoardClient } from "./BoardClient";
+import type { ColumnItemLabel } from "./Column";
 import { ViewToggle, type BoardViewMode } from "./ViewToggle";
 import type { ProposalStatus, Proposta } from "../types";
 
@@ -14,6 +15,7 @@ export interface BoardViewProps {
   ListComponent: ComponentType<{ propostas: Proposta[] }>;
   newButton: ReactNode;
   filters?: ReactNode;
+  itemLabel?: ColumnItemLabel;
 }
 
 export function BoardView({
@@ -25,6 +27,7 @@ export function BoardView({
   ListComponent,
   newButton,
   filters,
+  itemLabel,
 }: BoardViewProps) {
   const [viewMode, setViewMode] = useState<BoardViewMode>("kanban");
 
@@ -59,6 +62,7 @@ export function BoardView({
           initialPropostas={initialPropostas}
           columnStatuses={columnStatuses}
           CardComponent={CardComponent}
+          itemLabel={itemLabel}
         />
       ) : (
         <ListComponent propostas={propostas} />
