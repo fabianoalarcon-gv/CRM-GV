@@ -15,7 +15,7 @@ export function NewLeadButton() {
   const defaultStatusId = statuses.find((s) => s.is_default)?.id ?? statuses[0]?.id ?? 0;
 
   const initialValues: LeadInput = {
-    cliente_id: 0,
+    empresa_id: 0,
     data_inicio_lead: new Date().toISOString().slice(0, 10),
     termometro: "morno",
     descricao: "",

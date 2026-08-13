@@ -27,7 +27,7 @@ export function ProposalListView({ propostas }: { propostas: Proposta[] }) {
         <TableHeader>
           <TableRow>
             <TableHead>Número</TableHead>
-            <TableHead>Cliente</TableHead>
+            <TableHead>Empresa</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Termômetro</TableHead>
             <TableHead>Segmento</TableHead>
@@ -52,7 +52,7 @@ export function ProposalListView({ propostas }: { propostas: Proposta[] }) {
               <TableCell className="font-mono text-xs">
                 {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
               </TableCell>
-              <TableCell>{proposta.cliente_nome}</TableCell>
+              <TableCell>{proposta.empresa_nome}</TableCell>
               <TableCell>{statuses.find((s) => s.id === proposta.status_id)?.label ?? "—"}</TableCell>
               <TableCell>
                 <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>

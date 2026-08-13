@@ -73,9 +73,9 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
           )}
 
           <div>
-            <p className="text-sm font-medium text-foreground">{proposta.cliente_nome}</p>
-            {proposta.cliente_setor && (
-              <p className="text-xs text-brand-graphite-light">{proposta.cliente_setor}</p>
+            <p className="text-sm font-medium text-foreground">{proposta.empresa_nome}</p>
+            {proposta.empresa_setor && (
+              <p className="text-xs text-brand-graphite-light">{proposta.empresa_setor}</p>
             )}
           </div>
 

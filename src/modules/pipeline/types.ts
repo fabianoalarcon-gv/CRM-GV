@@ -34,9 +34,9 @@ export interface Proposta {
   numero_lead: string | null;
   data_envio: string;
   data_inicio_lead: string;
-  cliente_id: number;
-  cliente_nome: string;
-  cliente_setor: string | null;
+  empresa_id: number;
+  empresa_nome: string;
+  empresa_setor: string | null;
   servico: string | null;
   descricao: string | null;
   segmento: Segmento | null;
@@ -62,7 +62,7 @@ export interface ProximoCompromisso {
   inicio: string;
 }
 
-export interface ClienteOption {
+export interface EmpresaOption {
   id: number;
   nome: string;
 }
@@ -84,7 +84,7 @@ export interface ProposalHistoryEntry {
 export interface ProposalInput {
   numero_proposta: string;
   data_envio: string;
-  cliente_id: number;
+  empresa_id: number;
   servico: string;
   descricao: string;
   segmento: Segmento | null;

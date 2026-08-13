@@ -49,7 +49,7 @@ function shiftDate(date: Date, repeticao: Repeticao, occurrenceIndex: number): D
 }
 
 export async function createLead(input: LeadInput) {
-  if (!input.cliente_id) return { error: "Selecione o cliente." };
+  if (!input.empresa_id) return { error: "Selecione a empresa." };
 
   const supabase = await createClient();
   const {
@@ -57,7 +57,7 @@ export async function createLead(input: LeadInput) {
   } = await supabase.auth.getUser();
 
   const { error } = await supabase.from("propostas").insert({
-    cliente_id: input.cliente_id,
+    empresa_id: input.empresa_id,
     data_inicio_lead: input.data_inicio_lead,
     termometro: input.termometro,
     descricao: input.descricao.trim() || null,
@@ -75,13 +75,13 @@ export async function createLead(input: LeadInput) {
 }
 
 export async function updateLead(leadId: number, input: LeadInput) {
-  if (!input.cliente_id) return { error: "Selecione o cliente." };
+  if (!input.empresa_id) return { error: "Selecione a empresa." };
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("propostas")
     .update({
-      cliente_id: input.cliente_id,
+      empresa_id: input.empresa_id,
       data_inicio_lead: input.data_inicio_lead,
       termometro: input.termometro,
       descricao: input.descricao.trim() || null,
@@ -202,7 +202,7 @@ export async function reativarLead(leadId: number, statusAnteriorId: number | nu
   return { error: null };
 }
 
-export async function createAcao(leadId: number, clienteId: number, input: AcaoInput) {
+export async function createAcao(leadId: number, empresaId: number, input: AcaoInput) {
   if (!input.titulo.trim()) return { error: "Informe o título da ação." };
   if (!input.inicio) return { error: "Informe a data/hora de início." };
 
@@ -231,7 +231,7 @@ export async function createAcao(leadId: number, clienteId: number, input: AcaoI
       inicio: inicio.toISOString(),
       fim: fim ? fim.toISOString() : null,
       tipo: input.tipo,
-      cliente_id: clienteId,
+      empresa_id: empresaId,
       proposta_id: leadId,
       criado_por: user.id,
     };
@@ -250,7 +250,7 @@ export async function createAcao(leadId: number, clienteId: number, input: AcaoI
 // valida no servidor de novo aqui porque a UI já bloqueia, mas quem chama a
 // action direto (ou com estado desatualizado) não pode contornar a regra.
 // "esta_e_futuras" apaga a partir da data desta ação (inclusive), só dentro
-// do mesmo Lead/Proposta — outro Lead/Proposta do mesmo cliente não é tocado.
+// do mesmo Lead/Proposta — outro Lead/Proposta da mesma empresa não é tocado.
 export async function deleteAcao(
   compromissoId: number,
   propostaId: number,

@@ -50,9 +50,9 @@ export function ProposalForm({
   onCancel,
   mode = "edit",
 }: ProposalFormProps) {
-  const { statuses, clientes, profiles } = usePipelineData();
+  const { statuses, empresas, profiles } = usePipelineData();
   const [values, setValues] = useState<ProposalInput>(initialValues);
-  const [clienteError, setClienteError] = useState<string | null>(null);
+  const [empresaError, setEmpresaError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
@@ -66,7 +66,7 @@ export function ProposalForm({
   function update<K extends keyof ProposalInput>(key: K, value: ProposalInput[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
     setJustSaved(false);
-    if (key === "cliente_id") setClienteError(null);
+    if (key === "empresa_id") setEmpresaError(null);
   }
 
   const selectedStatus = statuses.find((s) => s.id === values.status_id);
@@ -76,11 +76,11 @@ export function ProposalForm({
     event.preventDefault();
     setFormError(null);
 
-    if (!values.cliente_id) {
-      setClienteError("Selecione o cliente.");
+    if (!values.empresa_id) {
+      setEmpresaError("Selecione a empresa.");
       return;
     }
-    setClienteError(null);
+    setEmpresaError(null);
 
     setIsSubmitting(true);
     const result = await onSubmit(values);
@@ -110,11 +110,11 @@ export function ProposalForm({
 
       <Combobox
         label="Empresa"
-        placeholder="Selecione um cliente"
-        value={values.cliente_id ? String(values.cliente_id) : ""}
-        onChange={(v) => update("cliente_id", Number(v))}
-        options={clientes.map((c) => ({ value: String(c.id), label: c.nome }))}
-        error={clienteError ?? undefined}
+        placeholder="Selecione uma empresa"
+        value={values.empresa_id ? String(values.empresa_id) : ""}
+        onChange={(v) => update("empresa_id", Number(v))}
+        options={empresas.map((c) => ({ value: String(c.id), label: c.nome }))}
+        error={empresaError ?? undefined}
       />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

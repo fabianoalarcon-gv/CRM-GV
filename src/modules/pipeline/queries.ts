@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type {
-  ClienteOption,
+  EmpresaOption,
   ContatoPrincipal,
   ProfileOption,
   ProposalHistoryEntry,
@@ -27,7 +27,7 @@ export async function getPropostas(): Promise<Proposta[]> {
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, numero_lead, data_envio, data_inicio_lead, cliente_id, servico, descricao, segmento, valor, status_id, status_anterior_id, termometro, tipo_servico, responsavel_id, resultado, gerado_de_lead, created_at, updated_at, clientes(nome, setor)",
+      "id, numero_proposta, numero_lead, data_envio, data_inicio_lead, empresa_id, servico, descricao, segmento, valor, status_id, status_anterior_id, termometro, tipo_servico, responsavel_id, resultado, gerado_de_lead, created_at, updated_at, empresas(nome, setor)",
     )
     .order("created_at", { ascending: false });
 
@@ -39,9 +39,9 @@ export async function getPropostas(): Promise<Proposta[]> {
     numero_lead: p.numero_lead,
     data_envio: p.data_envio,
     data_inicio_lead: p.data_inicio_lead,
-    cliente_id: p.cliente_id,
-    cliente_nome: p.clientes?.nome ?? "—",
-    cliente_setor: p.clientes?.setor ?? null,
+    empresa_id: p.empresa_id,
+    empresa_nome: p.empresas?.nome ?? "—",
+    empresa_setor: p.empresas?.setor ?? null,
     servico: p.servico,
     descricao: p.descricao,
     segmento: p.segmento as Proposta["segmento"],
@@ -58,29 +58,29 @@ export async function getPropostas(): Promise<Proposta[]> {
   }));
 }
 
-// Primeiro contato cadastrado de cada cliente (mais antigo), usado como
+// Primeiro contato cadastrado de cada empresa (mais antigo), usado como
 // "contato do responsável" no card do Kanban — não há conceito de contato
 // principal/preferencial no schema ainda, então usamos o mais antigo como
 // aproximação razoável.
 export async function getContatosPrincipais(): Promise<Map<number, ContatoPrincipal>> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("contatos_cliente")
-    .select("cliente_id, nome, telefone, created_at")
+    .from("contatos_empresa")
+    .select("empresa_id, nome, telefone, created_at")
     .order("created_at");
 
   if (error) throw error;
 
   const map = new Map<number, ContatoPrincipal>();
   for (const c of data ?? []) {
-    if (!map.has(c.cliente_id)) map.set(c.cliente_id, { nome: c.nome, telefone: c.telefone });
+    if (!map.has(c.empresa_id)) map.set(c.empresa_id, { nome: c.nome, telefone: c.telefone });
   }
   return map;
 }
 
 // Próximo compromisso agendado (a partir de agora) de cada Lead/Proposta,
-// usado na tag do card do Kanban. Chaveado por proposta_id (não cliente_id)
-// pra não vazar a Ação de um card pros outros cards do mesmo cliente.
+// usado na tag do card do Kanban. Chaveado por proposta_id (não empresa_id)
+// pra não vazar a Ação de um card pros outros cards da mesma empresa.
 export async function getProximosCompromissos(): Promise<Map<number, ProximoCompromisso>> {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -100,9 +100,9 @@ export async function getProximosCompromissos(): Promise<Map<number, ProximoComp
   return map;
 }
 
-export async function getClientesOptions(): Promise<ClienteOption[]> {
+export async function getEmpresasOptions(): Promise<EmpresaOption[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("clientes").select("id, nome").order("nome");
+  const { data, error } = await supabase.from("empresas").select("id, nome").order("nome");
 
   if (error) throw error;
   return data;

@@ -6,7 +6,7 @@ export interface DashboardProposta {
   id: number;
   numero_proposta: string | null;
   numero_lead: string | null;
-  cliente_nome: string;
+  empresa_nome: string;
   valor: number;
   data_envio: string;
   tipo_servico: TipoServico;

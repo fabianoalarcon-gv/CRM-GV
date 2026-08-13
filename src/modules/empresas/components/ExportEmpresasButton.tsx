@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
-import type { ClienteListItem } from "../types";
+import type { EmpresaListItem } from "../types";
 
 function csvEscape(value: string): string {
   if (value.includes(",") || value.includes('"') || value.includes("\n")) {
@@ -11,10 +11,10 @@ function csvEscape(value: string): string {
   return value;
 }
 
-export function ExportClientesButton({ clientes }: { clientes: ClienteListItem[] }) {
+export function ExportEmpresasButton({ empresas }: { empresas: EmpresaListItem[] }) {
   function handleExport() {
     const header = ["Nome", "Setor", "Endereço", "Cadastrado em"];
-    const rows = clientes.map((c) => [
+    const rows = empresas.map((c) => [
       c.nome,
       c.setor ?? "",
       c.endereco ?? "",
@@ -26,7 +26,7 @@ export function ExportClientesButton({ clientes }: { clientes: ClienteListItem[]
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `clientes-logihub-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `empresas-logihub-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

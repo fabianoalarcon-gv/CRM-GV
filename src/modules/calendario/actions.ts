@@ -11,7 +11,7 @@ function toRow(input: CompromissoInput) {
     inicio: new Date(input.inicio).toISOString(),
     fim: input.fim ? new Date(input.fim).toISOString() : null,
     tipo: input.tipo,
-    cliente_id: input.cliente_id,
+    empresa_id: input.empresa_id,
   };
 }
 

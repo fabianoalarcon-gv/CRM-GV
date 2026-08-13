@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      clientes: {
+      empresas: {
         Row: {
           created_at: string
           created_by: string | null
@@ -47,7 +47,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "clientes_created_by_fkey"
+            foreignKeyName: "empresas_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -57,7 +57,7 @@ export type Database = {
       }
       compromissos: {
         Row: {
-          cliente_id: number | null
+          empresa_id: number | null
           created_at: string
           criado_por: string
           descricao: string | null
@@ -70,7 +70,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          cliente_id?: number | null
+          empresa_id?: number | null
           created_at?: string
           criado_por: string
           descricao?: string | null
@@ -83,7 +83,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          cliente_id?: number | null
+          empresa_id?: number | null
           created_at?: string
           criado_por?: string
           descricao?: string | null
@@ -97,10 +97,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "compromissos_cliente_id_fkey"
-            columns: ["cliente_id"]
+            foreignKeyName: "compromissos_empresa_id_fkey"
+            columns: ["empresa_id"]
             isOneToOne: false
-            referencedRelation: "clientes"
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
           {
@@ -119,10 +119,10 @@ export type Database = {
           },
         ]
       }
-      contatos_cliente: {
+      contatos_empresa: {
         Row: {
           cargo: string | null
-          cliente_id: number
+          empresa_id: number
           created_at: string
           email: string | null
           id: number
@@ -131,7 +131,7 @@ export type Database = {
         }
         Insert: {
           cargo?: string | null
-          cliente_id: number
+          empresa_id: number
           created_at?: string
           email?: string | null
           id?: never
@@ -140,7 +140,7 @@ export type Database = {
         }
         Update: {
           cargo?: string | null
-          cliente_id?: number
+          empresa_id?: number
           created_at?: string
           email?: string | null
           id?: never
@@ -149,18 +149,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "contatos_cliente_cliente_id_fkey"
-            columns: ["cliente_id"]
+            foreignKeyName: "contatos_empresa_empresa_id_fkey"
+            columns: ["empresa_id"]
             isOneToOne: false
-            referencedRelation: "clientes"
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
         ]
       }
-      interacoes_cliente: {
+      interacoes_empresa: {
         Row: {
           autor_id: string | null
-          cliente_id: number
+          empresa_id: number
           created_at: string
           data_interacao: string
           descricao: string
@@ -169,7 +169,7 @@ export type Database = {
         }
         Insert: {
           autor_id?: string | null
-          cliente_id: number
+          empresa_id: number
           created_at?: string
           data_interacao?: string
           descricao: string
@@ -178,7 +178,7 @@ export type Database = {
         }
         Update: {
           autor_id?: string | null
-          cliente_id?: number
+          empresa_id?: number
           created_at?: string
           data_interacao?: string
           descricao?: string
@@ -187,17 +187,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "interacoes_cliente_autor_id_fkey"
+            foreignKeyName: "interacoes_empresa_autor_id_fkey"
             columns: ["autor_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "interacoes_cliente_cliente_id_fkey"
-            columns: ["cliente_id"]
+            foreignKeyName: "interacoes_empresa_empresa_id_fkey"
+            columns: ["empresa_id"]
             isOneToOne: false
-            referencedRelation: "clientes"
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
         ]
@@ -291,7 +291,7 @@ export type Database = {
       }
       propostas: {
         Row: {
-          cliente_id: number
+          empresa_id: number
           created_at: string
           created_by: string | null
           data_envio: string
@@ -313,7 +313,7 @@ export type Database = {
           valor: number | null
         }
         Insert: {
-          cliente_id: number
+          empresa_id: number
           created_at?: string
           created_by?: string | null
           data_envio?: string
@@ -335,7 +335,7 @@ export type Database = {
           valor?: number | null
         }
         Update: {
-          cliente_id?: number
+          empresa_id?: number
           created_at?: string
           created_by?: string | null
           data_envio?: string
@@ -358,10 +358,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "propostas_cliente_id_fkey"
-            columns: ["cliente_id"]
+            foreignKeyName: "propostas_empresa_id_fkey"
+            columns: ["empresa_id"]
             isOneToOne: false
-            referencedRelation: "clientes"
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
           {

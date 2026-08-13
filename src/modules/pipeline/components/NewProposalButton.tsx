@@ -24,7 +24,7 @@ export function NewProposalButton({ columnStatuses }: NewProposalButtonProps) {
   const initialValues: ProposalInput = {
     numero_proposta: "",
     data_envio: todayISO(),
-    cliente_id: 0,
+    empresa_id: 0,
     servico: "",
     descricao: "",
     segmento: null,

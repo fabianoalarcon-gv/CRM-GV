@@ -7,7 +7,7 @@ import { deleteAcao } from "@/modules/leads/actions";
 import { deleteCompromisso, updateCompromisso } from "../actions";
 import { TIPO_COLOR, TIPO_LABEL, isBeforeToday, toDatetimeLocalValue } from "../utils";
 import { CompromissoForm } from "./CompromissoForm";
-import type { ClienteOption, Compromisso } from "../types";
+import type { EmpresaOption, Compromisso } from "../types";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
   dateStyle: "short",
@@ -16,14 +16,14 @@ const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
 
 export interface CompromissoDetailModalProps {
   compromisso: Compromisso;
-  clientes: ClienteOption[];
+  empresas: EmpresaOption[];
   isOpen: boolean;
   onClose: () => void;
 }
 
 export function CompromissoDetailModal({
   compromisso,
-  clientes,
+  empresas,
   isOpen,
   onClose,
 }: CompromissoDetailModalProps) {
@@ -68,14 +68,14 @@ export function CompromissoDetailModal({
         className="max-w-lg"
       >
         <CompromissoForm
-          clientes={clientes}
+          empresas={empresas}
           initialValues={{
             titulo: compromisso.titulo,
             descricao: compromisso.descricao ?? "",
             inicio: toDatetimeLocalValue(new Date(compromisso.inicio)),
             fim: compromisso.fim ? toDatetimeLocalValue(new Date(compromisso.fim)) : "",
             tipo: compromisso.tipo ?? "outro",
-            cliente_id: compromisso.cliente_id,
+            empresa_id: compromisso.empresa_id,
           }}
           submitLabel="Salvar alterações"
           onSubmit={(input) => updateCompromisso(compromisso.id, input)}
@@ -126,12 +126,12 @@ export function CompromissoDetailModal({
           </div>
         )}
 
-        {compromisso.cliente_nome && (
+        {compromisso.empresa_nome && (
           <div>
             <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-              Cliente
+              Empresa
             </p>
-            <p className="mt-1 text-sm text-foreground">{compromisso.cliente_nome}</p>
+            <p className="mt-1 text-sm text-foreground">{compromisso.empresa_nome}</p>
           </div>
         )}
 

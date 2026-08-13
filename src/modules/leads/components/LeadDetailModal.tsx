@@ -103,7 +103,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
   }
 
   async function handleCreateAcao(input: AcaoInput) {
-    const result = await createAcao(proposta.id, proposta.cliente_id, input);
+    const result = await createAcao(proposta.id, proposta.empresa_id, input);
     return result;
   }
 
@@ -158,7 +158,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
   const modalTitle = `Criado em ${dateFormatter.format(new Date(proposta.created_at))}`;
 
   const initialValues: LeadInput = {
-    cliente_id: proposta.cliente_id,
+    empresa_id: proposta.empresa_id,
     data_inicio_lead: proposta.data_inicio_lead,
     termometro: proposta.termometro,
     descricao: proposta.descricao ?? "",
@@ -351,7 +351,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
         className="max-w-2xl"
       >
         <AcaoForm
-          clienteNome={proposta.cliente_nome}
+          empresaNome={proposta.empresa_nome}
           initialValues={{
             titulo: "",
             inicio: toDatetimeLocalValue(new Date()),

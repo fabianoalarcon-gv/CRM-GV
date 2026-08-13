@@ -27,9 +27,9 @@ export interface LeadFormProps {
 }
 
 export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onSuccess, onCancel }: LeadFormProps) {
-  const { statuses, clientes, profiles } = useLeadsData();
+  const { statuses, empresas, profiles } = useLeadsData();
   const [values, setValues] = useState<LeadInput>(initialValues);
-  const [clienteError, setClienteError] = useState<string | null>(null);
+  const [empresaError, setEmpresaError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
@@ -43,18 +43,18 @@ export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onS
   function update<K extends keyof LeadInput>(key: K, value: LeadInput[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
     setJustSaved(false);
-    if (key === "cliente_id") setClienteError(null);
+    if (key === "empresa_id") setEmpresaError(null);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
 
-    if (!values.cliente_id) {
-      setClienteError("Selecione a empresa.");
+    if (!values.empresa_id) {
+      setEmpresaError("Selecione a empresa.");
       return;
     }
-    setClienteError(null);
+    setEmpresaError(null);
 
     setIsSubmitting(true);
     const result = await onSubmit(values);
@@ -83,11 +83,11 @@ export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onS
 
       <Combobox
         label="Empresa"
-        placeholder="Selecione um cliente"
-        value={values.cliente_id ? String(values.cliente_id) : ""}
-        onChange={(v) => update("cliente_id", Number(v))}
-        options={clientes.map((c) => ({ value: String(c.id), label: c.nome }))}
-        error={clienteError ?? undefined}
+        placeholder="Selecione uma empresa"
+        value={values.empresa_id ? String(values.empresa_id) : ""}
+        onChange={(v) => update("empresa_id", Number(v))}
+        options={empresas.map((c) => ({ value: String(c.id), label: c.nome }))}
+        error={empresaError ?? undefined}
       />
 
       <Textarea

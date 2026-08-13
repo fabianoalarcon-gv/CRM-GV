@@ -1,8 +1,8 @@
 import { CalendarioView } from "@/modules/calendario/components/CalendarioView";
-import { getClienteOptions, getCompromissos } from "@/modules/calendario/queries";
+import { getEmpresaOptions, getCompromissos } from "@/modules/calendario/queries";
 
 export default async function CalendarioPage() {
-  const [compromissos, clientes] = await Promise.all([getCompromissos(), getClienteOptions()]);
+  const [compromissos, empresas] = await Promise.all([getCompromissos(), getEmpresaOptions()]);
 
-  return <CalendarioView compromissos={compromissos} clientes={clientes} />;
+  return <CalendarioView compromissos={compromissos} empresas={empresas} />;
 }

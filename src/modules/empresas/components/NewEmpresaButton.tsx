@@ -4,18 +4,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Modal } from "@/components/ui/Modal";
-import { createCliente } from "../actions";
-import { ClienteForm } from "./ClienteForm";
-import type { ClienteInput } from "../types";
+import { createEmpresa } from "../actions";
+import { EmpresaForm } from "./EmpresaForm";
+import type { EmpresaInput } from "../types";
 
-const EMPTY_VALUES: ClienteInput = {
+const EMPTY_VALUES: EmpresaInput = {
   nome: "",
   setor: "",
   endereco: "",
   observacoes: "",
 };
 
-export function NewClienteButton() {
+export function NewEmpresaButton() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -26,10 +26,10 @@ export function NewClienteButton() {
       </Button>
 
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Nova empresa" className="max-w-lg">
-        <ClienteForm
+        <EmpresaForm
           initialValues={EMPTY_VALUES}
-          submitLabel="Criar cliente"
-          onSubmit={createCliente}
+          submitLabel="Criar empresa"
+          onSubmit={createEmpresa}
           onSuccess={() => setIsOpen(false)}
           onCancel={() => setIsOpen(false)}
         />

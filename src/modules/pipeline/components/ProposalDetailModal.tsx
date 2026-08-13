@@ -71,7 +71,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
   }
 
   async function handleCreateAcao(input: AcaoInput) {
-    return createAcao(proposta.id, proposta.cliente_id, input);
+    return createAcao(proposta.id, proposta.empresa_id, input);
   }
 
   async function handleAddAndamento() {
@@ -130,7 +130,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
   const initialValues = {
     numero_proposta: proposta.numero_proposta ?? "",
     data_envio: proposta.data_envio,
-    cliente_id: proposta.cliente_id,
+    empresa_id: proposta.empresa_id,
     servico: proposta.servico ?? "",
     descricao: proposta.descricao ?? "",
     segmento: proposta.segmento,
@@ -298,7 +298,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
         className="max-w-2xl"
       >
         <AcaoForm
-          clienteNome={proposta.cliente_nome}
+          empresaNome={proposta.empresa_nome}
           initialValues={{
             titulo: "",
             inicio: toDatetimeLocalValue(new Date()),

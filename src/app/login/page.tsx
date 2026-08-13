@@ -78,7 +78,7 @@ export default function LoginPage() {
             Acompanhe todo o trajeto.
           </p>
           <p className="mt-4 max-w-xs text-sm text-white/60">
-            Pipeline comercial, clientes e indicadores da Granvale Logística em um só lugar.
+            Pipeline comercial, empresas e indicadores da Granvale Logística em um só lugar.
           </p>
         </div>
 

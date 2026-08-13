@@ -17,7 +17,7 @@ export const TIPO_OPTIONS: { value: CompromissoTipo; label: string }[] = [
 ];
 
 // Categorias de Ação (LEAD/pipeline): subconjunto fixo de TIPO_OPTIONS — só
-// as categorias relevantes para uma ação de cliente aparecem no formulário.
+// as categorias relevantes para uma ação de empresa aparecem no formulário.
 export const ACAO_TIPO_OPTIONS: { value: CompromissoTipo; label: string }[] = [
   { value: "reuniao", label: "Reunião" },
   { value: "ligacao", label: "Ligação" },

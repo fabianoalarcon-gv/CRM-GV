@@ -11,9 +11,9 @@ import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { useIsAdmin } from "@/lib/auth/context";
-import { addContato, addInteracao, deleteCliente, updateCliente } from "../actions";
-import { ClienteForm } from "./ClienteForm";
-import type { Cliente, Contato, ContatoInput, Interacao, InteracaoInput, PropostaResumo } from "../types";
+import { addContato, addInteracao, deleteEmpresa, updateEmpresa } from "../actions";
+import { EmpresaForm } from "./EmpresaForm";
+import type { Empresa, Contato, ContatoInput, Interacao, InteracaoInput, PropostaResumo } from "../types";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
@@ -40,19 +40,19 @@ const TIPO_INTERACAO_LABEL: Record<string, string> = Object.fromEntries(
   TIPO_INTERACAO_OPTIONS.map((o) => [o.value, o.label]),
 );
 
-export interface ClienteDetailViewProps {
-  cliente: Cliente;
+export interface EmpresaDetailViewProps {
+  empresa: Empresa;
   initialContatos: Contato[];
   propostas: PropostaResumo[];
   initialInteracoes: Interacao[];
 }
 
-export function ClienteDetailView({
-  cliente,
+export function EmpresaDetailView({
+  empresa,
   initialContatos,
   propostas,
   initialInteracoes,
-}: ClienteDetailViewProps) {
+}: EmpresaDetailViewProps) {
   const router = useRouter();
   const isAdmin = useIsAdmin();
 
@@ -74,14 +74,14 @@ export function ClienteDetailView({
   async function handleDelete() {
     setIsDeleting(true);
     setDeleteError(null);
-    const result = await deleteCliente(cliente.id);
+    const result = await deleteEmpresa(empresa.id);
     setIsDeleting(false);
 
     if (result.error) {
       setDeleteError(result.error);
       return;
     }
-    router.push("/clientes");
+    router.push("/empresas");
   }
 
   async function handleAddContato(event: FormEvent<HTMLFormElement>) {
@@ -90,7 +90,7 @@ export function ClienteDetailView({
 
     setIsAddingContato(true);
     setContatoError(null);
-    const result = await addContato(cliente.id, contatoValues);
+    const result = await addContato(empresa.id, contatoValues);
     setIsAddingContato(false);
 
     if (result.error) {
@@ -102,7 +102,7 @@ export function ClienteDetailView({
       ...prev,
       {
         id: Date.now(),
-        cliente_id: cliente.id,
+        empresa_id: empresa.id,
         nome: contatoValues.nome.trim(),
         cargo: contatoValues.cargo.trim() || null,
         email: contatoValues.email.trim() || null,
@@ -119,7 +119,7 @@ export function ClienteDetailView({
 
     setIsAddingInteracao(true);
     setInteracaoError(null);
-    const result = await addInteracao(cliente.id, interacaoValues);
+    const result = await addInteracao(empresa.id, interacaoValues);
     setIsAddingInteracao(false);
 
     if (result.error) {
@@ -130,7 +130,7 @@ export function ClienteDetailView({
     setInteracoes((prev) => [
       {
         id: Date.now(),
-        cliente_id: cliente.id,
+        empresa_id: empresa.id,
         tipo: interacaoValues.tipo || null,
         descricao: interacaoValues.descricao.trim(),
         data_interacao: new Date().toISOString(),
@@ -146,21 +146,21 @@ export function ClienteDetailView({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <Link
-            href="/clientes"
+            href="/empresas"
             className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase hover:underline"
           >
-            ← Clientes
+            ← Empresas
           </Link>
           <h1 className="mt-1 font-display text-2xl font-semibold text-foreground sm:text-3xl">
-            {cliente.nome}
+            {empresa.nome}
           </h1>
-          {cliente.setor && <p className="mt-1 text-sm text-brand-graphite-light">{cliente.setor}</p>}
+          {empresa.setor && <p className="mt-1 text-sm text-brand-graphite-light">{empresa.setor}</p>}
         </div>
         <div className="flex gap-2">
           {isAdmin &&
             (confirmingDelete ? (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-brand-graphite-light">Excluir cliente?</span>
+                <span className="text-sm text-brand-graphite-light">Excluir empresa?</span>
                 <Button variant="danger" size="sm" disabled={isDeleting} onClick={handleDelete}>
                   {isDeleting ? "Excluindo…" : "Confirmar"}
                 </Button>
@@ -186,14 +186,14 @@ export function ClienteDetailView({
               <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
                 Endereço
               </p>
-              <p className="mt-1 text-sm text-foreground">{cliente.endereco || "Não informado"}</p>
+              <p className="mt-1 text-sm text-foreground">{empresa.endereco || "Não informado"}</p>
             </div>
             <div>
               <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
                 Observações
               </p>
               <p className="mt-1 text-sm whitespace-pre-wrap text-foreground">
-                {cliente.observacoes || "Nenhuma observação registrada."}
+                {empresa.observacoes || "Nenhuma observação registrada."}
               </p>
             </div>
             <div>
@@ -201,7 +201,7 @@ export function ClienteDetailView({
                 Cadastrado em
               </p>
               <p className="mt-1 text-sm text-foreground">
-                {dateFormatter.format(new Date(cliente.created_at))}
+                {dateFormatter.format(new Date(empresa.created_at))}
               </p>
             </div>
           </CardContent>
@@ -274,7 +274,7 @@ export function ClienteDetailView({
 
             {propostas.length === 0 && (
               <p className="text-sm text-brand-graphite-light">
-                Nenhuma proposta registrada para este cliente ainda.
+                Nenhuma proposta registrada para esta empresa ainda.
               </p>
             )}
             {propostas.map((proposta) => (
@@ -368,18 +368,18 @@ export function ClienteDetailView({
       <Modal
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
-        title={`Editar ${cliente.nome}`}
+        title={`Editar ${empresa.nome}`}
         className="max-w-lg"
       >
-        <ClienteForm
+        <EmpresaForm
           initialValues={{
-            nome: cliente.nome,
-            setor: cliente.setor ?? "",
-            endereco: cliente.endereco ?? "",
-            observacoes: cliente.observacoes ?? "",
+            nome: empresa.nome,
+            setor: empresa.setor ?? "",
+            endereco: empresa.endereco ?? "",
+            observacoes: empresa.observacoes ?? "",
           }}
           submitLabel="Salvar alterações"
-          onSubmit={(input) => updateCliente(cliente.id, input)}
+          onSubmit={(input) => updateEmpresa(empresa.id, input)}
           onSuccess={() => setIsEditing(false)}
           onCancel={() => setIsEditing(false)}
         />

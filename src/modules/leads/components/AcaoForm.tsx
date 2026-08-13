@@ -22,14 +22,14 @@ const REPETICAO_OPTIONS: { value: Repeticao; label: string }[] = [
 const MAX_REPETICOES = 100;
 
 export interface AcaoFormProps {
-  clienteNome: string;
+  empresaNome: string;
   initialValues: AcaoInput;
   onSubmit: (input: AcaoInput) => Promise<{ error: string | null }>;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export function AcaoForm({ clienteNome, initialValues, onSubmit, onSuccess, onCancel }: AcaoFormProps) {
+export function AcaoForm({ empresaNome, initialValues, onSubmit, onSuccess, onCancel }: AcaoFormProps) {
   const [values, setValues] = useState<AcaoInput>(initialValues);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,9 +87,9 @@ export function AcaoForm({ clienteNome, initialValues, onSubmit, onSuccess, onCa
           options={ACAO_TIPO_OPTIONS}
         />
         <div className="flex flex-col gap-1.5">
-          <span className="text-sm font-medium text-foreground">Cliente</span>
+          <span className="text-sm font-medium text-foreground">Empresa</span>
           <p className="flex h-10 items-center rounded-lg border border-border bg-black/[.02] px-3 text-sm text-brand-graphite-light">
-            {clienteNome}
+            {empresaNome}
           </p>
         </div>
       </div>

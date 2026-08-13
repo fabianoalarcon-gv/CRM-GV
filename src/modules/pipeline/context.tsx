@@ -2,7 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 import type {
-  ClienteOption,
+  EmpresaOption,
   ContatoPrincipal,
   ProfileOption,
   ProposalHistoryEntry,
@@ -13,7 +13,7 @@ import type { Compromisso } from "@/modules/calendario/types";
 
 export interface PipelineDataValue {
   statuses: ProposalStatus[];
-  clientes: ClienteOption[];
+  empresas: EmpresaOption[];
   profiles: ProfileOption[];
   history: ProposalHistoryEntry[];
   contatosPrincipais: Map<number, ContatoPrincipal>;

@@ -2,7 +2,7 @@ import type { Segmento, Termometro } from "@/modules/pipeline/types";
 import type { CompromissoTipo } from "@/modules/calendario/types";
 
 export interface LeadInput {
-  cliente_id: number;
+  empresa_id: number;
   data_inicio_lead: string;
   termometro: Termometro;
   descricao: string;

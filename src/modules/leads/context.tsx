@@ -2,7 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 import type {
-  ClienteOption,
+  EmpresaOption,
   ProfileOption,
   ProposalHistoryEntry,
   ProposalStatus,
@@ -12,7 +12,7 @@ import type { Compromisso } from "@/modules/calendario/types";
 
 export interface LeadsDataValue {
   statuses: ProposalStatus[];
-  clientes: ClienteOption[];
+  empresas: EmpresaOption[];
   profiles: ProfileOption[];
   history: ProposalHistoryEntry[];
   compromissos: Compromisso[];

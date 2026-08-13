@@ -42,7 +42,7 @@ export function RankingTable({ propostas }: RankingTableProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Nº</TableHead>
-                <TableHead>Cliente</TableHead>
+                <TableHead>Empresa</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Valor</TableHead>
               </TableRow>
@@ -53,7 +53,7 @@ export function RankingTable({ propostas }: RankingTableProps) {
                   <TableCell className="font-mono text-xs">
                     {p.numero_proposta ?? p.numero_lead ?? "—"}
                   </TableCell>
-                  <TableCell>{p.cliente_nome}</TableCell>
+                  <TableCell>{p.empresa_nome}</TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(p)}>{statusLabel(p)}</Badge>
                   </TableCell>

@@ -25,7 +25,7 @@ function toRow(input: ProposalInput) {
   return {
     numero_proposta: input.numero_proposta.trim(),
     data_envio: input.data_envio,
-    cliente_id: input.cliente_id,
+    empresa_id: input.empresa_id,
     servico: input.servico.trim() || null,
     descricao: input.descricao.trim() || null,
     segmento: input.segmento,

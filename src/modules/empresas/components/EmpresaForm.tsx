@@ -4,28 +4,28 @@ import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
-import type { ClienteInput } from "../types";
+import type { EmpresaInput } from "../types";
 
-export interface ClienteFormProps {
-  initialValues: ClienteInput;
+export interface EmpresaFormProps {
+  initialValues: EmpresaInput;
   submitLabel: string;
-  onSubmit: (input: ClienteInput) => Promise<{ error: string | null }>;
+  onSubmit: (input: EmpresaInput) => Promise<{ error: string | null }>;
   onSuccess: () => void;
   onCancel: () => void;
 }
 
-export function ClienteForm({
+export function EmpresaForm({
   initialValues,
   submitLabel,
   onSubmit,
   onSuccess,
   onCancel,
-}: ClienteFormProps) {
-  const [values, setValues] = useState<ClienteInput>(initialValues);
+}: EmpresaFormProps) {
+  const [values, setValues] = useState<EmpresaInput>(initialValues);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function update<K extends keyof ClienteInput>(key: K, value: ClienteInput[K]) {
+  function update<K extends keyof EmpresaInput>(key: K, value: EmpresaInput[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
 

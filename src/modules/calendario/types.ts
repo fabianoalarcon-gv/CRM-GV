@@ -19,8 +19,8 @@ export interface Compromisso {
   inicio: string;
   fim: string | null;
   tipo: CompromissoTipo | null;
-  cliente_id: number | null;
-  cliente_nome: string | null;
+  empresa_id: number | null;
+  empresa_nome: string | null;
   criado_por_nome: string | null;
   proposta_id: number | null;
   created_at: string;
@@ -32,10 +32,10 @@ export interface CompromissoInput {
   inicio: string;
   fim: string;
   tipo: CompromissoTipo;
-  cliente_id: number | null;
+  empresa_id: number | null;
 }
 
-export interface ClienteOption {
+export interface EmpresaOption {
   id: number;
   nome: string;
 }

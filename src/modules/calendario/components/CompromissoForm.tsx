@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import type { ClienteOption, CompromissoInput } from "../types";
+import type { EmpresaOption, CompromissoInput } from "../types";
 import { TIPO_OPTIONS } from "../utils";
 
 export interface CompromissoFormProps {
   initialValues: CompromissoInput;
-  clientes: ClienteOption[];
+  empresas: EmpresaOption[];
   submitLabel: string;
   onSubmit: (input: CompromissoInput) => Promise<{ error: string | null }>;
   onSuccess: () => void;
@@ -19,7 +19,7 @@ export interface CompromissoFormProps {
 
 export function CompromissoForm({
   initialValues,
-  clientes,
+  empresas,
   submitLabel,
   onSubmit,
   onSuccess,
@@ -82,11 +82,11 @@ export function CompromissoForm({
           options={TIPO_OPTIONS}
         />
         <Select
-          label="Cliente"
-          placeholder="Sem cliente vinculado"
-          value={values.cliente_id ? String(values.cliente_id) : ""}
-          onChange={(e) => update("cliente_id", e.target.value ? Number(e.target.value) : null)}
-          options={clientes.map((c) => ({ value: String(c.id), label: c.nome }))}
+          label="Empresa"
+          placeholder="Sem empresa vinculada"
+          value={values.empresa_id ? String(values.empresa_id) : ""}
+          onChange={(e) => update("empresa_id", e.target.value ? Number(e.target.value) : null)}
+          options={empresas.map((c) => ({ value: String(c.id), label: c.nome }))}
         />
       </div>
 

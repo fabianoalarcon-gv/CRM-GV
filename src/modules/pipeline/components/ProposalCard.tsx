@@ -35,7 +35,7 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
   const { statuses, profiles, contatosPrincipais, proximosCompromissos } = usePipelineData();
 
   const responsavel = profiles.find((p) => p.id === proposta.responsavel_id);
-  const contato = contatosPrincipais.get(proposta.cliente_id);
+  const contato = contatosPrincipais.get(proposta.empresa_id);
   const proximoCompromisso = proximosCompromissos.get(proposta.id);
   const isFechado = statuses.find((s) => s.id === proposta.status_id)?.key === "fechado";
 
@@ -85,9 +85,9 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
           )}
 
           <div>
-            <p className="text-sm font-medium text-foreground">{proposta.cliente_nome}</p>
-            {proposta.cliente_setor && (
-              <p className="text-xs text-brand-graphite-light">{proposta.cliente_setor}</p>
+            <p className="text-sm font-medium text-foreground">{proposta.empresa_nome}</p>
+            {proposta.empresa_setor && (
+              <p className="text-xs text-brand-graphite-light">{proposta.empresa_setor}</p>
             )}
           </div>
 

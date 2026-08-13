@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/lib/cn";
 import { createCompromisso } from "../actions";
-import type { ClienteOption, Compromisso, CompromissoInput } from "../types";
+import type { EmpresaOption, Compromisso, CompromissoInput } from "../types";
 import {
   TIPO_COLOR,
   TIPO_LABEL,
@@ -56,7 +56,7 @@ function emptyValues(date: Date): CompromissoInput {
     inicio: toDatetimeLocalValue(withDefaultHour),
     fim: "",
     tipo: "outro",
-    cliente_id: null,
+    empresa_id: null,
   };
 }
 
@@ -66,10 +66,10 @@ function tipoColor(compromisso: Compromisso): string {
 
 export interface CalendarioViewProps {
   compromissos: Compromisso[];
-  clientes: ClienteOption[];
+  empresas: EmpresaOption[];
 }
 
-export function CalendarioView({ compromissos, clientes }: CalendarioViewProps) {
+export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("mes");
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [selected, setSelected] = useState<Compromisso | null>(null);
@@ -217,7 +217,7 @@ export function CalendarioView({ compromissos, clientes }: CalendarioViewProps) 
       >
         {createDefaults && (
           <CompromissoForm
-            clientes={clientes}
+            empresas={empresas}
             initialValues={createDefaults}
             submitLabel="Criar compromisso"
             onSubmit={createCompromisso}
@@ -230,7 +230,7 @@ export function CalendarioView({ compromissos, clientes }: CalendarioViewProps) 
       {selected && (
         <CompromissoDetailModal
           compromisso={selected}
-          clientes={clientes}
+          empresas={empresas}
           isOpen={!!selected}
           onClose={() => setSelected(null)}
         />

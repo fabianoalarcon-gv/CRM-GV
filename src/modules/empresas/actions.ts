@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { ClienteInput, ContatoInput, InteracaoInput } from "./types";
+import type { EmpresaInput, ContatoInput, InteracaoInput } from "./types";
 
-function toRow(input: ClienteInput) {
+function toRow(input: EmpresaInput) {
   return {
     nome: input.nome.trim(),
     setor: input.setor.trim() || null,
@@ -13,8 +13,8 @@ function toRow(input: ClienteInput) {
   };
 }
 
-export async function createCliente(input: ClienteInput) {
-  if (!input.nome.trim()) return { error: "Informe o nome do cliente." };
+export async function createEmpresa(input: EmpresaInput) {
+  if (!input.nome.trim()) return { error: "Informe o nome da empresa." };
 
   const supabase = await createClient();
   const {
@@ -22,46 +22,46 @@ export async function createCliente(input: ClienteInput) {
   } = await supabase.auth.getUser();
 
   const { data, error } = await supabase
-    .from("clientes")
+    .from("empresas")
     .insert({ ...toRow(input), created_by: user?.id ?? null })
     .select("id")
     .single();
 
   if (error) return { error: error.message, id: null };
 
-  revalidatePath("/clientes");
+  revalidatePath("/empresas");
   return { error: null, id: data.id };
 }
 
-export async function updateCliente(clienteId: number, input: ClienteInput) {
-  if (!input.nome.trim()) return { error: "Informe o nome do cliente." };
+export async function updateEmpresa(empresaId: number, input: EmpresaInput) {
+  if (!input.nome.trim()) return { error: "Informe o nome da empresa." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("clientes").update(toRow(input)).eq("id", clienteId);
+  const { error } = await supabase.from("empresas").update(toRow(input)).eq("id", empresaId);
 
   if (error) return { error: error.message };
 
-  revalidatePath("/clientes");
-  revalidatePath(`/clientes/${clienteId}`);
+  revalidatePath("/empresas");
+  revalidatePath(`/empresas/${empresaId}`);
   return { error: null };
 }
 
-export async function deleteCliente(clienteId: number) {
+export async function deleteEmpresa(empresaId: number) {
   const supabase = await createClient();
-  const { error } = await supabase.from("clientes").delete().eq("id", clienteId);
+  const { error } = await supabase.from("empresas").delete().eq("id", empresaId);
 
   if (error) return { error: error.message };
 
-  revalidatePath("/clientes");
+  revalidatePath("/empresas");
   return { error: null };
 }
 
-export async function addContato(clienteId: number, input: ContatoInput) {
+export async function addContato(empresaId: number, input: ContatoInput) {
   if (!input.nome.trim()) return { error: "Informe o nome do contato." };
 
   const supabase = await createClient();
-  const { error } = await supabase.from("contatos_cliente").insert({
-    cliente_id: clienteId,
+  const { error } = await supabase.from("contatos_empresa").insert({
+    empresa_id: empresaId,
     nome: input.nome.trim(),
     cargo: input.cargo.trim() || null,
     email: input.email.trim() || null,
@@ -70,11 +70,11 @@ export async function addContato(clienteId: number, input: ContatoInput) {
 
   if (error) return { error: error.message };
 
-  revalidatePath(`/clientes/${clienteId}`);
+  revalidatePath(`/empresas/${empresaId}`);
   return { error: null };
 }
 
-export async function addInteracao(clienteId: number, input: InteracaoInput) {
+export async function addInteracao(empresaId: number, input: InteracaoInput) {
   if (!input.descricao.trim()) return { error: "Descreva a interação." };
 
   const supabase = await createClient();
@@ -82,8 +82,8 @@ export async function addInteracao(clienteId: number, input: InteracaoInput) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { error } = await supabase.from("interacoes_cliente").insert({
-    cliente_id: clienteId,
+  const { error } = await supabase.from("interacoes_empresa").insert({
+    empresa_id: empresaId,
     autor_id: user?.id ?? null,
     tipo: input.tipo || null,
     descricao: input.descricao.trim(),
@@ -91,6 +91,6 @@ export async function addInteracao(clienteId: number, input: InteracaoInput) {
 
   if (error) return { error: error.message };
 
-  revalidatePath(`/clientes/${clienteId}`);
+  revalidatePath(`/empresas/${empresaId}`);
   return { error: null };
 }

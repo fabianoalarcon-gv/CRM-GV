@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Cliente, ClienteListItem, Contato, Interacao, PropostaResumo } from "./types";
+import type { Empresa, EmpresaListItem, Contato, Interacao, PropostaResumo } from "./types";
 
-export async function getClientes(): Promise<ClienteListItem[]> {
+export async function getEmpresas(): Promise<EmpresaListItem[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("clientes")
+    .from("empresas")
     .select("id, nome, setor, endereco, observacoes, created_at, propostas(data_envio)")
     .order("nome");
 
@@ -24,10 +24,10 @@ export async function getClientes(): Promise<ClienteListItem[]> {
   }));
 }
 
-export async function getClienteById(id: number): Promise<Cliente | null> {
+export async function getEmpresaById(id: number): Promise<Empresa | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("clientes")
+    .from("empresas")
     .select("id, nome, setor, endereco, observacoes, created_at")
     .eq("id", id)
     .maybeSingle();
@@ -36,26 +36,26 @@ export async function getClienteById(id: number): Promise<Cliente | null> {
   return data;
 }
 
-export async function getContatosByCliente(clienteId: number): Promise<Contato[]> {
+export async function getContatosByEmpresa(empresaId: number): Promise<Contato[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("contatos_cliente")
-    .select("id, cliente_id, nome, cargo, email, telefone, created_at")
-    .eq("cliente_id", clienteId)
+    .from("contatos_empresa")
+    .select("id, empresa_id, nome, cargo, email, telefone, created_at")
+    .eq("empresa_id", empresaId)
     .order("created_at");
 
   if (error) throw error;
   return data;
 }
 
-export async function getPropostasByCliente(clienteId: number): Promise<PropostaResumo[]> {
+export async function getPropostasByEmpresa(empresaId: number): Promise<PropostaResumo[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("propostas")
     .select(
       "id, numero_proposta, numero_lead, data_envio, valor, termometro, proposal_statuses!status_id(label)",
     )
-    .eq("cliente_id", clienteId)
+    .eq("empresa_id", empresaId)
     .order("data_envio", { ascending: false });
 
   if (error) throw error;
@@ -71,19 +71,19 @@ export async function getPropostasByCliente(clienteId: number): Promise<Proposta
   }));
 }
 
-export async function getInteracoesByCliente(clienteId: number): Promise<Interacao[]> {
+export async function getInteracoesByEmpresa(empresaId: number): Promise<Interacao[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("interacoes_cliente")
-    .select("id, cliente_id, tipo, descricao, data_interacao, autor:profiles(full_name)")
-    .eq("cliente_id", clienteId)
+    .from("interacoes_empresa")
+    .select("id, empresa_id, tipo, descricao, data_interacao, autor:profiles(full_name)")
+    .eq("empresa_id", empresaId)
     .order("data_interacao", { ascending: false });
 
   if (error) throw error;
 
   return (data ?? []).map((i) => ({
     id: i.id,
-    cliente_id: i.cliente_id,
+    empresa_id: i.empresa_id,
     tipo: i.tipo,
     descricao: i.descricao,
     data_interacao: i.data_interacao,

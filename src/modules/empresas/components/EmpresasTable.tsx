@@ -8,9 +8,9 @@ import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { useIsAdmin } from "@/lib/auth/context";
-import { deleteCliente, updateCliente } from "../actions";
-import { ClienteForm } from "./ClienteForm";
-import type { ClienteListItem } from "../types";
+import { deleteEmpresa, updateEmpresa } from "../actions";
+import { EmpresaForm } from "./EmpresaForm";
+import type { EmpresaListItem } from "../types";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 
@@ -35,38 +35,38 @@ function initials(nome: string): string {
   return (first + second).toUpperCase() || "?";
 }
 
-export interface ClientesTableProps {
-  clientes: ClienteListItem[];
+export interface EmpresasTableProps {
+  empresas: EmpresaListItem[];
 }
 
-export function ClientesTable({ clientes }: ClientesTableProps) {
+export function EmpresasTable({ empresas }: EmpresasTableProps) {
   const router = useRouter();
   const isAdmin = useIsAdmin();
   const [search, setSearch] = useState("");
   const [setor, setSetor] = useState("");
-  const [editing, setEditing] = useState<ClienteListItem | null>(null);
+  const [editing, setEditing] = useState<EmpresaListItem | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const setores = useMemo(() => {
-    const unique = new Set(clientes.map((c) => c.setor).filter((s): s is string => !!s));
+    const unique = new Set(empresas.map((c) => c.setor).filter((s): s is string => !!s));
     return Array.from(unique).sort();
-  }, [clientes]);
+  }, [empresas]);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return clientes.filter((c) => {
+    return empresas.filter((c) => {
       const matchesSearch = !query || c.nome.toLowerCase().includes(query);
       const matchesSetor = !setor || c.setor === setor;
       return matchesSearch && matchesSetor;
     });
-  }, [clientes, search, setor]);
+  }, [empresas, search, setor]);
 
   async function handleDelete(id: number) {
     setIsDeleting(true);
     setDeleteError(null);
-    const result = await deleteCliente(id);
+    const result = await deleteEmpresa(id);
     setIsDeleting(false);
 
     if (result.error) {
@@ -112,45 +112,45 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
             {filtered.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="py-8 text-center text-brand-graphite-light">
-                  Nenhum cliente encontrado.
+                  Nenhuma empresa encontrada.
                 </TableCell>
               </TableRow>
             )}
-            {filtered.map((cliente) => (
-              <TableRow key={cliente.id}>
+            {filtered.map((empresa) => (
+              <TableRow key={empresa.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
-                      style={{ backgroundColor: avatarColor(cliente.setor ?? cliente.nome) }}
+                      style={{ backgroundColor: avatarColor(empresa.setor ?? empresa.nome) }}
                     >
-                      {initials(cliente.nome)}
+                      {initials(empresa.nome)}
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">{cliente.nome}</p>
-                      {cliente.setor && (
-                        <p className="text-xs text-brand-graphite-light">{cliente.setor}</p>
+                      <p className="font-medium text-foreground">{empresa.nome}</p>
+                      {empresa.setor && (
+                        <p className="text-xs text-brand-graphite-light">{empresa.setor}</p>
                       )}
                     </div>
                   </div>
                 </TableCell>
-                <TableCell className="text-brand-graphite-light">{cliente.endereco ?? "—"}</TableCell>
+                <TableCell className="text-brand-graphite-light">{empresa.endereco ?? "—"}</TableCell>
                 <TableCell className="font-mono text-xs text-brand-graphite-light">
-                  {cliente.ultima_proposta
-                    ? dateFormatter.format(new Date(`${cliente.ultima_proposta}T00:00:00`))
+                  {empresa.ultima_proposta
+                    ? dateFormatter.format(new Date(`${empresa.ultima_proposta}T00:00:00`))
                     : "—"}
                 </TableCell>
                 <TableCell className="font-mono text-xs text-brand-graphite-light">
-                  {dateFormatter.format(new Date(cliente.created_at))}
+                  {dateFormatter.format(new Date(empresa.created_at))}
                 </TableCell>
                 <TableCell>
-                  {deletingId === cliente.id ? (
+                  {deletingId === empresa.id ? (
                     <div className="flex items-center justify-end gap-2 whitespace-nowrap">
                       <span className="text-xs text-brand-graphite-light">Excluir?</span>
                       <button
                         type="button"
                         disabled={isDeleting}
-                        onClick={() => handleDelete(cliente.id)}
+                        onClick={() => handleDelete(empresa.id)}
                         className="text-xs font-medium text-temp-quente hover:underline"
                       >
                         {isDeleting ? "Excluindo…" : "Confirmar"}
@@ -168,7 +168,7 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
                       <button
                         type="button"
                         title="Ver detalhes"
-                        onClick={() => router.push(`/clientes/${cliente.id}`)}
+                        onClick={() => router.push(`/empresas/${empresa.id}`)}
                         className="rounded p-1.5 text-brand-graphite-light hover:bg-black/[.04] hover:text-foreground"
                       >
                         <Icon name="visibility" size={18} />
@@ -176,7 +176,7 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
                       <button
                         type="button"
                         title="Editar"
-                        onClick={() => setEditing(cliente)}
+                        onClick={() => setEditing(empresa)}
                         className="rounded p-1.5 text-brand-graphite-light hover:bg-black/[.04] hover:text-foreground"
                       >
                         <Icon name="edit" size={18} />
@@ -187,7 +187,7 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
                           title="Excluir"
                           onClick={() => {
                             setDeleteError(null);
-                            setDeletingId(cliente.id);
+                            setDeletingId(empresa.id);
                           }}
                           className="rounded p-1.5 text-brand-graphite-light hover:bg-temp-quente/10 hover:text-temp-quente"
                         >
@@ -196,7 +196,7 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
                       )}
                     </div>
                   )}
-                  {deletingId === cliente.id && deleteError && (
+                  {deletingId === empresa.id && deleteError && (
                     <p className="mt-1 text-right text-xs text-temp-quente">{deleteError}</p>
                   )}
                 </TableCell>
@@ -213,7 +213,7 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
         className="max-w-lg"
       >
         {editing && (
-          <ClienteForm
+          <EmpresaForm
             initialValues={{
               nome: editing.nome,
               setor: editing.setor ?? "",
@@ -221,7 +221,7 @@ export function ClientesTable({ clientes }: ClientesTableProps) {
               observacoes: editing.observacoes ?? "",
             }}
             submitLabel="Salvar alterações"
-            onSubmit={(input) => updateCliente(editing.id, input)}
+            onSubmit={(input) => updateEmpresa(editing.id, input)}
             onSuccess={() => setEditing(null)}
             onCancel={() => setEditing(null)}
           />

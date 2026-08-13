@@ -1,4 +1,4 @@
-export interface Cliente {
+export interface Empresa {
   id: number;
   nome: string;
   setor: string | null;
@@ -7,11 +7,11 @@ export interface Cliente {
   created_at: string;
 }
 
-export interface ClienteListItem extends Cliente {
+export interface EmpresaListItem extends Empresa {
   ultima_proposta: string | null;
 }
 
-export interface ClienteInput {
+export interface EmpresaInput {
   nome: string;
   setor: string;
   endereco: string;
@@ -20,7 +20,7 @@ export interface ClienteInput {
 
 export interface Contato {
   id: number;
-  cliente_id: number;
+  empresa_id: number;
   nome: string;
   cargo: string | null;
   email: string | null;
@@ -47,7 +47,7 @@ export interface PropostaResumo {
 
 export interface Interacao {
   id: number;
-  cliente_id: number;
+  empresa_id: number;
   tipo: string | null;
   descricao: string;
   data_interacao: string;

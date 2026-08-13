@@ -4,7 +4,7 @@ import { ProposalCard } from "@/modules/pipeline/components/ProposalCard";
 import { ProposalListView } from "@/modules/pipeline/components/ProposalListView";
 import { PipelineDataProvider } from "@/modules/pipeline/context";
 import {
-  getClientesOptions,
+  getEmpresasOptions,
   getContatosPrincipais,
   getProfileOptions,
   getProposalHistory,
@@ -16,11 +16,11 @@ import { PIPELINE_STATUS_KEYS } from "@/modules/pipeline/types";
 import { getCompromissos } from "@/modules/calendario/queries";
 
 export default async function PipelinePage() {
-  const [statuses, propostas, clientes, profiles, history, contatosPrincipais, proximosCompromissos, compromissos] =
+  const [statuses, propostas, empresas, profiles, history, contatosPrincipais, proximosCompromissos, compromissos] =
     await Promise.all([
       getProposalStatuses(),
       getPropostas(),
-      getClientesOptions(),
+      getEmpresasOptions(),
       getProfileOptions(),
       getProposalHistory(),
       getContatosPrincipais(),
@@ -34,7 +34,7 @@ export default async function PipelinePage() {
 
   return (
     <PipelineDataProvider
-      value={{ statuses, clientes, profiles, history, contatosPrincipais, proximosCompromissos, compromissos }}
+      value={{ statuses, empresas, profiles, history, contatosPrincipais, proximosCompromissos, compromissos }}
     >
       <div className="flex h-full flex-col gap-6">
         <PipelineBoardSection
