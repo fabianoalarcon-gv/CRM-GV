@@ -3,12 +3,18 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Combobox } from "@/components/ui/Combobox";
+import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { usePipelineData } from "../context";
-import { isValidNumeroProposta, NUMERO_PROPOSTA_HINT } from "../validation";
-import { SEGMENTO_OPTIONS, type ProposalInput, type Termometro, type TipoServico } from "../types";
+import {
+  PIPELINE_STATUS_KEYS,
+  SEGMENTO_OPTIONS,
+  type ProposalInput,
+  type Termometro,
+  type TipoServico,
+} from "../types";
 
 const TERMOMETRO_OPTIONS = [
   { value: "frio", label: "Frio" },
@@ -46,7 +52,6 @@ export function ProposalForm({
 }: ProposalFormProps) {
   const { statuses, clientes, profiles } = usePipelineData();
   const [values, setValues] = useState<ProposalInput>(initialValues);
-  const [numeroError, setNumeroError] = useState<string | null>(null);
   const [clienteError, setClienteError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,12 +76,6 @@ export function ProposalForm({
     event.preventDefault();
     setFormError(null);
 
-    if (mode === "edit" && !isValidNumeroProposta(values.numero_proposta)) {
-      setNumeroError(NUMERO_PROPOSTA_HINT);
-      return;
-    }
-    setNumeroError(null);
-
     if (!values.cliente_id) {
       setClienteError("Selecione o cliente.");
       return;
@@ -99,16 +98,7 @@ export function ProposalForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className={mode === "edit" ? "grid grid-cols-1 gap-4 sm:grid-cols-2" : undefined}>
-        {mode === "edit" && (
-          <Input
-            label="Número da proposta"
-            placeholder="028/25"
-            required
-            value={values.numero_proposta}
-            error={numeroError ?? undefined}
-            onChange={(e) => update("numero_proposta", e.target.value)}
-          />
-        )}
+        {mode === "edit" && <Input label="Número da proposta" value={values.numero_proposta} disabled />}
         <Input
           label="Data de envio"
           type="date"
@@ -119,8 +109,7 @@ export function ProposalForm({
       </div>
 
       <Combobox
-        label="Cliente"
-        required
+        label="Empresa"
         placeholder="Selecione um cliente"
         value={values.cliente_id ? String(values.cliente_id) : ""}
         onChange={(v) => update("cliente_id", Number(v))}
@@ -135,14 +124,10 @@ export function ProposalForm({
           value={values.servico}
           onChange={(e) => update("servico", e.target.value)}
         />
-        <Input
-          label="Valor (R$)"
-          type="number"
-          min="0"
-          step="0.01"
-          required
+        <CurrencyInput
+          label="Valor Proposta"
           value={values.valor}
-          onChange={(e) => update("valor", Number(e.target.value))}
+          onChange={(v) => update("valor", v ?? 0)}
         />
       </div>
 
@@ -157,7 +142,9 @@ export function ProposalForm({
           label="Status"
           value={String(values.status_id)}
           onChange={(e) => update("status_id", Number(e.target.value))}
-          options={statuses.map((s) => ({ value: String(s.id), label: s.label }))}
+          options={statuses
+            .filter((s) => (PIPELINE_STATUS_KEYS as readonly string[]).includes(s.key))
+            .map((s) => ({ value: String(s.id), label: s.label }))}
         />
         <Select
           label="Termômetro"

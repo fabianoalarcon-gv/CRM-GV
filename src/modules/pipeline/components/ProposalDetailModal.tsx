@@ -125,10 +125,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     handleClose();
   }
 
-  const numeroLabel = proposta.numero_proposta ?? proposta.numero_lead ?? undefined;
-  const modalTitle = numeroLabel
-    ? `${numeroLabel} - Criado em ${dateFormatter.format(new Date(proposta.created_at))}`
-    : undefined;
+  const modalTitle = `Criado em ${dateFormatter.format(new Date(proposta.created_at))}`;
 
   const initialValues = {
     numero_proposta: proposta.numero_proposta ?? "",
