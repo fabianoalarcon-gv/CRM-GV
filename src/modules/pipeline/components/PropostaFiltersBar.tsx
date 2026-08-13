@@ -3,8 +3,8 @@
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
-import { EMPTY_LEAD_FILTERS, type LeadFilters } from "../utils";
+import { SEGMENTO_OPTIONS, type Termometro } from "../types";
+import { EMPTY_PROPOSTA_FILTERS, type PropostaFilters } from "../utils";
 
 // "Todos" entra como opção normal (não placeholder) pra continuar
 // selecionável depois de escolher um valor específico.
@@ -17,12 +17,12 @@ const TERMOMETRO_FILTER_OPTIONS: { value: Termometro | ""; label: string }[] = [
 
 const SEGMENTO_FILTER_OPTIONS = [{ value: "", label: "Todos" }, ...SEGMENTO_OPTIONS];
 
-export interface LeadFiltersBarProps {
-  value: LeadFilters;
-  onChange: (value: LeadFilters) => void;
+export interface PropostaFiltersBarProps {
+  value: PropostaFilters;
+  onChange: (value: PropostaFilters) => void;
 }
 
-export function LeadFiltersBar({ value, onChange }: LeadFiltersBarProps) {
+export function PropostaFiltersBar({ value, onChange }: PropostaFiltersBarProps) {
   const hasActiveFilters =
     value.dataInicio || value.dataFim || value.termometro || value.segmento;
 
@@ -45,21 +45,21 @@ export function LeadFiltersBar({ value, onChange }: LeadFiltersBarProps) {
       <Select
         label="Termômetro"
         value={value.termometro}
-        onChange={(e) => onChange({ ...value, termometro: e.target.value as LeadFilters["termometro"] })}
+        onChange={(e) => onChange({ ...value, termometro: e.target.value as PropostaFilters["termometro"] })}
         options={TERMOMETRO_FILTER_OPTIONS}
         className="w-32"
       />
       <Select
         label="Segmento"
         value={value.segmento}
-        onChange={(e) => onChange({ ...value, segmento: e.target.value as LeadFilters["segmento"] })}
+        onChange={(e) => onChange({ ...value, segmento: e.target.value as PropostaFilters["segmento"] })}
         options={SEGMENTO_FILTER_OPTIONS}
         className="w-36"
       />
       {hasActiveFilters && (
         <button
           type="button"
-          onClick={() => onChange(EMPTY_LEAD_FILTERS)}
+          onClick={() => onChange(EMPTY_PROPOSTA_FILTERS)}
           title="Limpar filtros"
           aria-label="Limpar filtros"
           className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"

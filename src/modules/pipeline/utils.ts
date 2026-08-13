@@ -1,20 +1,20 @@
-import type { Proposta, Segmento, Termometro } from "@/modules/pipeline/types";
+import type { Proposta, Segmento, Termometro } from "./types";
 
-export interface LeadFilters {
+export interface PropostaFilters {
   dataInicio: string;
   dataFim: string;
   termometro: Termometro | "";
   segmento: Segmento | "";
 }
 
-export const EMPTY_LEAD_FILTERS: LeadFilters = {
+export const EMPTY_PROPOSTA_FILTERS: PropostaFilters = {
   dataInicio: "",
   dataFim: "",
   termometro: "",
   segmento: "",
 };
 
-export function applyLeadFilters(propostas: Proposta[], filters: LeadFilters): Proposta[] {
+export function applyPropostaFilters(propostas: Proposta[], filters: PropostaFilters): Proposta[] {
   // created_at é timestamptz — compara por limites do dia local (mesmo padrão
   // de isBeforeToday em calendario/utils.ts), não por prefixo de string.
   const start = filters.dataInicio ? new Date(`${filters.dataInicio}T00:00:00`) : null;

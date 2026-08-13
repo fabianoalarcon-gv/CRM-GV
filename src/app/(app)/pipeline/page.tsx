@@ -1,5 +1,5 @@
-import { BoardView } from "@/modules/pipeline/components/BoardView";
 import { NewProposalButton } from "@/modules/pipeline/components/NewProposalButton";
+import { PipelineBoardSection } from "@/modules/pipeline/components/PipelineBoardSection";
 import { ProposalCard } from "@/modules/pipeline/components/ProposalCard";
 import { ProposalListView } from "@/modules/pipeline/components/ProposalListView";
 import { PipelineDataProvider } from "@/modules/pipeline/context";
@@ -37,7 +37,7 @@ export default async function PipelinePage() {
       value={{ statuses, clientes, profiles, history, contatosPrincipais, proximosCompromissos, compromissos }}
     >
       <div className="flex h-full flex-col gap-6">
-        <BoardView
+        <PipelineBoardSection
           title="Pipeline"
           subtitle="Mova os cards entre as colunas para alterar seus status."
           initialPropostas={propostas}
