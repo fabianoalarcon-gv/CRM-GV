@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { SEGMENTO_LABEL, type Proposta } from "@/modules/pipeline/types";
+import { useLeadsData } from "../context";
 import { LeadDetailModal } from "./LeadDetailModal";
 
 const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
@@ -28,8 +29,13 @@ function daysAgoLabel(dateStr: string): string {
 }
 
 export function LeadCard({ proposta }: { proposta: Proposta }) {
+  const { statuses } = useLeadsData();
+  // Um lead Arquivado só volta pra outra coluna via "Reativar" no modal —
+  // arrastar pra fora daqui ficaria sem confirmação e sem status_anterior_id.
+  const isArquivado = statuses.find((s) => s.id === proposta.status_id)?.key === "arquivado";
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: String(proposta.id),
+    disabled: isArquivado,
   });
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
@@ -40,9 +46,13 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
         style={transform ? { transform: CSS.Translate.toString(transform) } : undefined}
         {...listeners}
         {...attributes}
+        // dnd-kit marca aria-disabled quando o drag está desabilitado, mas o
+        // card continua clicável (abre o modal) — só o arrastar é bloqueado.
+        aria-disabled={undefined}
         onClick={() => setIsDetailOpen(true)}
         className={cn(
-          "touch-none cursor-grab select-none active:cursor-grabbing",
+          "touch-none select-none",
+          isArquivado ? "cursor-pointer" : "cursor-grab active:cursor-grabbing",
           isDragging && "opacity-50",
         )}
       >
