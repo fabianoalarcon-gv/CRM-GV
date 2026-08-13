@@ -10,6 +10,7 @@ import { cn } from "@/lib/cn";
 import { usePipelineData } from "../context";
 import { updateProposalResultado } from "../actions";
 import { ProposalDetailModal } from "./ProposalDetailModal";
+import { ResponsavelAvatar } from "./ResponsavelAvatar";
 import { TERMOMETRO_COLOR, TermometroBadge } from "./TermometroBadge";
 import { SEGMENTO_LABEL, type Proposta, type Resultado } from "../types";
 
@@ -25,13 +26,6 @@ function daysAgoLabel(dateStr: string): string {
   const diffMs = Date.now() - new Date(dateStr).getTime();
   const days = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
   return days === 0 ? "hoje" : `${days}d`;
-}
-
-function initials(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? "";
-  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
-  return (first + last).toUpperCase() || "?";
 }
 
 export function ProposalCard({ proposta }: { proposta: Proposta }) {
@@ -158,14 +152,7 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
                 <Icon name="history" size={13} />
                 {daysAgoLabel(proposta.updated_at)}
               </span>
-              {responsavel && (
-                <div
-                  className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-navy text-[9px] font-bold text-white"
-                  title={responsavel.full_name}
-                >
-                  {initials(responsavel.full_name)}
-                </div>
-              )}
+              {responsavel && <ResponsavelAvatar fullName={responsavel.full_name} />}
             </div>
             {proposta.valor != null && (
               <span className="font-mono text-sm font-semibold text-foreground">

@@ -1,5 +1,6 @@
 import {
   getClientesOptions,
+  getProfileOptions,
   getProposalHistory,
   getProposalStatuses,
   getPropostas,
@@ -14,14 +15,16 @@ import { LeadsBoardSection } from "@/modules/leads/components/LeadsBoardSection"
 import { NewLeadButton } from "@/modules/leads/components/NewLeadButton";
 
 export default async function LeadsPage() {
-  const [statuses, propostas, clientes, history, compromissos, proximosCompromissos] = await Promise.all([
-    getProposalStatuses(),
-    getPropostas(),
-    getClientesOptions(),
-    getProposalHistory(),
-    getCompromissos(),
-    getProximosCompromissos(),
-  ]);
+  const [statuses, propostas, clientes, profiles, history, compromissos, proximosCompromissos] =
+    await Promise.all([
+      getProposalStatuses(),
+      getPropostas(),
+      getClientesOptions(),
+      getProfileOptions(),
+      getProposalHistory(),
+      getCompromissos(),
+      getProximosCompromissos(),
+    ]);
 
   const columnStatuses = statuses.filter((s) =>
     (LEADS_STATUS_KEYS as readonly string[]).includes(s.key),
@@ -29,7 +32,7 @@ export default async function LeadsPage() {
 
   return (
     <LeadsDataProvider
-      value={{ statuses: columnStatuses, clientes, history, compromissos, proximosCompromissos }}
+      value={{ statuses: columnStatuses, clientes, profiles, history, compromissos, proximosCompromissos }}
     >
       <div className="flex h-full flex-col gap-6">
         <LeadsBoardSection

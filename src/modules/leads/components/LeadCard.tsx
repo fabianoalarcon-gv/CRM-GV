@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { SEGMENTO_LABEL, type Proposta } from "@/modules/pipeline/types";
+import { ResponsavelAvatar } from "@/modules/pipeline/components/ResponsavelAvatar";
 import { TERMOMETRO_COLOR, TermometroBadge } from "@/modules/pipeline/components/TermometroBadge";
 import { useLeadsData } from "../context";
 import { LeadDetailModal } from "./LeadDetailModal";
@@ -27,7 +28,8 @@ function daysAgoLabel(dateStr: string): string {
 }
 
 export function LeadCard({ proposta }: { proposta: Proposta }) {
-  const { statuses, proximosCompromissos } = useLeadsData();
+  const { statuses, profiles, proximosCompromissos } = useLeadsData();
+  const responsavel = profiles.find((p) => p.id === proposta.responsavel_id);
   const proximoCompromisso = proximosCompromissos.get(proposta.id);
   // Um lead Arquivado só volta pra outra coluna via "Reativar" no modal —
   // arrastar pra fora daqui ficaria sem confirmação e sem status_anterior_id.
@@ -99,13 +101,16 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
           )}
 
           <div className="mt-1 flex items-center justify-between border-t border-border pt-2">
-            <span
-              className="flex items-center gap-0.5 text-[11px] text-brand-graphite-light"
-              title={`Criado há ${daysAgoLabel(proposta.created_at)}`}
-            >
-              <Icon name="schedule" size={13} />
-              {daysAgoLabel(proposta.created_at)}
-            </span>
+            <div className="flex items-center gap-2 text-[11px] text-brand-graphite-light">
+              <span
+                className="flex items-center gap-0.5"
+                title={`Criado há ${daysAgoLabel(proposta.created_at)}`}
+              >
+                <Icon name="schedule" size={13} />
+                {daysAgoLabel(proposta.created_at)}
+              </span>
+              {responsavel && <ResponsavelAvatar fullName={responsavel.full_name} />}
+            </div>
             {proposta.valor != null && (
               <span className="font-mono text-sm font-semibold text-foreground">
                 {currencyFormatter.format(proposta.valor)}

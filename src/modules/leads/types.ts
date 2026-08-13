@@ -9,6 +9,7 @@ export interface LeadInput {
   segmento: Segmento | null;
   valor_estimado: number | null;
   status_id: number;
+  responsavel_id: string | null;
 }
 
 export type Repeticao = "nao_repete" | "diaria" | "semanal" | "mensal" | "anual" | "dias_uteis";

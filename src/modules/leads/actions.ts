@@ -64,6 +64,7 @@ export async function createLead(input: LeadInput) {
     segmento: input.segmento,
     valor: input.valor_estimado,
     status_id: input.status_id,
+    responsavel_id: input.responsavel_id,
     created_by: user?.id ?? null,
   });
 
@@ -87,6 +88,7 @@ export async function updateLead(leadId: number, input: LeadInput) {
       segmento: input.segmento,
       valor: input.valor_estimado,
       status_id: input.status_id,
+      responsavel_id: input.responsavel_id,
     })
     .eq("id", leadId);
 

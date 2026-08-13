@@ -27,7 +27,7 @@ export interface LeadFormProps {
 }
 
 export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onSuccess, onCancel }: LeadFormProps) {
-  const { statuses, clientes } = useLeadsData();
+  const { statuses, clientes, profiles } = useLeadsData();
   const [values, setValues] = useState<LeadInput>(initialValues);
   const [clienteError, setClienteError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -129,6 +129,14 @@ export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onS
             .map((s) => ({ value: String(s.id), label: s.label }))}
         />
       </div>
+
+      <Select
+        label="Responsável"
+        placeholder="Sem responsável definido"
+        value={values.responsavel_id ?? ""}
+        onChange={(e) => update("responsavel_id", e.target.value || null)}
+        options={profiles.map((p) => ({ value: p.id, label: p.full_name }))}
+      />
 
       {formError && <p className="text-sm text-temp-quente">{formError}</p>}
 

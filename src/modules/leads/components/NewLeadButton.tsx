@@ -22,6 +22,7 @@ export function NewLeadButton() {
     segmento: null,
     valor_estimado: null,
     status_id: defaultStatusId,
+    responsavel_id: null,
   };
 
   return (

@@ -165,6 +165,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     segmento: proposta.segmento,
     valor_estimado: proposta.valor,
     status_id: proposta.status_id,
+    responsavel_id: proposta.responsavel_id,
   };
 
   return (
