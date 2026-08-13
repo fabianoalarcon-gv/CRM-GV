@@ -3,20 +3,14 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
-import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { usePipelineData } from "../context";
 import { updateProposalResultado } from "../actions";
 import { ProposalDetailModal } from "./ProposalDetailModal";
+import { TermometroBadge } from "./TermometroBadge";
 import type { Proposta, Resultado } from "../types";
-
-const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
-  frio: "Frio",
-  morno: "Morno",
-  quente: "Quente",
-};
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -81,7 +75,7 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
             <span className="font-mono text-xs text-brand-graphite-light">
               {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
             </span>
-            <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
+            <TermometroBadge value={proposta.termometro} />
           </div>
 
           {isFechado && (

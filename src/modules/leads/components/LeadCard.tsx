@@ -8,14 +8,9 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { SEGMENTO_LABEL, type Proposta } from "@/modules/pipeline/types";
+import { TermometroBadge } from "@/modules/pipeline/components/TermometroBadge";
 import { useLeadsData } from "../context";
 import { LeadDetailModal } from "./LeadDetailModal";
-
-const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
-  frio: "Frio",
-  morno: "Morno",
-  quente: "Quente",
-};
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -64,7 +59,7 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
           <span className="font-mono text-xs text-brand-graphite-light">{proposta.numero_lead}</span>
 
           <div className="flex flex-wrap items-center gap-1.5">
-            <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
+            <TermometroBadge value={proposta.termometro} />
             {proposta.segmento && <Badge variant="default">{SEGMENTO_LABEL[proposta.segmento]}</Badge>}
           </div>
 

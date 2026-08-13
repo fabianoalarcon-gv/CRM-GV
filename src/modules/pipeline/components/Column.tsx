@@ -44,8 +44,8 @@ export function Column({
   const total = propostas.reduce((sum, p) => sum + (p.valor ?? 0), 0);
 
   return (
-    <div className="flex w-80 shrink-0 flex-col rounded-xl bg-black/[.02]">
-      <div className="flex items-center justify-between gap-2 px-3 py-2.5">
+    <div className="flex w-80 shrink-0 flex-col overflow-hidden rounded-xl bg-black/[.02]">
+      <div className="flex items-center justify-between gap-2 border-b border-border/60 bg-gradient-to-br from-brand-navy/[0.08] via-brand-navy/[0.03] to-brand-accent/[0.05] px-3 py-3">
         <div>
           <h2 className="text-sm font-semibold text-foreground">{status.label}</h2>
           <p className="text-xs text-brand-graphite-light">
