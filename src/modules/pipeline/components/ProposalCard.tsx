@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
@@ -10,7 +11,7 @@ import { usePipelineData } from "../context";
 import { updateProposalResultado } from "../actions";
 import { ProposalDetailModal } from "./ProposalDetailModal";
 import { TERMOMETRO_COLOR, TermometroBadge } from "./TermometroBadge";
-import type { Proposta, Resultado } from "../types";
+import { SEGMENTO_LABEL, type Proposta, type Resultado } from "../types";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
@@ -80,6 +81,12 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
             </span>
             <TermometroBadge value={proposta.termometro} />
           </div>
+
+          {proposta.segmento && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="default">{SEGMENTO_LABEL[proposta.segmento]}</Badge>
+            </div>
+          )}
 
           {isFechado && (
             <select

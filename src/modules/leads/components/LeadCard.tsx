@@ -59,12 +59,16 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
         )}
       >
         <CardContent className="flex flex-col gap-2 p-3">
-          <span className="font-mono text-xs text-brand-graphite-light">{proposta.numero_lead}</span>
-
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-mono text-xs text-brand-graphite-light">{proposta.numero_lead}</span>
             <TermometroBadge value={proposta.termometro} />
-            {proposta.segmento && <Badge variant="default">{SEGMENTO_LABEL[proposta.segmento]}</Badge>}
           </div>
+
+          {proposta.segmento && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="default">{SEGMENTO_LABEL[proposta.segmento]}</Badge>
+            </div>
+          )}
 
           <div>
             <p className="text-sm font-medium text-foreground">{proposta.cliente_nome}</p>
