@@ -63,12 +63,6 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
             <TermometroBadge value={proposta.termometro} />
           </div>
 
-          {proposta.segmento && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              <Badge variant="default">{SEGMENTO_LABEL[proposta.segmento]}</Badge>
-            </div>
-          )}
-
           {isFechado && (
             <div
               className={cn(
@@ -81,6 +75,12 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
               {proposta.resultado === "aprovado" && "✓ Aprovado"}
               {proposta.resultado === "reprovado" && "✗ Reprovado"}
               {!proposta.resultado && "Resultado pendente"}
+            </div>
+          )}
+
+          {proposta.segmento && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="default">{SEGMENTO_LABEL[proposta.segmento]}</Badge>
             </div>
           )}
 
