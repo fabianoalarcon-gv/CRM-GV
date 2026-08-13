@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/cn";
 import { SEGMENTO_LABEL, type Proposta } from "@/modules/pipeline/types";
-import { TermometroBadge } from "@/modules/pipeline/components/TermometroBadge";
+import { TERMOMETRO_COLOR, TermometroBadge } from "@/modules/pipeline/components/TermometroBadge";
 import { useLeadsData } from "../context";
 import { LeadDetailModal } from "./LeadDetailModal";
 
@@ -42,7 +42,10 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
     <>
       <Card
         ref={setNodeRef}
-        style={transform ? { transform: CSS.Translate.toString(transform) } : undefined}
+        style={{
+          ...(transform ? { transform: CSS.Translate.toString(transform) } : undefined),
+          borderTop: `3px solid ${TERMOMETRO_COLOR[proposta.termometro]}`,
+        }}
         {...listeners}
         {...attributes}
         // dnd-kit marca aria-disabled quando o drag está desabilitado, mas o

@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
 import { usePipelineData } from "../context";
 import { updateProposalResultado } from "../actions";
 import { ProposalDetailModal } from "./ProposalDetailModal";
-import { TermometroBadge } from "./TermometroBadge";
+import { TERMOMETRO_COLOR, TermometroBadge } from "./TermometroBadge";
 import type { Proposta, Resultado } from "../types";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -61,7 +61,10 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
     <>
       <Card
         ref={setNodeRef}
-        style={transform ? { transform: CSS.Translate.toString(transform) } : undefined}
+        style={{
+          ...(transform ? { transform: CSS.Translate.toString(transform) } : undefined),
+          borderTop: `3px solid ${TERMOMETRO_COLOR[proposta.termometro]}`,
+        }}
         {...listeners}
         {...attributes}
         onClick={() => setIsDetailOpen(true)}
