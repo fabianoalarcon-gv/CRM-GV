@@ -12,7 +12,7 @@ import { Select } from "@/components/ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { useIsAdmin } from "@/lib/auth/context";
 import { SEGMENTO_LABEL, type Segmento } from "@/modules/pipeline/types";
-import { addContato, deleteEmpresa, updateEmpresa } from "../actions";
+import { addContato, deleteContato, deleteEmpresa, updateContato, updateEmpresa } from "../actions";
 import { ORIGEM_LEAD_LABEL, TELEFONE_TIPO_LABEL, TELEFONE_TIPO_OPTIONS } from "../constants";
 import { EmpresaForm } from "./EmpresaForm";
 import type { Empresa, Contato, ContatoInput, Interacao, PropostaResumo } from "../types";
@@ -73,9 +73,14 @@ export function EmpresaDetailView({
 
   const [contatos, setContatos] = useState(initialContatos);
   const [contatoValues, setContatoValues] = useState<ContatoInput>(EMPTY_CONTATO);
-  const [isAddContatoOpen, setIsAddContatoOpen] = useState(false);
-  const [isAddingContato, setIsAddingContato] = useState(false);
+  const [isContatoModalOpen, setIsContatoModalOpen] = useState(false);
+  const [editingContatoId, setEditingContatoId] = useState<number | null>(null);
+  const [isSavingContato, setIsSavingContato] = useState(false);
   const [contatoError, setContatoError] = useState<string | null>(null);
+
+  const [deletingContatoId, setDeletingContatoId] = useState<number | null>(null);
+  const [isDeletingContato, setIsDeletingContato] = useState(false);
+  const [deleteContatoError, setDeleteContatoError] = useState<string | null>(null);
 
   const [interacoes] = useState(initialInteracoes);
 
@@ -92,36 +97,94 @@ export function EmpresaDetailView({
     router.push("/empresas");
   }
 
-  async function handleAddContato(event: FormEvent<HTMLFormElement>) {
+  function openAddContato() {
+    setEditingContatoId(null);
+    setContatoValues(EMPTY_CONTATO);
+    setContatoError(null);
+    setIsContatoModalOpen(true);
+  }
+
+  function openEditContato(contato: Contato) {
+    setEditingContatoId(contato.id);
+    setContatoValues({
+      nome: contato.nome,
+      cargo: contato.cargo ?? "",
+      email: contato.email ?? "",
+      telefone: contato.telefone ?? "",
+      telefone_tipo: contato.telefone_tipo ?? "celular",
+      principal: contato.principal,
+    });
+    setContatoError(null);
+    setIsContatoModalOpen(true);
+  }
+
+  async function handleSubmitContato(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!contatoValues.nome.trim()) return;
 
-    setIsAddingContato(true);
+    setIsSavingContato(true);
     setContatoError(null);
-    const result = await addContato(empresa.id, contatoValues);
-    setIsAddingContato(false);
+    const result = editingContatoId
+      ? await updateContato(editingContatoId, empresa.id, contatoValues)
+      : await addContato(empresa.id, contatoValues);
+    setIsSavingContato(false);
 
     if (result.error) {
       setContatoError(result.error);
       return;
     }
 
-    setContatos((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        empresa_id: empresa.id,
-        nome: contatoValues.nome.trim(),
-        cargo: contatoValues.cargo.trim() || null,
-        email: contatoValues.email.trim() || null,
-        telefone: contatoValues.telefone.trim() || null,
-        telefone_tipo: contatoValues.telefone_tipo.trim() || null,
-        principal: contatoValues.principal,
-        created_at: new Date().toISOString(),
-      },
-    ]);
+    if (editingContatoId) {
+      setContatos((prev) =>
+        prev.map((c) =>
+          c.id === editingContatoId
+            ? {
+                ...c,
+                nome: contatoValues.nome.trim(),
+                cargo: contatoValues.cargo.trim() || null,
+                email: contatoValues.email.trim() || null,
+                telefone: contatoValues.telefone.trim() || null,
+                telefone_tipo: contatoValues.telefone_tipo.trim() || null,
+                principal: contatoValues.principal,
+              }
+            : c,
+        ),
+      );
+    } else {
+      setContatos((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          empresa_id: empresa.id,
+          nome: contatoValues.nome.trim(),
+          cargo: contatoValues.cargo.trim() || null,
+          email: contatoValues.email.trim() || null,
+          telefone: contatoValues.telefone.trim() || null,
+          telefone_tipo: contatoValues.telefone_tipo.trim() || null,
+          principal: contatoValues.principal,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+    }
+
     setContatoValues(EMPTY_CONTATO);
-    setIsAddContatoOpen(false);
+    setEditingContatoId(null);
+    setIsContatoModalOpen(false);
+  }
+
+  async function handleDeleteContato(contatoId: number) {
+    setIsDeletingContato(true);
+    setDeleteContatoError(null);
+    const result = await deleteContato(contatoId, empresa.id);
+    setIsDeletingContato(false);
+
+    if (result.error) {
+      setDeleteContatoError(result.error);
+      return;
+    }
+
+    setContatos((prev) => prev.filter((c) => c.id !== contatoId));
+    setDeletingContatoId(null);
   }
 
   return (
@@ -226,11 +289,11 @@ export function EmpresaDetailView({
 
         <Card>
           <CardContent className="flex flex-col gap-4 p-5">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-start justify-between gap-2">
               <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
                 Contatos
               </p>
-              <Button type="button" size="sm" variant="outline" onClick={() => setIsAddContatoOpen(true)}>
+              <Button type="button" size="sm" variant="outline" className="mt-1" onClick={openAddContato}>
                 Adicionar Contato
               </Button>
             </div>
@@ -240,19 +303,64 @@ export function EmpresaDetailView({
                 <p className="text-sm text-brand-graphite-light">Nenhum contato cadastrado.</p>
               )}
               {contatos.map((contato) => (
-                <div key={contato.id} className="rounded-lg bg-black/[.02] p-2.5 text-sm">
+                <div key={contato.id} className="rounded-lg border border-border bg-black/[.02] p-3 text-sm">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium text-foreground">{contato.nome}</p>
+                    <p className="font-medium text-foreground">Nome: {contato.nome}</p>
                     {contato.principal && <Badge variant="info">Principal</Badge>}
                   </div>
-                  {contato.cargo && <p className="text-brand-graphite-light">{contato.cargo}</p>}
-                  {contato.email && <p className="text-brand-graphite-light">{contato.email}</p>}
-                  {contato.telefone && (
-                    <p className="text-brand-graphite-light">
-                      {contato.telefone}
-                      {contato.telefone_tipo &&
-                        ` · ${TELEFONE_TIPO_LABEL[contato.telefone_tipo] ?? contato.telefone_tipo}`}
-                    </p>
+                  <p className="text-brand-graphite-light">Cargo: {contato.cargo || "—"}</p>
+                  <p className="text-brand-graphite-light">E-mail: {contato.email || "—"}</p>
+                  <p className="text-brand-graphite-light">
+                    Telefone: {contato.telefone || "—"}
+                    {contato.telefone &&
+                      contato.telefone_tipo &&
+                      ` (${TELEFONE_TIPO_LABEL[contato.telefone_tipo] ?? contato.telefone_tipo})`}
+                  </p>
+
+                  {deletingContatoId === contato.id ? (
+                    <div className="mt-2 flex items-center justify-end gap-2 border-t border-border pt-2">
+                      <span className="text-xs text-brand-graphite-light">Excluir contato?</span>
+                      <button
+                        type="button"
+                        disabled={isDeletingContato}
+                        onClick={() => handleDeleteContato(contato.id)}
+                        className="text-xs font-medium text-temp-quente hover:underline"
+                      >
+                        {isDeletingContato ? "Excluindo…" : "Confirmar"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeletingContatoId(null)}
+                        className="text-xs font-medium text-brand-graphite-light hover:underline"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="mt-2 flex items-center justify-end gap-3 border-t border-border pt-2">
+                      <button
+                        type="button"
+                        onClick={() => openEditContato(contato)}
+                        className="text-xs font-medium text-brand-graphite-light hover:text-foreground hover:underline"
+                      >
+                        Editar
+                      </button>
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDeleteContatoError(null);
+                            setDeletingContatoId(contato.id);
+                          }}
+                          className="text-xs font-medium text-temp-quente hover:underline"
+                        >
+                          Excluir
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {deletingContatoId === contato.id && deleteContatoError && (
+                    <p className="mt-1 text-right text-xs text-temp-quente">{deleteContatoError}</p>
                   )}
                 </div>
               ))}
@@ -380,12 +488,12 @@ export function EmpresaDetailView({
       </Modal>
 
       <Modal
-        isOpen={isAddContatoOpen}
-        onClose={() => setIsAddContatoOpen(false)}
-        title="Adicionar Contato"
+        isOpen={isContatoModalOpen}
+        onClose={() => setIsContatoModalOpen(false)}
+        title={editingContatoId ? "Editar Contato" : "Adicionar Contato"}
         className="max-w-md"
       >
-        <form onSubmit={handleAddContato} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmitContato} className="flex flex-col gap-4">
           <Input
             label="Nome"
             required
@@ -433,11 +541,15 @@ export function EmpresaDetailView({
           {contatoError && <p className="text-sm text-temp-quente">{contatoError}</p>}
 
           <div className="mt-2 flex justify-end gap-2">
-            <Button type="button" variant="ghost" onClick={() => setIsAddContatoOpen(false)}>
+            <Button type="button" variant="ghost" onClick={() => setIsContatoModalOpen(false)}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isAddingContato || !contatoValues.nome.trim()}>
-              {isAddingContato ? "Salvando…" : "Adicionar contato"}
+            <Button type="submit" disabled={isSavingContato || !contatoValues.nome.trim()}>
+              {isSavingContato
+                ? "Salvando…"
+                : editingContatoId
+                  ? "Salvar alterações"
+                  : "Adicionar contato"}
             </Button>
           </div>
         </form>

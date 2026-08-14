@@ -72,19 +72,49 @@ export async function deleteEmpresa(empresaId: number) {
   return { error: null };
 }
 
-export async function addContato(empresaId: number, input: ContatoInput) {
-  if (!input.nome.trim()) return { error: "Informe o nome do contato." };
-
-  const supabase = await createClient();
-  const { error } = await supabase.from("contatos_empresa").insert({
-    empresa_id: empresaId,
+function toContatoRow(input: ContatoInput) {
+  return {
     nome: input.nome.trim(),
     cargo: input.cargo.trim() || null,
     email: input.email.trim() || null,
     telefone: input.telefone.trim() || null,
     telefone_tipo: input.telefone_tipo.trim() || null,
     principal: input.principal,
-  });
+  };
+}
+
+export async function addContato(empresaId: number, input: ContatoInput) {
+  if (!input.nome.trim()) return { error: "Informe o nome do contato." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("contatos_empresa")
+    .insert({ ...toContatoRow(input), empresa_id: empresaId });
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/empresas/${empresaId}`);
+  return { error: null };
+}
+
+export async function updateContato(contatoId: number, empresaId: number, input: ContatoInput) {
+  if (!input.nome.trim()) return { error: "Informe o nome do contato." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("contatos_empresa")
+    .update(toContatoRow(input))
+    .eq("id", contatoId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath(`/empresas/${empresaId}`);
+  return { error: null };
+}
+
+export async function deleteContato(contatoId: number, empresaId: number) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("contatos_empresa").delete().eq("id", contatoId);
 
   if (error) return { error: error.message };
 
