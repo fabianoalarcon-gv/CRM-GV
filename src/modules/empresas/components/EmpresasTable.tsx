@@ -15,18 +15,13 @@ import type { EmpresaListItem } from "../types";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 
-const AVATAR_COLORS = [
-  "var(--color-brand-navy)",
-  "var(--color-brand-accent)",
-  "var(--color-cal-reuniao)",
-  "var(--color-cal-embarque)",
-  "var(--color-status-aprovado)",
-];
+// Alterna entre a cor do título "Gestão de Empresas" (foreground) e a do
+// subtítulo "Empresas" (brand-accent), na ordem da lista — em vez de uma
+// cor por hash do nome/setor, que ficava visualmente poluído.
+const AVATAR_COLORS = ["var(--color-foreground)", "var(--color-brand-accent)"];
 
-function avatarColor(seed: string): string {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
-  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+function avatarColor(index: number): string {
+  return AVATAR_COLORS[index % AVATAR_COLORS.length];
 }
 
 function initials(nome: string): string {
@@ -113,7 +108,7 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
         <Table className="border-collapse">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/3">
+              <TableHead className="w-1/4">
                 <span className="font-semibold text-foreground">Empresa</span>
               </TableHead>
               <TableHead>
@@ -122,7 +117,7 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
               <TableHead>
                 <span className="font-semibold text-foreground">Setor</span>
               </TableHead>
-              <TableHead>
+              <TableHead className="w-1/4">
                 <span className="font-semibold text-foreground">Endereço</span>
               </TableHead>
               <TableHead>
@@ -144,13 +139,13 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
                 </TableCell>
               </TableRow>
             )}
-            {filtered.map((empresa) => (
+            {filtered.map((empresa, index) => (
               <TableRow key={empresa.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <div
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
-                      style={{ backgroundColor: avatarColor(empresa.setor ?? empresa.nome) }}
+                      style={{ backgroundColor: avatarColor(index) }}
                     >
                       {initials(empresa.nome)}
                     </div>
