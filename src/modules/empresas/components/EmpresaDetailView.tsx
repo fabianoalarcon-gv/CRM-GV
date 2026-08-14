@@ -397,6 +397,7 @@ export function EmpresaDetailView({
                     <div className="shrink-0 text-right text-xs text-brand-graphite-light">
                       <p>Início: {dateTimeFormatter.format(new Date(acao.inicio))}</p>
                       {acao.fim && <p>Fim: {dateTimeFormatter.format(new Date(acao.fim))}</p>}
+                      {acao.numero_lead_proposta && <p>Lead/Proposta: {acao.numero_lead_proposta}</p>}
                     </div>
                   </div>
                   {acao.descricao && <p className="mt-2 text-foreground">{acao.descricao}</p>}

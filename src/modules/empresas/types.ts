@@ -76,4 +76,5 @@ export interface AcaoResumo {
   fim: string | null;
   tipo: CompromissoTipo | null;
   criador_email: string | null;
+  numero_lead_proposta: string | null;
 }

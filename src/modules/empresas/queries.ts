@@ -107,7 +107,9 @@ export async function getAcoesByEmpresa(empresaId: number): Promise<AcaoResumo[]
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("compromissos")
-    .select("id, titulo, descricao, inicio, fim, tipo, criado_por:profiles(email)")
+    .select(
+      "id, titulo, descricao, inicio, fim, tipo, criado_por:profiles(email), proposta:propostas(numero_proposta, numero_lead)",
+    )
     .eq("empresa_id", empresaId)
     .order("inicio", { ascending: false });
 
@@ -121,5 +123,6 @@ export async function getAcoesByEmpresa(empresaId: number): Promise<AcaoResumo[]
     fim: c.fim,
     tipo: c.tipo as CompromissoTipo | null,
     criador_email: c.criado_por?.email ?? null,
+    numero_lead_proposta: c.proposta ? (c.proposta.numero_proposta ?? c.proposta.numero_lead) : null,
   }));
 }
