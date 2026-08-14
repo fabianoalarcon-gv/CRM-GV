@@ -10,8 +10,13 @@ import type { EmpresaInput } from "../types";
 
 const EMPTY_VALUES: EmpresaInput = {
   nome: "",
+  cnpj: "",
   setor: "",
   endereco: "",
+  numero: "",
+  cidade: "",
+  uf: "",
+  cep: "",
   observacoes: "",
 };
 
@@ -25,7 +30,7 @@ export function NewEmpresaButton() {
         Nova Empresa
       </Button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Nova empresa" className="max-w-lg">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Nova empresa" className="max-w-2xl">
         <EmpresaForm
           initialValues={EMPTY_VALUES}
           submitLabel="Criar empresa"

@@ -47,26 +47,67 @@ export function EmpresaForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <Input
-        label="Nome"
-        placeholder="Razão social ou nome fantasia"
-        required
-        value={values.nome}
-        onChange={(e) => update("nome", e.target.value)}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input
+          label="Empresa"
+          placeholder="Razão social ou nome fantasia"
+          required
+          value={values.nome}
+          onChange={(e) => update("nome", e.target.value)}
+        />
+
+        <Input
+          label="CNPJ"
+          placeholder="00.000.000/0000-00"
+          value={values.cnpj}
+          onChange={(e) => update("cnpj", e.target.value)}
+        />
+      </div>
 
       <Input
         label="Setor"
         placeholder="Ex: Automotivo, Offshore, Químico..."
+        required
         value={values.setor}
         onChange={(e) => update("setor", e.target.value)}
       />
 
-      <Input
-        label="Endereço"
-        value={values.endereco}
-        onChange={(e) => update("endereco", e.target.value)}
-      />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Input
+          label="Endereço"
+          value={values.endereco}
+          onChange={(e) => update("endereco", e.target.value)}
+        />
+
+        <Input
+          label="Número"
+          value={values.numero}
+          onChange={(e) => update("numero", e.target.value)}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Input
+          label="Cidade"
+          value={values.cidade}
+          onChange={(e) => update("cidade", e.target.value)}
+        />
+
+        <Input
+          label="UF"
+          placeholder="Ex: SP"
+          maxLength={2}
+          value={values.uf}
+          onChange={(e) => update("uf", e.target.value.toUpperCase())}
+        />
+
+        <Input
+          label="CEP"
+          placeholder="00000-000"
+          value={values.cep}
+          onChange={(e) => update("cep", e.target.value)}
+        />
+      </div>
 
       <Textarea
         label="Observações"

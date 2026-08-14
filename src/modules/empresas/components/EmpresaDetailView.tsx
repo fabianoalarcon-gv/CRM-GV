@@ -40,6 +40,12 @@ const TIPO_INTERACAO_LABEL: Record<string, string> = Object.fromEntries(
   TIPO_INTERACAO_OPTIONS.map((o) => [o.value, o.label]),
 );
 
+function formatEndereco(empresa: Empresa): string {
+  const linha1 = [empresa.endereco, empresa.numero].filter(Boolean).join(", ");
+  const linha2 = [empresa.cidade, empresa.uf].filter(Boolean).join(" - ");
+  return [linha1, linha2, empresa.cep].filter(Boolean).join(" · ");
+}
+
 export interface EmpresaDetailViewProps {
   empresa: Empresa;
   initialContatos: Contato[];
@@ -184,9 +190,15 @@ export function EmpresaDetailView({
           <CardContent className="flex flex-col gap-4 p-5">
             <div>
               <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
+                CNPJ
+              </p>
+              <p className="mt-1 text-sm text-foreground">{empresa.cnpj || "Não informado"}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
                 Endereço
               </p>
-              <p className="mt-1 text-sm text-foreground">{empresa.endereco || "Não informado"}</p>
+              <p className="mt-1 text-sm text-foreground">{formatEndereco(empresa) || "Não informado"}</p>
             </div>
             <div>
               <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
@@ -369,13 +381,18 @@ export function EmpresaDetailView({
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
         title={`Editar ${empresa.nome}`}
-        className="max-w-lg"
+        className="max-w-2xl"
       >
         <EmpresaForm
           initialValues={{
             nome: empresa.nome,
+            cnpj: empresa.cnpj ?? "",
             setor: empresa.setor ?? "",
             endereco: empresa.endereco ?? "",
+            numero: empresa.numero ?? "",
+            cidade: empresa.cidade ?? "",
+            uf: empresa.uf ?? "",
+            cep: empresa.cep ?? "",
             observacoes: empresa.observacoes ?? "",
           }}
           submitLabel="Salvar alterações"

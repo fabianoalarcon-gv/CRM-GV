@@ -210,14 +210,19 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
         isOpen={editing !== null}
         onClose={() => setEditing(null)}
         title={editing ? `Editar ${editing.nome}` : ""}
-        className="max-w-lg"
+        className="max-w-2xl"
       >
         {editing && (
           <EmpresaForm
             initialValues={{
               nome: editing.nome,
+              cnpj: editing.cnpj ?? "",
               setor: editing.setor ?? "",
               endereco: editing.endereco ?? "",
+              numero: editing.numero ?? "",
+              cidade: editing.cidade ?? "",
+              uf: editing.uf ?? "",
+              cep: editing.cep ?? "",
               observacoes: editing.observacoes ?? "",
             }}
             submitLabel="Salvar alterações"

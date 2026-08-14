@@ -14,53 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
-      empresas: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          endereco: string | null
-          id: number
-          nome: string
-          observacoes: string | null
-          setor: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          endereco?: string | null
-          id?: never
-          nome: string
-          observacoes?: string | null
-          setor?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          endereco?: string | null
-          id?: never
-          nome?: string
-          observacoes?: string | null
-          setor?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "empresas_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       compromissos: {
         Row: {
-          empresa_id: number | null
           created_at: string
           criado_por: string
           descricao: string | null
+          empresa_id: number | null
           fim: string | null
           id: number
           inicio: string
@@ -70,10 +29,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          empresa_id?: number | null
           created_at?: string
           criado_por: string
           descricao?: string | null
+          empresa_id?: number | null
           fim?: string | null
           id?: never
           inicio: string
@@ -83,10 +42,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          empresa_id?: number | null
           created_at?: string
           criado_por?: string
           descricao?: string | null
+          empresa_id?: number | null
           fim?: string | null
           id?: never
           inicio?: string
@@ -97,17 +56,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "compromissos_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "compromissos_criado_por_fkey"
             columns: ["criado_por"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compromissos_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
           {
@@ -122,27 +81,27 @@ export type Database = {
       contatos_empresa: {
         Row: {
           cargo: string | null
-          empresa_id: number
           created_at: string
           email: string | null
+          empresa_id: number
           id: number
           nome: string
           telefone: string | null
         }
         Insert: {
           cargo?: string | null
-          empresa_id: number
           created_at?: string
           email?: string | null
+          empresa_id: number
           id?: never
           nome: string
           telefone?: string | null
         }
         Update: {
           cargo?: string | null
-          empresa_id?: number
           created_at?: string
           email?: string | null
+          empresa_id?: number
           id?: never
           nome?: string
           telefone?: string | null
@@ -157,31 +116,87 @@ export type Database = {
           },
         ]
       }
+      empresas: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          cnpj: string | null
+          created_at: string
+          created_by: string | null
+          endereco: string | null
+          id: number
+          nome: string
+          numero: string | null
+          observacoes: string | null
+          setor: string | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string
+          created_by?: string | null
+          endereco?: string | null
+          id?: never
+          nome: string
+          numero?: string | null
+          observacoes?: string | null
+          setor?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          created_at?: string
+          created_by?: string | null
+          endereco?: string | null
+          id?: never
+          nome?: string
+          numero?: string | null
+          observacoes?: string | null
+          setor?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "empresas_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       interacoes_empresa: {
         Row: {
           autor_id: string | null
-          empresa_id: number
           created_at: string
           data_interacao: string
           descricao: string
+          empresa_id: number
           id: number
           tipo: string | null
         }
         Insert: {
           autor_id?: string | null
-          empresa_id: number
           created_at?: string
           data_interacao?: string
           descricao: string
+          empresa_id: number
           id?: never
           tipo?: string | null
         }
         Update: {
           autor_id?: string | null
-          empresa_id?: number
           created_at?: string
           data_interacao?: string
           descricao?: string
+          empresa_id?: number
           id?: never
           tipo?: string | null
         }
@@ -291,12 +306,12 @@ export type Database = {
       }
       propostas: {
         Row: {
-          empresa_id: number
           created_at: string
           created_by: string | null
           data_envio: string
           data_inicio_lead: string
           descricao: string | null
+          empresa_id: number
           gerado_de_lead: boolean
           id: number
           numero_lead: string | null
@@ -313,12 +328,12 @@ export type Database = {
           valor: number | null
         }
         Insert: {
-          empresa_id: number
           created_at?: string
           created_by?: string | null
           data_envio?: string
           data_inicio_lead?: string
           descricao?: string | null
+          empresa_id: number
           gerado_de_lead?: boolean
           id?: never
           numero_lead?: string | null
@@ -335,12 +350,12 @@ export type Database = {
           valor?: number | null
         }
         Update: {
-          empresa_id?: number
           created_at?: string
           created_by?: string | null
           data_envio?: string
           data_inicio_lead?: string
           descricao?: string | null
+          empresa_id?: number
           gerado_de_lead?: boolean
           id?: never
           numero_lead?: string | null
@@ -358,17 +373,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "propostas_empresa_id_fkey"
-            columns: ["empresa_id"]
-            isOneToOne: false
-            referencedRelation: "empresas"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "propostas_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "propostas_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
             referencedColumns: ["id"]
           },
           {

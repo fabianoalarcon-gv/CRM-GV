@@ -7,14 +7,26 @@ import type { EmpresaInput, ContatoInput, InteracaoInput } from "./types";
 function toRow(input: EmpresaInput) {
   return {
     nome: input.nome.trim(),
+    cnpj: input.cnpj.trim() || null,
     setor: input.setor.trim() || null,
     endereco: input.endereco.trim() || null,
+    numero: input.numero.trim() || null,
+    cidade: input.cidade.trim() || null,
+    uf: input.uf.trim() || null,
+    cep: input.cep.trim() || null,
     observacoes: input.observacoes.trim() || null,
   };
 }
 
+function validate(input: EmpresaInput): string | null {
+  if (!input.nome.trim()) return "Informe o nome da empresa.";
+  if (!input.setor.trim()) return "Informe o setor da empresa.";
+  return null;
+}
+
 export async function createEmpresa(input: EmpresaInput) {
-  if (!input.nome.trim()) return { error: "Informe o nome da empresa." };
+  const validationError = validate(input);
+  if (validationError) return { error: validationError };
 
   const supabase = await createClient();
   const {
@@ -34,7 +46,8 @@ export async function createEmpresa(input: EmpresaInput) {
 }
 
 export async function updateEmpresa(empresaId: number, input: EmpresaInput) {
-  if (!input.nome.trim()) return { error: "Informe o nome da empresa." };
+  const validationError = validate(input);
+  if (validationError) return { error: validationError };
 
   const supabase = await createClient();
   const { error } = await supabase.from("empresas").update(toRow(input)).eq("id", empresaId);

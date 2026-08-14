@@ -1,8 +1,13 @@
 export interface Empresa {
   id: number;
   nome: string;
+  cnpj: string | null;
   setor: string | null;
   endereco: string | null;
+  numero: string | null;
+  cidade: string | null;
+  uf: string | null;
+  cep: string | null;
   observacoes: string | null;
   created_at: string;
 }
@@ -13,8 +18,13 @@ export interface EmpresaListItem extends Empresa {
 
 export interface EmpresaInput {
   nome: string;
+  cnpj: string;
   setor: string;
   endereco: string;
+  numero: string;
+  cidade: string;
+  uf: string;
+  cep: string;
   observacoes: string;
 }
 
