@@ -7,7 +7,7 @@ export async function getEmpresas(): Promise<EmpresaListItem[]> {
   const { data, error } = await supabase
     .from("empresas")
     .select(
-      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at, propostas(data_envio)",
+      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at, criador:profiles!created_by(email), propostas(data_envio)",
     )
     .order("nome");
 
@@ -27,6 +27,7 @@ export async function getEmpresas(): Promise<EmpresaListItem[]> {
     site: c.site,
     observacoes: c.observacoes,
     created_at: c.created_at,
+    criador_email: c.criador?.email ?? null,
     ultima_proposta:
       c.propostas.length > 0
         ? c.propostas.reduce((max, p) => (p.data_envio > max ? p.data_envio : max), c.propostas[0].data_envio)
@@ -39,13 +40,30 @@ export async function getEmpresaById(id: number): Promise<Empresa | null> {
   const { data, error } = await supabase
     .from("empresas")
     .select(
-      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at",
+      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at, criador:profiles!created_by(email)",
     )
     .eq("id", id)
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    nome: data.nome,
+    cnpj: data.cnpj,
+    setor: data.setor,
+    endereco: data.endereco,
+    numero: data.numero,
+    cidade: data.cidade,
+    uf: data.uf,
+    cep: data.cep,
+    origem_lead: data.origem_lead,
+    site: data.site,
+    observacoes: data.observacoes,
+    created_at: data.created_at,
+    criador_email: data.criador?.email ?? null,
+  };
 }
 
 export async function getContatosByEmpresa(empresaId: number): Promise<Contato[]> {

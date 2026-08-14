@@ -219,62 +219,55 @@ export function EmpresaDetailView({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Card>
           <CardContent className="flex flex-col gap-4 p-5">
-            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-              Dados Cadastrais
+            <p className="mt-3 text-lg font-semibold text-foreground">Dados Cadastrais</p>
+
+            <p>
+              <span className="font-semibold text-foreground">CNPJ:</span>{" "}
+              <span className="text-brand-graphite-light">{empresa.cnpj || "Não informado"}</span>
             </p>
-            <div>
-              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-                CNPJ
-              </p>
-              <p className="mt-1 text-sm text-foreground">{empresa.cnpj || "Não informado"}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-                Origem do Lead
-              </p>
-              <p className="mt-1 text-sm text-foreground">
-                {empresa.origem_lead ? (ORIGEM_LEAD_LABEL[empresa.origem_lead] ?? empresa.origem_lead) : "Não informado"}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-                Endereço
-              </p>
-              <p className="mt-1 text-sm text-foreground">{formatEndereco(empresa) || "Não informado"}</p>
-            </div>
-            <div>
-              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-                Site
-              </p>
+            <p>
+              <span className="font-semibold text-foreground">Origem do Lead:</span>{" "}
+              <span className="text-brand-graphite-light">
+                {empresa.origem_lead
+                  ? (ORIGEM_LEAD_LABEL[empresa.origem_lead] ?? empresa.origem_lead)
+                  : "Não informado"}
+              </span>
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">Endereço:</span>{" "}
+              <span className="text-brand-graphite-light">{formatEndereco(empresa) || "Não informado"}</span>
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">Site:</span>{" "}
               {empresa.site ? (
                 <a
                   href={empresa.site}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-1 block text-sm text-brand-accent hover:underline"
+                  className="text-brand-accent hover:underline"
                 >
                   {empresa.site}
                 </a>
               ) : (
-                <p className="mt-1 text-sm text-foreground">Não informado</p>
+                <span className="text-brand-graphite-light">Não informado</span>
               )}
-            </div>
-            <div>
-              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-                Observações
-              </p>
-              <p className="mt-1 text-sm whitespace-pre-wrap text-foreground">
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">Observações:</span>{" "}
+              <span className="text-brand-graphite-light whitespace-pre-wrap">
                 {empresa.observacoes || "Nenhuma observação registrada."}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-                Cadastrado em
-              </p>
-              <p className="mt-1 text-sm text-foreground">
+              </span>
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">Cadastrado em:</span>{" "}
+              <span className="text-brand-graphite-light">
                 {dateFormatter.format(new Date(empresa.created_at))}
-              </p>
-            </div>
+              </span>
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">E-mail:</span>{" "}
+              <span className="text-brand-graphite-light">{empresa.criador_email || "Não informado"}</span>
+            </p>
           </CardContent>
         </Card>
 

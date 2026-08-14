@@ -14,6 +14,7 @@ export interface Empresa {
   site: string | null;
   observacoes: string | null;
   created_at: string;
+  criador_email: string | null;
 }
 
 export interface EmpresaListItem extends Empresa {
