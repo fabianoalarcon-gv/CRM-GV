@@ -12,6 +12,7 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { useIsAdmin } from "@/lib/auth/context";
 import { addContato, addInteracao, deleteEmpresa, updateEmpresa } from "../actions";
+import { ORIGEM_LEAD_LABEL } from "../constants";
 import { EmpresaForm } from "./EmpresaForm";
 import type { Empresa, Contato, ContatoInput, Interacao, InteracaoInput, PropostaResumo } from "../types";
 
@@ -193,6 +194,14 @@ export function EmpresaDetailView({
                 CNPJ
               </p>
               <p className="mt-1 text-sm text-foreground">{empresa.cnpj || "Não informado"}</p>
+            </div>
+            <div>
+              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
+                Origem do Lead
+              </p>
+              <p className="mt-1 text-sm text-foreground">
+                {empresa.origem_lead ? (ORIGEM_LEAD_LABEL[empresa.origem_lead] ?? empresa.origem_lead) : "Não informado"}
+              </p>
             </div>
             <div>
               <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
@@ -393,6 +402,7 @@ export function EmpresaDetailView({
             cidade: empresa.cidade ?? "",
             uf: empresa.uf ?? "",
             cep: empresa.cep ?? "",
+            origem_lead: empresa.origem_lead ?? "",
             observacoes: empresa.observacoes ?? "",
           }}
           submitLabel="Salvar alterações"

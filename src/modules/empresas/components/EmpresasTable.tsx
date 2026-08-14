@@ -223,6 +223,7 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
               cidade: editing.cidade ?? "",
               uf: editing.uf ?? "",
               cep: editing.cep ?? "",
+              origem_lead: editing.origem_lead ?? "",
               observacoes: editing.observacoes ?? "",
             }}
             submitLabel="Salvar alterações"

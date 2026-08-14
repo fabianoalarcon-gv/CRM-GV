@@ -128,6 +128,7 @@ export type Database = {
           nome: string
           numero: string | null
           observacoes: string | null
+          origem_lead: string | null
           setor: string | null
           uf: string | null
           updated_at: string
@@ -143,6 +144,7 @@ export type Database = {
           nome: string
           numero?: string | null
           observacoes?: string | null
+          origem_lead?: string | null
           setor?: string | null
           uf?: string | null
           updated_at?: string
@@ -158,6 +160,7 @@ export type Database = {
           nome?: string
           numero?: string | null
           observacoes?: string | null
+          origem_lead?: string | null
           setor?: string | null
           uf?: string | null
           updated_at?: string

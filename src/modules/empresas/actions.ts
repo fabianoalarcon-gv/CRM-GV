@@ -14,6 +14,7 @@ function toRow(input: EmpresaInput) {
     cidade: input.cidade.trim() || null,
     uf: input.uf.trim() || null,
     cep: input.cep.trim() || null,
+    origem_lead: input.origem_lead.trim() || null,
     observacoes: input.observacoes.trim() || null,
   };
 }
@@ -21,6 +22,7 @@ function toRow(input: EmpresaInput) {
 function validate(input: EmpresaInput): string | null {
   if (!input.nome.trim()) return "Informe o nome da empresa.";
   if (!input.setor.trim()) return "Informe o setor da empresa.";
+  if (!input.origem_lead.trim()) return "Informe a origem do lead.";
   return null;
 }
 

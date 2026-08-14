@@ -35,6 +35,11 @@ export function Combobox({ label, required, placeholder = "Selecione...", value,
   const id = useId();
   const listboxId = `${id}-listbox`;
 
+  // Enquanto fechado, o texto exibido vem sempre do value/options atuais —
+  // assim o campo reflete mudanças feitas de fora (ex: autopreenchimento por
+  // CEP) sem precisar de um efeito pra sincronizar estado interno.
+  const displayValue = isOpen ? query : (selected?.label ?? value);
+
   const filteredOptions = query.trim()
     ? options.filter((o) => o.label.toLowerCase().includes(query.trim().toLowerCase()))
     : options;
@@ -102,7 +107,7 @@ export function Combobox({ label, required, placeholder = "Selecione...", value,
           aria-expanded={isOpen}
           aria-controls={listboxId}
           autoComplete="off"
-          value={query}
+          value={displayValue}
           placeholder={placeholder}
           onFocus={openWithFreshQuery}
           onClick={() => !isOpen && openWithFreshQuery()}
