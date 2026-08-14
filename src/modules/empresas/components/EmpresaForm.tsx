@@ -17,6 +17,12 @@ export interface EmpresaFormProps {
   onCancel: () => void;
 }
 
+function formatCep(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 5) return digits;
+  return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+}
+
 interface ViaCepResponse {
   erro?: boolean;
   logradouro?: string;
@@ -179,7 +185,7 @@ export function EmpresaForm({
           label="CEP"
           placeholder="00000-000"
           value={values.cep}
-          onChange={(e) => update("cep", e.target.value)}
+          onChange={(e) => update("cep", formatCep(e.target.value))}
         />
 
         <Select
@@ -197,13 +203,13 @@ export function EmpresaForm({
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1.5fr]">
-        <Input
-          label="Endereço"
-          value={values.endereco}
-          onChange={(e) => update("endereco", e.target.value)}
-        />
+      <Input
+        label="Endereço"
+        value={values.endereco}
+        onChange={(e) => update("endereco", e.target.value)}
+      />
 
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Combobox
           label="Cidade"
           placeholder={
@@ -216,6 +222,13 @@ export function EmpresaForm({
           value={values.cidade}
           onChange={(v) => update("cidade", v)}
           options={cidadeSelectOptions}
+        />
+
+        <Input
+          label="Site"
+          placeholder="https://www.empresa.com.br"
+          value={values.site}
+          onChange={(e) => update("site", e.target.value)}
         />
       </div>
 

@@ -130,6 +130,7 @@ export type Database = {
           observacoes: string | null
           origem_lead: string | null
           setor: string | null
+          site: string | null
           uf: string | null
           updated_at: string
         }
@@ -146,6 +147,7 @@ export type Database = {
           observacoes?: string | null
           origem_lead?: string | null
           setor?: string | null
+          site?: string | null
           uf?: string | null
           updated_at?: string
         }
@@ -162,6 +164,7 @@ export type Database = {
           observacoes?: string | null
           origem_lead?: string | null
           setor?: string | null
+          site?: string | null
           uf?: string | null
           updated_at?: string
         }

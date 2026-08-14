@@ -211,6 +211,23 @@ export function EmpresaDetailView({
             </div>
             <div>
               <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
+                Site
+              </p>
+              {empresa.site ? (
+                <a
+                  href={empresa.site}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-1 block text-sm text-brand-accent hover:underline"
+                >
+                  {empresa.site}
+                </a>
+              ) : (
+                <p className="mt-1 text-sm text-foreground">Não informado</p>
+              )}
+            </div>
+            <div>
+              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
                 Observações
               </p>
               <p className="mt-1 text-sm whitespace-pre-wrap text-foreground">
@@ -403,6 +420,7 @@ export function EmpresaDetailView({
             uf: empresa.uf ?? "",
             cep: empresa.cep ?? "",
             origem_lead: empresa.origem_lead ?? "",
+            site: empresa.site ?? "",
             observacoes: empresa.observacoes ?? "",
           }}
           submitLabel="Salvar alterações"

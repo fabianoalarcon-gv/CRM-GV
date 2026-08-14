@@ -9,6 +9,7 @@ export interface Empresa {
   uf: string | null;
   cep: string | null;
   origem_lead: string | null;
+  site: string | null;
   observacoes: string | null;
   created_at: string;
 }
@@ -27,6 +28,7 @@ export interface EmpresaInput {
   uf: string;
   cep: string;
   origem_lead: string;
+  site: string;
   observacoes: string;
 }
 

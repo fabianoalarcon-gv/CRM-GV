@@ -15,6 +15,7 @@ function toRow(input: EmpresaInput) {
     uf: input.uf.trim() || null,
     cep: input.cep.trim() || null,
     origem_lead: input.origem_lead.trim() || null,
+    site: input.site.trim() || null,
     observacoes: input.observacoes.trim() || null,
   };
 }

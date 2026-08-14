@@ -6,7 +6,7 @@ export async function getEmpresas(): Promise<EmpresaListItem[]> {
   const { data, error } = await supabase
     .from("empresas")
     .select(
-      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, observacoes, created_at, propostas(data_envio)",
+      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at, propostas(data_envio)",
     )
     .order("nome");
 
@@ -23,6 +23,7 @@ export async function getEmpresas(): Promise<EmpresaListItem[]> {
     uf: c.uf,
     cep: c.cep,
     origem_lead: c.origem_lead,
+    site: c.site,
     observacoes: c.observacoes,
     created_at: c.created_at,
     ultima_proposta:
@@ -36,7 +37,9 @@ export async function getEmpresaById(id: number): Promise<Empresa | null> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("empresas")
-    .select("id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, observacoes, created_at")
+    .select(
+      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at",
+    )
     .eq("id", id)
     .maybeSingle();
 

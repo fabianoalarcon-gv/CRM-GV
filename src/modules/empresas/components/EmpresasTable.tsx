@@ -224,6 +224,7 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
               uf: editing.uf ?? "",
               cep: editing.cep ?? "",
               origem_lead: editing.origem_lead ?? "",
+              site: editing.site ?? "",
               observacoes: editing.observacoes ?? "",
             }}
             submitLabel="Salvar alterações"

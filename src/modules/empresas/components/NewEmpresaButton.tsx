@@ -18,6 +18,7 @@ const EMPTY_VALUES: EmpresaInput = {
   uf: "",
   cep: "",
   origem_lead: "",
+  site: "",
   observacoes: "",
 };
 

@@ -9,6 +9,23 @@ export interface ComboboxOption {
   label: string;
 }
 
+// Remove acentos pra comparação de busca (ex: "sao paulo" encontra "São Paulo").
+// NFD decompõe cada letra acentuada em base + marca combinante (faixa
+// 0x0300-0x036f do Unicode); descartar essa faixa deixa só as letras base.
+const COMBINING_MARKS_START = 0x0300;
+const COMBINING_MARKS_END = 0x036f;
+
+function normalize(value: string): string {
+  let result = "";
+  for (const char of value.normalize("NFD")) {
+    const code = char.codePointAt(0) ?? 0;
+    if (code < COMBINING_MARKS_START || code > COMBINING_MARKS_END) {
+      result += char;
+    }
+  }
+  return result.toLowerCase();
+}
+
 export interface ComboboxProps {
   label?: string;
   required?: boolean;
@@ -41,7 +58,7 @@ export function Combobox({ label, required, placeholder = "Selecione...", value,
   const displayValue = isOpen ? query : (selected?.label ?? value);
 
   const filteredOptions = query.trim()
-    ? options.filter((o) => o.label.toLowerCase().includes(query.trim().toLowerCase()))
+    ? options.filter((o) => normalize(o.label).includes(normalize(query.trim())))
     : options;
 
   function openWithFreshQuery() {
