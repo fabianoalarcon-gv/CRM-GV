@@ -23,6 +23,16 @@ function formatCep(value: string): string {
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
 
+function formatCnpj(value: string): string {
+  const digits = value.replace(/\D/g, "").slice(0, 14);
+  let result = digits.slice(0, 2);
+  if (digits.length > 2) result += `.${digits.slice(2, 5)}`;
+  if (digits.length > 5) result += `.${digits.slice(5, 8)}`;
+  if (digits.length > 8) result += `/${digits.slice(8, 12)}`;
+  if (digits.length > 12) result += `-${digits.slice(12, 14)}`;
+  return result;
+}
+
 interface ViaCepResponse {
   erro?: boolean;
   logradouro?: string;
@@ -156,8 +166,9 @@ export function EmpresaForm({
         <Input
           label="CNPJ"
           placeholder="00.000.000/0000-00"
+          maxLength={18}
           value={values.cnpj}
-          onChange={(e) => update("cnpj", e.target.value)}
+          onChange={(e) => update("cnpj", formatCnpj(e.target.value))}
         />
       </div>
 
