@@ -289,11 +289,9 @@ export function EmpresaDetailView({
 
         <Card>
           <CardContent className="flex flex-col gap-4 p-5">
-            <div className="flex items-start justify-between gap-2">
-              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-                Contatos
-              </p>
-              <Button type="button" size="sm" variant="outline" className="mt-1" onClick={openAddContato}>
+            <div className="mt-3 flex items-start justify-between gap-2">
+              <p className="text-lg font-semibold text-foreground">Contatos</p>
+              <Button type="button" size="sm" onClick={openAddContato}>
                 Adicionar Contato
               </Button>
             </div>
@@ -305,16 +303,28 @@ export function EmpresaDetailView({
               {contatos.map((contato) => (
                 <div key={contato.id} className="rounded-lg border border-border bg-black/[.02] p-3 text-sm">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-medium text-foreground">Nome: {contato.nome}</p>
+                    <p>
+                      <span className="font-semibold text-foreground">Nome:</span>{" "}
+                      <span className="text-brand-graphite-light">{contato.nome}</span>
+                    </p>
                     {contato.principal && <Badge variant="info">Principal</Badge>}
                   </div>
-                  <p className="text-brand-graphite-light">Cargo: {contato.cargo || "—"}</p>
-                  <p className="text-brand-graphite-light">E-mail: {contato.email || "—"}</p>
-                  <p className="text-brand-graphite-light">
-                    Telefone: {contato.telefone || "—"}
-                    {contato.telefone &&
-                      contato.telefone_tipo &&
-                      ` (${TELEFONE_TIPO_LABEL[contato.telefone_tipo] ?? contato.telefone_tipo})`}
+                  <p>
+                    <span className="font-semibold text-foreground">Cargo:</span>{" "}
+                    <span className="text-brand-graphite-light">{contato.cargo || "—"}</span>
+                  </p>
+                  <p>
+                    <span className="font-semibold text-foreground">E-mail:</span>{" "}
+                    <span className="text-brand-graphite-light">{contato.email || "—"}</span>
+                  </p>
+                  <p>
+                    <span className="font-semibold text-foreground">Telefone:</span>{" "}
+                    <span className="text-brand-graphite-light">
+                      {contato.telefone || "—"}
+                      {contato.telefone &&
+                        contato.telefone_tipo &&
+                        ` (${TELEFONE_TIPO_LABEL[contato.telefone_tipo] ?? contato.telefone_tipo})`}
+                    </span>
                   </p>
 
                   {deletingContatoId === contato.id ? (
