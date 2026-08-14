@@ -51,7 +51,7 @@ export async function getContatosByEmpresa(empresaId: number): Promise<Contato[]
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("contatos_empresa")
-    .select("id, empresa_id, nome, cargo, email, telefone, created_at")
+    .select("id, empresa_id, nome, cargo, email, telefone, telefone_tipo, principal, created_at")
     .eq("empresa_id", empresaId)
     .order("created_at");
 
@@ -64,10 +64,10 @@ export async function getPropostasByEmpresa(empresaId: number): Promise<Proposta
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, numero_lead, data_envio, valor, termometro, proposal_statuses!status_id(label)",
+      "id, numero_proposta, numero_lead, segmento, valor, termometro, created_at, updated_at, proposal_statuses!status_id(label)",
     )
     .eq("empresa_id", empresaId)
-    .order("data_envio", { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
 
@@ -75,10 +75,12 @@ export async function getPropostasByEmpresa(empresaId: number): Promise<Proposta
     id: p.id,
     numero_proposta: p.numero_proposta,
     numero_lead: p.numero_lead,
-    data_envio: p.data_envio,
+    segmento: p.segmento,
     valor: p.valor == null ? null : Number(p.valor),
     termometro: p.termometro as PropostaResumo["termometro"],
     status_label: p.proposal_statuses?.label ?? "—",
+    created_at: p.created_at,
+    updated_at: p.updated_at,
   }));
 }
 

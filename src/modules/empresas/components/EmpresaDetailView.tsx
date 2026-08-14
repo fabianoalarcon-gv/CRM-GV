@@ -9,12 +9,13 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
-import { Textarea } from "@/components/ui/Textarea";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { useIsAdmin } from "@/lib/auth/context";
-import { addContato, addInteracao, deleteEmpresa, updateEmpresa } from "../actions";
-import { ORIGEM_LEAD_LABEL } from "../constants";
+import { SEGMENTO_LABEL, type Segmento } from "@/modules/pipeline/types";
+import { addContato, deleteEmpresa, updateEmpresa } from "../actions";
+import { ORIGEM_LEAD_LABEL, TELEFONE_TIPO_LABEL, TELEFONE_TIPO_OPTIONS } from "../constants";
 import { EmpresaForm } from "./EmpresaForm";
-import type { Empresa, Contato, ContatoInput, Interacao, InteracaoInput, PropostaResumo } from "../types";
+import type { Empresa, Contato, ContatoInput, Interacao, PropostaResumo } from "../types";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
@@ -26,20 +27,22 @@ const TERMOMETRO_LABEL: Record<PropostaResumo["termometro"], string> = {
   quente: "Quente",
 };
 
-const EMPTY_CONTATO: ContatoInput = { nome: "", cargo: "", email: "", telefone: "" };
-const EMPTY_INTERACAO: InteracaoInput = { tipo: "reuniao", descricao: "" };
+const EMPTY_CONTATO: ContatoInput = {
+  nome: "",
+  cargo: "",
+  email: "",
+  telefone: "",
+  telefone_tipo: "celular",
+  principal: false,
+};
 
-const TIPO_INTERACAO_OPTIONS = [
-  { value: "reuniao", label: "Reunião" },
-  { value: "ligacao", label: "Ligação" },
-  { value: "email", label: "E-mail" },
-  { value: "follow_up", label: "Follow-up" },
-  { value: "outro", label: "Outro" },
-];
-
-const TIPO_INTERACAO_LABEL: Record<string, string> = Object.fromEntries(
-  TIPO_INTERACAO_OPTIONS.map((o) => [o.value, o.label]),
-);
+const TIPO_INTERACAO_LABEL: Record<string, string> = {
+  reuniao: "Reunião",
+  ligacao: "Ligação",
+  email: "E-mail",
+  follow_up: "Follow-up",
+  outro: "Outro",
+};
 
 function formatEndereco(empresa: Empresa): string {
   const linha1 = [empresa.endereco, empresa.numero].filter(Boolean).join(", ");
@@ -70,13 +73,11 @@ export function EmpresaDetailView({
 
   const [contatos, setContatos] = useState(initialContatos);
   const [contatoValues, setContatoValues] = useState<ContatoInput>(EMPTY_CONTATO);
+  const [isAddContatoOpen, setIsAddContatoOpen] = useState(false);
   const [isAddingContato, setIsAddingContato] = useState(false);
   const [contatoError, setContatoError] = useState<string | null>(null);
 
-  const [interacoes, setInteracoes] = useState(initialInteracoes);
-  const [interacaoValues, setInteracaoValues] = useState<InteracaoInput>(EMPTY_INTERACAO);
-  const [isAddingInteracao, setIsAddingInteracao] = useState(false);
-  const [interacaoError, setInteracaoError] = useState<string | null>(null);
+  const [interacoes] = useState(initialInteracoes);
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -114,38 +115,13 @@ export function EmpresaDetailView({
         cargo: contatoValues.cargo.trim() || null,
         email: contatoValues.email.trim() || null,
         telefone: contatoValues.telefone.trim() || null,
+        telefone_tipo: contatoValues.telefone_tipo.trim() || null,
+        principal: contatoValues.principal,
         created_at: new Date().toISOString(),
       },
     ]);
     setContatoValues(EMPTY_CONTATO);
-  }
-
-  async function handleAddInteracao(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!interacaoValues.descricao.trim()) return;
-
-    setIsAddingInteracao(true);
-    setInteracaoError(null);
-    const result = await addInteracao(empresa.id, interacaoValues);
-    setIsAddingInteracao(false);
-
-    if (result.error) {
-      setInteracaoError(result.error);
-      return;
-    }
-
-    setInteracoes((prev) => [
-      {
-        id: Date.now(),
-        empresa_id: empresa.id,
-        tipo: interacaoValues.tipo || null,
-        descricao: interacaoValues.descricao.trim(),
-        data_interacao: new Date().toISOString(),
-        autor_nome: null,
-      },
-      ...prev,
-    ]);
-    setInteracaoValues(EMPTY_INTERACAO);
+    setIsAddContatoOpen(false);
   }
 
   return (
@@ -187,8 +163,11 @@ export function EmpresaDetailView({
       {deleteError && <p className="text-sm text-temp-quente">{deleteError}</p>}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+        <Card>
           <CardContent className="flex flex-col gap-4 p-5">
+            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
+              Dados Cadastrais
+            </p>
             <div>
               <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
                 CNPJ
@@ -247,96 +226,37 @@ export function EmpresaDetailView({
 
         <Card>
           <CardContent className="flex flex-col gap-4 p-5">
-            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-              Contatos
-            </p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
+                Contatos
+              </p>
+              <Button type="button" size="sm" variant="outline" onClick={() => setIsAddContatoOpen(true)}>
+                Adicionar Contato
+              </Button>
+            </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex max-h-[420px] flex-col gap-3 overflow-y-auto pr-1">
               {contatos.length === 0 && (
                 <p className="text-sm text-brand-graphite-light">Nenhum contato cadastrado.</p>
               )}
               {contatos.map((contato) => (
                 <div key={contato.id} className="rounded-lg bg-black/[.02] p-2.5 text-sm">
-                  <p className="font-medium text-foreground">{contato.nome}</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="font-medium text-foreground">{contato.nome}</p>
+                    {contato.principal && <Badge variant="info">Principal</Badge>}
+                  </div>
                   {contato.cargo && <p className="text-brand-graphite-light">{contato.cargo}</p>}
                   {contato.email && <p className="text-brand-graphite-light">{contato.email}</p>}
                   {contato.telefone && (
-                    <p className="text-brand-graphite-light">{contato.telefone}</p>
+                    <p className="text-brand-graphite-light">
+                      {contato.telefone}
+                      {contato.telefone_tipo &&
+                        ` · ${TELEFONE_TIPO_LABEL[contato.telefone_tipo] ?? contato.telefone_tipo}`}
+                    </p>
                   )}
                 </div>
               ))}
             </div>
-
-            <form onSubmit={handleAddContato} className="flex flex-col gap-2 border-t border-border pt-3">
-              <Input
-                placeholder="Nome"
-                value={contatoValues.nome}
-                onChange={(e) => setContatoValues((prev) => ({ ...prev, nome: e.target.value }))}
-              />
-              <Input
-                placeholder="Cargo"
-                value={contatoValues.cargo}
-                onChange={(e) => setContatoValues((prev) => ({ ...prev, cargo: e.target.value }))}
-              />
-              <Input
-                placeholder="E-mail"
-                type="email"
-                value={contatoValues.email}
-                onChange={(e) => setContatoValues((prev) => ({ ...prev, email: e.target.value }))}
-              />
-              <Input
-                placeholder="Telefone"
-                value={contatoValues.telefone}
-                onChange={(e) =>
-                  setContatoValues((prev) => ({ ...prev, telefone: e.target.value }))
-                }
-              />
-              {contatoError && <p className="text-sm text-temp-quente">{contatoError}</p>}
-              <Button
-                type="submit"
-                variant="outline"
-                size="sm"
-                disabled={isAddingContato || !contatoValues.nome.trim()}
-              >
-                {isAddingContato ? "Salvando…" : "Adicionar contato"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <Card className="lg:col-span-2">
-          <CardContent className="flex flex-col gap-3 p-5">
-            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-              Propostas vinculadas
-            </p>
-
-            {propostas.length === 0 && (
-              <p className="text-sm text-brand-graphite-light">
-                Nenhuma proposta registrada para esta empresa ainda.
-              </p>
-            )}
-            {propostas.map((proposta) => (
-              <div
-                key={proposta.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-black/[.02] p-2.5 text-sm"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs text-brand-graphite-light">
-                    {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
-                  </span>
-                  <span className="text-foreground">{proposta.status_label}</span>
-                  <Badge variant={proposta.termometro}>
-                    {TERMOMETRO_LABEL[proposta.termometro]}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-3 text-brand-graphite-light">
-                  <span>{dateFormatter.format(new Date(proposta.data_envio))}</span>
-                  <span className="font-mono font-semibold text-foreground">
-                    {proposta.valor != null ? currencyFormatter.format(proposta.valor) : "—"}
-                  </span>
-                </div>
-              </div>
-            ))}
           </CardContent>
         </Card>
 
@@ -346,7 +266,7 @@ export function EmpresaDetailView({
               Interações
             </p>
 
-            <div className="flex max-h-64 flex-col gap-3 overflow-y-auto pr-1">
+            <div className="flex max-h-[420px] flex-col gap-3 overflow-y-auto pr-1">
               {interacoes.length === 0 && (
                 <p className="text-sm text-brand-graphite-light">
                   Nenhuma interação registrada ainda.
@@ -369,39 +289,68 @@ export function EmpresaDetailView({
                 </div>
               ))}
             </div>
-
-            <form
-              onSubmit={handleAddInteracao}
-              className="flex flex-col gap-2 border-t border-border pt-3"
-            >
-              <Select
-                value={interacaoValues.tipo}
-                onChange={(e) =>
-                  setInteracaoValues((prev) => ({ ...prev, tipo: e.target.value }))
-                }
-                options={TIPO_INTERACAO_OPTIONS}
-              />
-              <Textarea
-                placeholder="Descreva a interação..."
-                rows={2}
-                value={interacaoValues.descricao}
-                onChange={(e) =>
-                  setInteracaoValues((prev) => ({ ...prev, descricao: e.target.value }))
-                }
-              />
-              {interacaoError && <p className="text-sm text-temp-quente">{interacaoError}</p>}
-              <Button
-                type="submit"
-                variant="outline"
-                size="sm"
-                disabled={isAddingInteracao || !interacaoValues.descricao.trim()}
-              >
-                {isAddingInteracao ? "Salvando…" : "Registrar interação"}
-              </Button>
-            </form>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardContent className="flex flex-col gap-3 p-5">
+          <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
+            Propostas vinculadas
+          </p>
+
+          {propostas.length === 0 ? (
+            <p className="text-sm text-brand-graphite-light">
+              Nenhuma proposta registrada para esta empresa ainda.
+            </p>
+          ) : (
+            <div className="max-h-[420px] overflow-y-auto">
+              <Table>
+                <TableHeader className="sticky top-0 z-10">
+                  <TableRow>
+                    <TableHead>Número Lead/Proposta</TableHead>
+                    <TableHead>Segmento</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Termômetro</TableHead>
+                    <TableHead>Data Criação</TableHead>
+                    <TableHead>Última Atualização</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {propostas.map((proposta) => (
+                    <TableRow key={proposta.id}>
+                      <TableCell className="font-mono text-xs text-brand-graphite-light">
+                        {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
+                      </TableCell>
+                      <TableCell className="text-foreground">
+                        {proposta.segmento
+                          ? (SEGMENTO_LABEL[proposta.segmento as Segmento] ?? proposta.segmento)
+                          : "—"}
+                      </TableCell>
+                      <TableCell className="text-foreground">{proposta.status_label}</TableCell>
+                      <TableCell>
+                        <Badge variant={proposta.termometro}>
+                          {TERMOMETRO_LABEL[proposta.termometro]}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-brand-graphite-light">
+                        {dateFormatter.format(new Date(proposta.created_at))}
+                      </TableCell>
+                      <TableCell className="text-brand-graphite-light">
+                        {dateFormatter.format(new Date(proposta.updated_at))}
+                      </TableCell>
+                      <TableCell className="text-right font-mono font-semibold text-foreground">
+                        {proposta.valor != null ? currencyFormatter.format(proposta.valor) : "—"}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Modal
         isOpen={isEditing}
@@ -428,6 +377,70 @@ export function EmpresaDetailView({
           onSuccess={() => setIsEditing(false)}
           onCancel={() => setIsEditing(false)}
         />
+      </Modal>
+
+      <Modal
+        isOpen={isAddContatoOpen}
+        onClose={() => setIsAddContatoOpen(false)}
+        title="Adicionar Contato"
+        className="max-w-md"
+      >
+        <form onSubmit={handleAddContato} className="flex flex-col gap-4">
+          <Input
+            label="Nome"
+            required
+            value={contatoValues.nome}
+            onChange={(e) => setContatoValues((prev) => ({ ...prev, nome: e.target.value }))}
+          />
+          <Input
+            label="Cargo"
+            value={contatoValues.cargo}
+            onChange={(e) => setContatoValues((prev) => ({ ...prev, cargo: e.target.value }))}
+          />
+          <Input
+            label="E-mail"
+            type="email"
+            value={contatoValues.email}
+            onChange={(e) => setContatoValues((prev) => ({ ...prev, email: e.target.value }))}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Telefone"
+              value={contatoValues.telefone}
+              onChange={(e) => setContatoValues((prev) => ({ ...prev, telefone: e.target.value }))}
+            />
+            <Select
+              label="Tipo de Telefone"
+              value={contatoValues.telefone_tipo}
+              onChange={(e) =>
+                setContatoValues((prev) => ({ ...prev, telefone_tipo: e.target.value }))
+              }
+              options={TELEFONE_TIPO_OPTIONS}
+            />
+          </div>
+          <label className="flex items-center gap-2 text-sm text-foreground">
+            <input
+              type="checkbox"
+              checked={contatoValues.principal}
+              onChange={(e) =>
+                setContatoValues((prev) => ({ ...prev, principal: e.target.checked }))
+              }
+              className="h-4 w-4 rounded border-border accent-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent"
+            />
+            Contato principal
+          </label>
+
+          {contatoError && <p className="text-sm text-temp-quente">{contatoError}</p>}
+
+          <div className="mt-2 flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => setIsAddContatoOpen(false)}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={isAddingContato || !contatoValues.nome.trim()}>
+              {isAddingContato ? "Salvando…" : "Adicionar contato"}
+            </Button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

@@ -39,6 +39,8 @@ export interface Contato {
   cargo: string | null;
   email: string | null;
   telefone: string | null;
+  telefone_tipo: string | null;
+  principal: boolean;
   created_at: string;
 }
 
@@ -47,16 +49,20 @@ export interface ContatoInput {
   cargo: string;
   email: string;
   telefone: string;
+  telefone_tipo: string;
+  principal: boolean;
 }
 
 export interface PropostaResumo {
   id: number;
   numero_proposta: string | null;
   numero_lead: string | null;
-  data_envio: string;
+  segmento: string | null;
   valor: number | null;
   termometro: "frio" | "morno" | "quente";
   status_label: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Interacao {

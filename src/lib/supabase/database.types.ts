@@ -86,7 +86,9 @@ export type Database = {
           empresa_id: number
           id: number
           nome: string
+          principal: boolean
           telefone: string | null
+          telefone_tipo: string | null
         }
         Insert: {
           cargo?: string | null
@@ -95,7 +97,9 @@ export type Database = {
           empresa_id: number
           id?: never
           nome: string
+          principal?: boolean
           telefone?: string | null
+          telefone_tipo?: string | null
         }
         Update: {
           cargo?: string | null
@@ -104,7 +108,9 @@ export type Database = {
           empresa_id?: number
           id?: never
           nome?: string
+          principal?: boolean
           telefone?: string | null
+          telefone_tipo?: string | null
         }
         Relationships: [
           {

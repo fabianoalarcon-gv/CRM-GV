@@ -18,3 +18,12 @@ export const ORIGEM_LEAD_OPTIONS = [
 export const ORIGEM_LEAD_LABEL: Record<string, string> = Object.fromEntries(
   ORIGEM_LEAD_OPTIONS.map((o) => [o.value, o.label]),
 );
+
+export const TELEFONE_TIPO_OPTIONS = [
+  { value: "celular", label: "Celular" },
+  { value: "fixo", label: "Fixo" },
+];
+
+export const TELEFONE_TIPO_LABEL: Record<string, string> = Object.fromEntries(
+  TELEFONE_TIPO_OPTIONS.map((o) => [o.value, o.label]),
+);

@@ -82,6 +82,8 @@ export async function addContato(empresaId: number, input: ContatoInput) {
     cargo: input.cargo.trim() || null,
     email: input.email.trim() || null,
     telefone: input.telefone.trim() || null,
+    telefone_tipo: input.telefone_tipo.trim() || null,
+    principal: input.principal,
   });
 
   if (error) return { error: error.message };
