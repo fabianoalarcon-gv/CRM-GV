@@ -16,9 +16,9 @@ export default async function EmpresasPage() {
           <h1 className="mt-1 font-display text-2xl font-semibold text-foreground sm:text-3xl">
             Gestão de Empresas
           </h1>
-          <p className="mt-1 text-sm text-brand-graphite-light">
-            Gerencie a base de empresas e parceiros da Granvale Logística ·{" "}
-            {empresas.length} {empresas.length === 1 ? "empresa cadastrada" : "empresas cadastradas"}
+          <p className="mt-1 text-sm font-semibold text-brand-graphite-light">
+            Gerencie sua base de empresas e parceiros · {empresas.length}{" "}
+            {empresas.length === 1 ? "empresa cadastrada" : "empresas cadastradas"}
           </p>
         </div>
         <div className="flex w-full gap-3 md:w-auto">
