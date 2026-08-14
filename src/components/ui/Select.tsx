@@ -11,10 +11,14 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   error?: string;
   options: SelectOption[];
   placeholder?: string;
+  // Em filtros (onde o placeholder representa "sem filtro"), o placeholder
+  // precisa poder ser reselecionado pra limpar o filtro — diferente de um
+  // campo de formulário, onde ele deve continuar desabilitado/obrigatório.
+  placeholderSelectable?: boolean;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, label, error, options, placeholder, id, ...props }, ref) => {
+  ({ className, label, error, options, placeholder, placeholderSelectable, id, ...props }, ref) => {
     const generatedId = useId();
     const selectId = id ?? generatedId;
 
@@ -39,7 +43,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           {...props}
         >
           {placeholder && (
-            <option value="" disabled>
+            <option value="" disabled={!placeholderSelectable}>
               {placeholder}
             </option>
           )}

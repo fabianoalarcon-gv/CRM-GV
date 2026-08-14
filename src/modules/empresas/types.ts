@@ -1,4 +1,5 @@
 import type { CompromissoTipo } from "@/modules/calendario/types";
+import type { Segmento } from "@/modules/pipeline/types";
 
 export interface Empresa {
   id: number;
@@ -19,6 +20,7 @@ export interface Empresa {
 
 export interface EmpresaListItem extends Empresa {
   ultima_proposta: string | null;
+  segmento_recente: Segmento | null;
 }
 
 export interface EmpresaInput {

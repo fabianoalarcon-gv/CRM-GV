@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { CompromissoTipo } from "@/modules/calendario/types";
+import type { Segmento } from "@/modules/pipeline/types";
 import type { AcaoResumo, Empresa, EmpresaListItem, Contato, PropostaResumo } from "./types";
 
 export async function getEmpresas(): Promise<EmpresaListItem[]> {
@@ -7,32 +8,37 @@ export async function getEmpresas(): Promise<EmpresaListItem[]> {
   const { data, error } = await supabase
     .from("empresas")
     .select(
-      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at, criador:profiles!created_by(email), propostas(data_envio)",
+      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at, criador:profiles!created_by(email), propostas(data_envio, segmento)",
     )
     .order("nome");
 
   if (error) throw error;
 
-  return (data ?? []).map((c) => ({
-    id: c.id,
-    nome: c.nome,
-    cnpj: c.cnpj,
-    setor: c.setor,
-    endereco: c.endereco,
-    numero: c.numero,
-    cidade: c.cidade,
-    uf: c.uf,
-    cep: c.cep,
-    origem_lead: c.origem_lead,
-    site: c.site,
-    observacoes: c.observacoes,
-    created_at: c.created_at,
-    criador_email: c.criador?.email ?? null,
-    ultima_proposta:
+  return (data ?? []).map((c) => {
+    const ultimaProposta =
       c.propostas.length > 0
-        ? c.propostas.reduce((max, p) => (p.data_envio > max ? p.data_envio : max), c.propostas[0].data_envio)
-        : null,
-  }));
+        ? c.propostas.reduce((max, p) => (p.data_envio > max.data_envio ? p : max), c.propostas[0])
+        : null;
+
+    return {
+      id: c.id,
+      nome: c.nome,
+      cnpj: c.cnpj,
+      setor: c.setor,
+      endereco: c.endereco,
+      numero: c.numero,
+      cidade: c.cidade,
+      uf: c.uf,
+      cep: c.cep,
+      origem_lead: c.origem_lead,
+      site: c.site,
+      observacoes: c.observacoes,
+      created_at: c.created_at,
+      criador_email: c.criador?.email ?? null,
+      ultima_proposta: ultimaProposta?.data_envio ?? null,
+      segmento_recente: (ultimaProposta?.segmento as Segmento | null) ?? null,
+    };
+  });
 }
 
 export async function getEmpresaById(id: number): Promise<Empresa | null> {

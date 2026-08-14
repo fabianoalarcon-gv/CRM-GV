@@ -8,6 +8,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { useIsAdmin } from "@/lib/auth/context";
+import { SEGMENTO_LABEL, SEGMENTO_OPTIONS } from "@/modules/pipeline/types";
 import { deleteEmpresa, updateEmpresa } from "../actions";
 import { EmpresaForm } from "./EmpresaForm";
 import type { EmpresaListItem } from "../types";
@@ -44,6 +45,7 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
   const isAdmin = useIsAdmin();
   const [search, setSearch] = useState("");
   const [setor, setSetor] = useState("");
+  const [segmento, setSegmento] = useState("");
   const [editing, setEditing] = useState<EmpresaListItem | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -59,9 +61,10 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
     return empresas.filter((c) => {
       const matchesSearch = !query || c.nome.toLowerCase().includes(query);
       const matchesSetor = !setor || c.setor === setor;
-      return matchesSearch && matchesSetor;
+      const matchesSegmento = !segmento || c.segmento_recente === segmento;
+      return matchesSearch && matchesSetor && matchesSegmento;
     });
-  }, [empresas, search, setor]);
+  }, [empresas, search, setor, segmento]);
 
   async function handleDelete(id: number) {
     setIsDeleting(true);
@@ -92,6 +95,15 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
             onChange={(e) => setSetor(e.target.value)}
             options={setores.map((s) => ({ value: s, label: s }))}
             placeholder="Todos os setores"
+            placeholderSelectable
+            className="lg:w-56"
+          />
+          <Select
+            value={segmento}
+            onChange={(e) => setSegmento(e.target.value)}
+            options={SEGMENTO_OPTIONS}
+            placeholder="Todos os segmentos"
+            placeholderSelectable
             className="lg:w-56"
           />
         </div>
@@ -101,17 +113,33 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
         <Table className="border-collapse">
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/3">Empresa</TableHead>
-              <TableHead>Endereço</TableHead>
-              <TableHead>Última proposta</TableHead>
-              <TableHead>Cadastrado em</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead className="w-1/3">
+                <span className="font-semibold text-foreground">Empresa</span>
+              </TableHead>
+              <TableHead>
+                <span className="font-semibold text-foreground">Segmento</span>
+              </TableHead>
+              <TableHead>
+                <span className="font-semibold text-foreground">Setor</span>
+              </TableHead>
+              <TableHead>
+                <span className="font-semibold text-foreground">Endereço</span>
+              </TableHead>
+              <TableHead>
+                <span className="font-semibold text-foreground">Última proposta</span>
+              </TableHead>
+              <TableHead>
+                <span className="font-semibold text-foreground">Cadastro</span>
+              </TableHead>
+              <TableHead className="text-right">
+                <span className="font-semibold text-foreground">Ações</span>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="py-8 text-center text-brand-graphite-light">
+                <TableCell colSpan={7} className="py-8 text-center text-brand-graphite-light">
                   Nenhuma empresa encontrada.
                 </TableCell>
               </TableRow>
@@ -126,14 +154,13 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
                     >
                       {initials(empresa.nome)}
                     </div>
-                    <div>
-                      <p className="font-medium text-foreground">{empresa.nome}</p>
-                      {empresa.setor && (
-                        <p className="text-xs text-brand-graphite-light">{empresa.setor}</p>
-                      )}
-                    </div>
+                    <p className="font-medium text-foreground">{empresa.nome}</p>
                   </div>
                 </TableCell>
+                <TableCell className="text-brand-graphite-light">
+                  {empresa.segmento_recente ? SEGMENTO_LABEL[empresa.segmento_recente] : "—"}
+                </TableCell>
+                <TableCell className="text-brand-graphite-light">{empresa.setor ?? "—"}</TableCell>
                 <TableCell className="text-brand-graphite-light">{empresa.endereco ?? "—"}</TableCell>
                 <TableCell className="font-mono text-xs text-brand-graphite-light">
                   {empresa.ultima_proposta
