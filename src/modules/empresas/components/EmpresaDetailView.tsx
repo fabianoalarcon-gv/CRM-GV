@@ -11,11 +11,12 @@ import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { useIsAdmin } from "@/lib/auth/context";
+import { TIPO_COLOR, TIPO_LABEL } from "@/modules/calendario/utils";
 import { SEGMENTO_LABEL, type Segmento } from "@/modules/pipeline/types";
 import { addContato, deleteContato, deleteEmpresa, updateContato, updateEmpresa } from "../actions";
 import { ORIGEM_LEAD_LABEL, TELEFONE_TIPO_LABEL, TELEFONE_TIPO_OPTIONS } from "../constants";
 import { EmpresaForm } from "./EmpresaForm";
-import type { Empresa, Contato, ContatoInput, Interacao, PropostaResumo } from "../types";
+import type { AcaoResumo, Empresa, Contato, ContatoInput, PropostaResumo } from "../types";
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
@@ -36,14 +37,6 @@ const EMPTY_CONTATO: ContatoInput = {
   principal: false,
 };
 
-const TIPO_INTERACAO_LABEL: Record<string, string> = {
-  reuniao: "Reunião",
-  ligacao: "Ligação",
-  email: "E-mail",
-  follow_up: "Follow-up",
-  outro: "Outro",
-};
-
 function formatEndereco(empresa: Empresa): string {
   const linha1 = [empresa.endereco, empresa.numero].filter(Boolean).join(", ");
   const linha2 = [empresa.cidade, empresa.uf].filter(Boolean).join(" - ");
@@ -54,14 +47,14 @@ export interface EmpresaDetailViewProps {
   empresa: Empresa;
   initialContatos: Contato[];
   propostas: PropostaResumo[];
-  initialInteracoes: Interacao[];
+  acoes: AcaoResumo[];
 }
 
 export function EmpresaDetailView({
   empresa,
   initialContatos,
   propostas,
-  initialInteracoes,
+  acoes,
 }: EmpresaDetailViewProps) {
   const router = useRouter();
   const isAdmin = useIsAdmin();
@@ -81,8 +74,6 @@ export function EmpresaDetailView({
   const [deletingContatoId, setDeletingContatoId] = useState<number | null>(null);
   const [isDeletingContato, setIsDeletingContato] = useState(false);
   const [deleteContatoError, setDeleteContatoError] = useState<string | null>(null);
-
-  const [interacoes] = useState(initialInteracoes);
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -380,29 +371,44 @@ export function EmpresaDetailView({
 
         <Card>
           <CardContent className="flex flex-col gap-4 p-5">
-            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-              Interações
-            </p>
+            <p className="mt-3 text-lg font-semibold text-foreground">Interações</p>
 
             <div className="flex max-h-[420px] flex-col gap-3 overflow-y-auto pr-1">
-              {interacoes.length === 0 && (
+              {acoes.length === 0 && (
                 <p className="text-sm text-brand-graphite-light">
                   Nenhuma interação registrada ainda.
                 </p>
               )}
-              {interacoes.map((interacao) => (
-                <div key={interacao.id} className="rounded-lg bg-black/[.02] p-2.5 text-sm">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-foreground">
-                      {interacao.tipo ? (TIPO_INTERACAO_LABEL[interacao.tipo] ?? interacao.tipo) : "—"}
-                    </span>
-                    <span className="text-xs text-brand-graphite-light">
-                      {dateTimeFormatter.format(new Date(interacao.data_interacao))}
-                    </span>
+              {acoes.map((acao) => (
+                <div key={acao.id} className="rounded-lg border border-border bg-black/[.02] p-3 text-sm">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex flex-col gap-1.5">
+                      {acao.tipo && (
+                        <span
+                          className="inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: `color-mix(in srgb, ${TIPO_COLOR[acao.tipo]} 15%, transparent)`,
+                            color: TIPO_COLOR[acao.tipo],
+                          }}
+                        >
+                          <span
+                            aria-hidden
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ backgroundColor: TIPO_COLOR[acao.tipo] }}
+                          />
+                          {TIPO_LABEL[acao.tipo]}
+                        </span>
+                      )}
+                      <p className="font-medium text-foreground">{acao.titulo}</p>
+                    </div>
+                    <div className="shrink-0 text-right text-xs text-brand-graphite-light">
+                      <p>Início: {dateTimeFormatter.format(new Date(acao.inicio))}</p>
+                      {acao.fim && <p>Fim: {dateTimeFormatter.format(new Date(acao.fim))}</p>}
+                    </div>
                   </div>
-                  <p className="mt-1 text-foreground">{interacao.descricao}</p>
-                  {interacao.autor_nome && (
-                    <p className="mt-1 text-xs text-brand-graphite-light">{interacao.autor_nome}</p>
+                  {acao.descricao && <p className="mt-2 text-foreground">{acao.descricao}</p>}
+                  {acao.criador_email && (
+                    <p className="mt-1 text-xs text-brand-graphite-light">{acao.criador_email}</p>
                   )}
                 </div>
               ))}

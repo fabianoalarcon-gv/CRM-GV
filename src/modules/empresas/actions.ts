@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { EmpresaInput, ContatoInput, InteracaoInput } from "./types";
+import type { EmpresaInput, ContatoInput } from "./types";
 
 function toRow(input: EmpresaInput) {
   return {
@@ -115,27 +115,6 @@ export async function updateContato(contatoId: number, empresaId: number, input:
 export async function deleteContato(contatoId: number, empresaId: number) {
   const supabase = await createClient();
   const { error } = await supabase.from("contatos_empresa").delete().eq("id", contatoId);
-
-  if (error) return { error: error.message };
-
-  revalidatePath(`/empresas/${empresaId}`);
-  return { error: null };
-}
-
-export async function addInteracao(empresaId: number, input: InteracaoInput) {
-  if (!input.descricao.trim()) return { error: "Descreva a interação." };
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { error } = await supabase.from("interacoes_empresa").insert({
-    empresa_id: empresaId,
-    autor_id: user?.id ?? null,
-    tipo: input.tipo || null,
-    descricao: input.descricao.trim(),
-  });
 
   if (error) return { error: error.message };
 

@@ -3,7 +3,7 @@ import { EmpresaDetailView } from "@/modules/empresas/components/EmpresaDetailVi
 import {
   getEmpresaById,
   getContatosByEmpresa,
-  getInteracoesByEmpresa,
+  getAcoesByEmpresa,
   getPropostasByEmpresa,
 } from "@/modules/empresas/queries";
 
@@ -19,10 +19,10 @@ export default async function EmpresaDetailPage({
   const empresa = await getEmpresaById(empresaId);
   if (!empresa) notFound();
 
-  const [contatos, propostas, interacoes] = await Promise.all([
+  const [contatos, propostas, acoes] = await Promise.all([
     getContatosByEmpresa(empresaId),
     getPropostasByEmpresa(empresaId),
-    getInteracoesByEmpresa(empresaId),
+    getAcoesByEmpresa(empresaId),
   ]);
 
   return (
@@ -30,7 +30,7 @@ export default async function EmpresaDetailPage({
       empresa={empresa}
       initialContatos={contatos}
       propostas={propostas}
-      initialInteracoes={interacoes}
+      acoes={acoes}
     />
   );
 }

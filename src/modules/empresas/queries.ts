@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Empresa, EmpresaListItem, Contato, Interacao, PropostaResumo } from "./types";
+import type { CompromissoTipo } from "@/modules/calendario/types";
+import type { AcaoResumo, Empresa, EmpresaListItem, Contato, PropostaResumo } from "./types";
 
 export async function getEmpresas(): Promise<EmpresaListItem[]> {
   const supabase = await createClient();
@@ -84,22 +85,23 @@ export async function getPropostasByEmpresa(empresaId: number): Promise<Proposta
   }));
 }
 
-export async function getInteracoesByEmpresa(empresaId: number): Promise<Interacao[]> {
+export async function getAcoesByEmpresa(empresaId: number): Promise<AcaoResumo[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
-    .from("interacoes_empresa")
-    .select("id, empresa_id, tipo, descricao, data_interacao, autor:profiles(full_name)")
+    .from("compromissos")
+    .select("id, titulo, descricao, inicio, fim, tipo, criado_por:profiles(email)")
     .eq("empresa_id", empresaId)
-    .order("data_interacao", { ascending: false });
+    .order("inicio", { ascending: false });
 
   if (error) throw error;
 
-  return (data ?? []).map((i) => ({
-    id: i.id,
-    empresa_id: i.empresa_id,
-    tipo: i.tipo,
-    descricao: i.descricao,
-    data_interacao: i.data_interacao,
-    autor_nome: i.autor?.full_name ?? null,
+  return (data ?? []).map((c) => ({
+    id: c.id,
+    titulo: c.titulo,
+    descricao: c.descricao,
+    inicio: c.inicio,
+    fim: c.fim,
+    tipo: c.tipo as CompromissoTipo | null,
+    criador_email: c.criado_por?.email ?? null,
   }));
 }

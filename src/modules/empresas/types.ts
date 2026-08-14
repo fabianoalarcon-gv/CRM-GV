@@ -1,3 +1,5 @@
+import type { CompromissoTipo } from "@/modules/calendario/types";
+
 export interface Empresa {
   id: number;
   nome: string;
@@ -65,16 +67,12 @@ export interface PropostaResumo {
   updated_at: string;
 }
 
-export interface Interacao {
+export interface AcaoResumo {
   id: number;
-  empresa_id: number;
-  tipo: string | null;
-  descricao: string;
-  data_interacao: string;
-  autor_nome: string | null;
-}
-
-export interface InteracaoInput {
-  tipo: string;
-  descricao: string;
+  titulo: string;
+  descricao: string | null;
+  inicio: string;
+  fim: string | null;
+  tipo: CompromissoTipo | null;
+  criador_email: string | null;
 }
