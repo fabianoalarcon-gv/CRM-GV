@@ -413,9 +413,7 @@ export function EmpresaDetailView({
 
       <Card>
         <CardContent className="flex flex-col gap-3 p-5">
-          <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
-            Propostas vinculadas
-          </p>
+          <p className="mt-3 text-lg font-semibold text-foreground">Propostas Vinculadas</p>
 
           {propostas.length === 0 ? (
             <p className="text-sm text-brand-graphite-light">
@@ -426,13 +424,27 @@ export function EmpresaDetailView({
               <Table>
                 <TableHeader className="sticky top-0 z-10">
                   <TableRow>
-                    <TableHead>Número Lead/Proposta</TableHead>
-                    <TableHead>Segmento</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Termômetro</TableHead>
-                    <TableHead>Data Criação</TableHead>
-                    <TableHead>Última Atualização</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead>
+                      <span className="font-semibold text-foreground">Lead/Proposta</span>
+                    </TableHead>
+                    <TableHead>
+                      <span className="font-semibold text-foreground">Segmento</span>
+                    </TableHead>
+                    <TableHead>
+                      <span className="font-semibold text-foreground">Status</span>
+                    </TableHead>
+                    <TableHead>
+                      <span className="font-semibold text-foreground">Termômetro</span>
+                    </TableHead>
+                    <TableHead>
+                      <span className="font-semibold text-foreground">Data Criação</span>
+                    </TableHead>
+                    <TableHead>
+                      <span className="font-semibold text-foreground">Última Atualização</span>
+                    </TableHead>
+                    <TableHead className="text-right">
+                      <span className="font-semibold text-foreground">Valor</span>
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -441,12 +453,12 @@ export function EmpresaDetailView({
                       <TableCell className="font-mono text-xs text-brand-graphite-light">
                         {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
                       </TableCell>
-                      <TableCell className="text-foreground">
+                      <TableCell className="text-brand-graphite-light">
                         {proposta.segmento
                           ? (SEGMENTO_LABEL[proposta.segmento as Segmento] ?? proposta.segmento)
                           : "—"}
                       </TableCell>
-                      <TableCell className="text-foreground">{proposta.status_label}</TableCell>
+                      <TableCell className="text-brand-graphite-light">{proposta.status_label}</TableCell>
                       <TableCell>
                         <Badge variant={proposta.termometro}>
                           {TERMOMETRO_LABEL[proposta.termometro]}
@@ -458,7 +470,7 @@ export function EmpresaDetailView({
                       <TableCell className="text-brand-graphite-light">
                         {dateFormatter.format(new Date(proposta.updated_at))}
                       </TableCell>
-                      <TableCell className="text-right font-mono font-semibold text-foreground">
+                      <TableCell className="text-right font-mono text-brand-graphite-light">
                         {proposta.valor != null ? currencyFormatter.format(proposta.valor) : "—"}
                       </TableCell>
                     </TableRow>
