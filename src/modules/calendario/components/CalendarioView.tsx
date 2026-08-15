@@ -193,7 +193,7 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
         />
       )}
       {viewMode === "semana" && (
-        <>
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
           <HourGrid
             days={weekDays}
             compromissosOn={compromissosOn}
@@ -201,10 +201,10 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
             onCreate={openCreateFor}
           />
           <Legend />
-        </>
+        </div>
       )}
       {viewMode === "dia" && (
-        <>
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
           <HourGrid
             days={[currentDate]}
             compromissosOn={compromissosOn}
@@ -212,7 +212,7 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
             onCreate={openCreateFor}
           />
           <Legend />
-        </>
+        </div>
       )}
 
       <Modal
@@ -408,13 +408,17 @@ function HourGrid({ days, compromissosOn, onSelect, onCreate }: HourGridProps) {
   }, [days]);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-surface">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface">
       {/* Cabeçalho e grade dentro do mesmo container de scroll (cabeçalho
           fixo via sticky) — assim as colunas usam exatamente a mesma largura
           disponível dos dois lados; um cabeçalho fora do scroll fica
           ligeiramente mais largo que a grade por causa do espaço reservado
-          pra barra de rolagem, desalinhando as colunas. */}
-      <div ref={scrollRef} className="overflow-y-auto" style={{ maxHeight: 560 }}>
+          pra barra de rolagem, desalinhando as colunas.
+          A altura é o espaço restante da tela (flex-1), não um valor fixo —
+          assim essa é a única barra de rolagem da página: ela sempre chega
+          até o fim (23h) porque nunca sobra conteúdo pra "vazar" pra um
+          scroll da página inteira por cima dela. */}
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
         {days.length > 1 && (
           <div className="sticky top-0 z-30 flex border-b border-border bg-surface">
             <div className="w-14 shrink-0 border-r border-border" />
