@@ -399,143 +399,136 @@ function getEventPosition(compromisso: Compromisso): { top: number; height: numb
 function HourGrid({ days, compromissosOn, onSelect, onCreate }: HourGridProps) {
   const now = new Date();
   const gridHeight = (GRID_END_HOUR - GRID_START_HOUR) * HOUR_HEIGHT;
-  const headerRef = useRef<HTMLDivElement>(null);
-  const defaultHourRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Sem scroll interno próprio: a grade renderiza as 24h inteiras e quem rola
-  // é a página (como o resto do app) — evita a caixinha de scroll aninhada
-  // que fazia parecer que a semana "cortava" depois de um certo horário. Ao
-  // trocar de dia/semana, só rola até o horário comercial em vez de abrir em
-  // 00:00 — compensando a altura do cabeçalho fixo (scroll-margin-top) pra
-  // ele não ficar escondido atrás do cabeçalho ao parar a rolagem.
+  // Abre a grade já no horário comercial em vez de 00:00 — as 24h continuam
+  // acessíveis rolando pra cima/baixo.
   useEffect(() => {
-    const el = defaultHourRef.current;
-    if (!el) return;
-    el.style.scrollMarginTop = `${headerRef.current?.offsetHeight ?? 0}px`;
-    el.scrollIntoView({ block: "start" });
+    scrollRef.current?.scrollTo({ top: (DEFAULT_SCROLL_HOUR - GRID_START_HOUR) * HOUR_HEIGHT });
   }, [days]);
 
   return (
-    <div className="rounded-lg border border-border bg-surface">
-      {/* Cabeçalho e grade no mesmo fluxo (cabeçalho fixo via sticky, relativo
-          à rolagem da página) — assim as colunas usam exatamente a mesma
-          largura disponível dos dois lados; um cabeçalho fora desse fluxo
-          fica ligeiramente mais largo que a grade por causa do espaço
-          reservado pra barra de rolagem, desalinhando as colunas. */}
-      {days.length > 1 && (
-        <div ref={headerRef} className="sticky top-0 z-30 flex rounded-t-lg border-b border-border bg-surface">
-          <div className="w-14 shrink-0 border-r border-border" />
-          {days.map((day) => {
-            const isToday = isSameDay(day, now);
-            return (
-              <div
-                key={day.toISOString()}
-                className={cn(
-                  "flex-1 border-l border-border py-2 text-center",
-                  isToday && "bg-brand-accent/5",
-                )}
-              >
-                <p
-                  className={cn(
-                    "text-[11px] font-medium tracking-wide uppercase",
-                    isToday ? "text-brand-accent" : "text-brand-graphite-light",
-                  )}
-                >
-                  {weekDayShortFormatter.format(day)}
-                </p>
-                <p
-                  className={cn(
-                    "mt-0.5 text-sm font-semibold",
-                    isToday ? "text-brand-accent" : "text-foreground",
-                  )}
-                >
-                  {day.getDate()}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="flex">
-        <div className="w-14 shrink-0 border-r border-border">
-          {HOURS.map((h) => (
-            <div
-              key={h}
-              ref={h === DEFAULT_SCROLL_HOUR ? defaultHourRef : undefined}
-              style={{ height: HOUR_HEIGHT }}
-              className="border-b border-border/60 pt-1 pr-2 text-right font-mono text-[11px] text-brand-graphite-light"
-            >
-              {String(h).padStart(2, "0")}:00
-            </div>
-          ))}
-        </div>
-
-        {days.map((day) => {
-          const items = compromissosOn(day);
-          const placements = layoutColumns(items);
-          const isToday = isSameDay(day, now);
-          const nowOffset = isToday
-            ? (now.getHours() + now.getMinutes() / 60 - GRID_START_HOUR) * HOUR_HEIGHT
-            : null;
-
-          return (
-            <div
-              key={day.toISOString()}
-              role="button"
-              tabIndex={0}
-              onClick={() => onCreate(day)}
-              className="relative flex-1 border-l border-border"
-              style={{ height: gridHeight }}
-            >
-              {HOURS.map((h) => (
-                <div key={h} style={{ height: HOUR_HEIGHT }} className="border-b border-border/60" />
-              ))}
-
-              {nowOffset !== null && nowOffset >= 0 && nowOffset <= gridHeight && (
+    <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      {/* Cabeçalho e grade dentro do mesmo container de scroll (cabeçalho
+          fixo via sticky) — assim as colunas usam exatamente a mesma largura
+          disponível dos dois lados; um cabeçalho fora do scroll fica
+          ligeiramente mais largo que a grade por causa do espaço reservado
+          pra barra de rolagem, desalinhando as colunas. */}
+      <div ref={scrollRef} className="overflow-y-auto" style={{ maxHeight: 560 }}>
+        {days.length > 1 && (
+          <div className="sticky top-0 z-30 flex border-b border-border bg-surface">
+            <div className="w-14 shrink-0 border-r border-border" />
+            {days.map((day) => {
+              const isToday = isSameDay(day, now);
+              return (
                 <div
-                  aria-hidden
-                  className="absolute right-0 left-0 z-20 h-px bg-temp-quente"
-                  style={{ top: nowOffset }}
+                  key={day.toISOString()}
+                  className={cn(
+                    "flex-1 border-l border-border py-2 text-center",
+                    isToday && "bg-brand-accent/5",
+                  )}
                 >
-                  <div className="absolute -top-1 -left-1 h-2 w-2 rounded-full bg-temp-quente" />
-                </div>
-              )}
-
-              {placements.map(({ item, col, cols }) => {
-                const { top, height } = getEventPosition(item);
-                const color = tipoColor(item);
-                const widthPct = 100 / cols;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelect(item);
-                    }}
-                    className="absolute z-10 overflow-hidden rounded-md border-l-[3px] p-1.5 text-left shadow-sm transition-shadow hover:shadow-md"
-                    style={{
-                      top,
-                      height,
-                      left: `calc(${col * widthPct}% + 2px)`,
-                      width: `calc(${widthPct}% - 4px)`,
-                      backgroundColor: `color-mix(in srgb, ${color} 12%, white)`,
-                      borderLeftColor: color,
-                    }}
+                  <p
+                    className={cn(
+                      "text-[11px] font-medium tracking-wide uppercase",
+                      isToday ? "text-brand-accent" : "text-brand-graphite-light",
+                    )}
                   >
-                    <p className="truncate text-[11px] font-semibold text-foreground">{item.titulo}</p>
-                    <p className="truncate text-[10px] text-brand-graphite-light">
-                      {timeFormatter.format(new Date(item.inicio))}
-                      {item.tipo && ` · ${TIPO_LABEL[item.tipo]}`}
-                    </p>
-                  </button>
-                );
-              })}
-            </div>
-          );
-        })}
+                    {weekDayShortFormatter.format(day)}
+                  </p>
+                  <p
+                    className={cn(
+                      "mt-0.5 text-sm font-semibold",
+                      isToday ? "text-brand-accent" : "text-foreground",
+                    )}
+                  >
+                    {day.getDate()}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="flex">
+          <div className="w-14 shrink-0 border-r border-border">
+            {HOURS.map((h) => (
+              <div
+                key={h}
+                style={{ height: HOUR_HEIGHT }}
+                className="border-b border-border/60 pt-1 pr-2 text-right font-mono text-[11px] text-brand-graphite-light"
+              >
+                {String(h).padStart(2, "0")}:00
+              </div>
+            ))}
+          </div>
+
+          {days.map((day) => {
+            const items = compromissosOn(day);
+              const placements = layoutColumns(items);
+              const isToday = isSameDay(day, now);
+              const nowOffset = isToday
+                ? (now.getHours() + now.getMinutes() / 60 - GRID_START_HOUR) * HOUR_HEIGHT
+                : null;
+
+              return (
+                <div
+                  key={day.toISOString()}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => onCreate(day)}
+                  className="relative flex-1 border-l border-border"
+                  style={{ height: gridHeight }}
+                >
+                  {HOURS.map((h) => (
+                    <div key={h} style={{ height: HOUR_HEIGHT }} className="border-b border-border/60" />
+                  ))}
+
+                  {nowOffset !== null && nowOffset >= 0 && nowOffset <= gridHeight && (
+                    <div
+                      aria-hidden
+                      className="absolute right-0 left-0 z-20 h-px bg-temp-quente"
+                      style={{ top: nowOffset }}
+                    >
+                      <div className="absolute -top-1 -left-1 h-2 w-2 rounded-full bg-temp-quente" />
+                    </div>
+                  )}
+
+                  {placements.map(({ item, col, cols }) => {
+                    const { top, height } = getEventPosition(item);
+                    const color = tipoColor(item);
+                    const widthPct = 100 / cols;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelect(item);
+                        }}
+                        className="absolute z-10 overflow-hidden rounded-md border-l-[3px] p-1.5 text-left shadow-sm transition-shadow hover:shadow-md"
+                        style={{
+                          top,
+                          height,
+                          left: `calc(${col * widthPct}% + 2px)`,
+                          width: `calc(${widthPct}% - 4px)`,
+                          backgroundColor: `color-mix(in srgb, ${color} 12%, white)`,
+                          borderLeftColor: color,
+                        }}
+                      >
+                        <p className="truncate text-[11px] font-semibold text-foreground">{item.titulo}</p>
+                        <p className="truncate text-[10px] text-brand-graphite-light">
+                          {timeFormatter.format(new Date(item.inicio))}
+                          {item.tipo && ` · ${TIPO_LABEL[item.tipo]}`}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
-    </div>
   );
 }
