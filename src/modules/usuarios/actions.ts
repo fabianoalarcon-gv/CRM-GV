@@ -71,3 +71,16 @@ export async function updateUsuario(id: string, input: UpdateUsuarioInput) {
   revalidatePath("/usuarios");
   return { error: null };
 }
+
+export async function deleteUsuario(id: string) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.deleteUser(id);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/usuarios");
+  return { error: null };
+}
