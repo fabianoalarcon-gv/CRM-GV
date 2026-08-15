@@ -16,8 +16,10 @@ export const TIPO_OPTIONS: { value: CompromissoTipo; label: string }[] = [
   { value: "follow_up", label: "Follow-Up" },
 ];
 
-// Categorias de Ação (LEAD/pipeline): subconjunto fixo de TIPO_OPTIONS — só
-// as categorias relevantes para uma ação de empresa aparecem no formulário.
+// Categorias atualmente em uso — as demais (fretes, urgente, embarque) só
+// existem em compromissos antigos e continuam sendo exibidas corretamente
+// (TIPO_LABEL/TIPO_COLOR cobrem todo CompromissoTipo), mas não aparecem mais
+// pra seleção em formulários novos nem na legenda do Calendário.
 export const ACAO_TIPO_OPTIONS: { value: CompromissoTipo; label: string }[] = [
   { value: "reuniao", label: "Reunião" },
   { value: "ligacao", label: "Ligação" },

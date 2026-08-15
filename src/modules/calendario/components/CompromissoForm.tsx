@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import type { EmpresaOption, CompromissoInput } from "../types";
-import { TIPO_OPTIONS } from "../utils";
+import { ACAO_TIPO_OPTIONS } from "../utils";
 
 export interface CompromissoFormProps {
   initialValues: CompromissoInput;
@@ -79,7 +79,7 @@ export function CompromissoForm({
           label="Categoria"
           value={values.tipo}
           onChange={(e) => update("tipo", e.target.value as CompromissoInput["tipo"])}
-          options={TIPO_OPTIONS}
+          options={ACAO_TIPO_OPTIONS}
         />
         <Select
           label="Empresa"

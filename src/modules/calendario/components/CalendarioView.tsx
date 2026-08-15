@@ -8,9 +8,9 @@ import { cn } from "@/lib/cn";
 import { createCompromisso } from "../actions";
 import type { EmpresaOption, Compromisso, CompromissoInput } from "../types";
 import {
+  ACAO_TIPO_OPTIONS,
   TIPO_COLOR,
   TIPO_LABEL,
-  TIPO_OPTIONS,
   addDays,
   addMonths,
   getMonthGrid,
@@ -255,7 +255,7 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
 function Legend() {
   return (
     <div className="flex flex-wrap items-center gap-4 px-1">
-      {TIPO_OPTIONS.map((option) => (
+      {ACAO_TIPO_OPTIONS.map((option) => (
         <div key={option.value} className="flex items-center gap-1.5">
           <span
             aria-hidden
