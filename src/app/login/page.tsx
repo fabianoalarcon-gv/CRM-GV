@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect, useState, type SubmitEvent } from "react";
+import { useEffect, useState, type FormEvent, type SubmitEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
 import { Logo } from "@/components/brand/Logo";
+import { completePasswordSetup } from "@/lib/auth/actions";
+import { PASSWORD_RULES, passwordMeetsAllRules } from "@/lib/auth/passwordRules";
+import { cn } from "@/lib/cn";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -26,13 +31,40 @@ export default function LoginPage() {
     else if (params.has("inativo")) setError("Sua conta foi desativada. Contate um administrador.");
   }, []);
 
+  useEffect(() => {
+    // O middleware prende quem tem senha provisória pendente em /login (pra
+    // não deixar navegar pro resto do sistema sem trocar) — se a sessão já
+    // existir aqui (refresh da página, ou o middleware acabou de trazer o
+    // usuário de volta pra cá), mostra o modal direto, sem exigir reenviar
+    // e-mail/senha no formulário.
+    async function checkPendingPasswordSetup() {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("must_change_password")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profile?.must_change_password) setNeedsPasswordSetup(true);
+    }
+    checkPendingPasswordSetup();
+  }, []);
+
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
     const supabase = createClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
     setIsSubmitting(false);
 
@@ -43,6 +75,17 @@ export default function LoginPage() {
           ? "E-mail ou senha inválidos."
           : `Erro ao entrar: ${signInError.message}`,
       );
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("must_change_password")
+      .eq("id", signInData.user.id)
+      .maybeSingle();
+
+    if (profile?.must_change_password) {
+      setNeedsPasswordSetup(true);
       return;
     }
 
@@ -170,6 +213,98 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
+
+      {needsPasswordSetup && (
+        <PasswordSetupModal
+          onComplete={() => {
+            router.push("/");
+            router.refresh();
+          }}
+        />
+      )}
     </div>
+  );
+}
+
+function PasswordSetupModal({ onComplete }: { onComplete: () => void }) {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+
+    if (!passwordMeetsAllRules(password)) {
+      setError("A senha não atende a todas as regras exigidas.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("As senhas não coincidem.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    const result = await completePasswordSetup(password);
+    setIsSubmitting(false);
+
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
+
+    onComplete();
+  }
+
+  return (
+    // onClose vazio: essa troca é obrigatória antes de entrar no sistema,
+    // não dá pra fechar clicando fora ou com Esc.
+    <Modal isOpen onClose={() => {}} title="Defina sua nova senha" className="max-w-sm">
+      <p className="-mt-2 mb-4 text-sm text-brand-graphite-light">Insira sua nova senha de acesso.</p>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <Input
+          label="Nova senha"
+          type="password"
+          autoComplete="new-password"
+          required
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+        <Input
+          label="Confirmar nova senha"
+          type="password"
+          autoComplete="new-password"
+          required
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+        />
+
+        <ul className="flex flex-col gap-1">
+          {PASSWORD_RULES.map((rule) => {
+            const met = rule.test(password);
+            return (
+              <li
+                key={rule.id}
+                className={cn(
+                  "flex items-center gap-1.5 text-sm transition-colors",
+                  met ? "text-status-aprovado" : "text-brand-graphite-light",
+                )}
+              >
+                <Icon name={met ? "check_circle" : "radio_button_unchecked"} size={16} />
+                {rule.label}
+              </li>
+            );
+          })}
+        </ul>
+
+        {error && <p className="text-sm text-temp-quente">{error}</p>}
+
+        <Button type="submit" disabled={isSubmitting} className="mt-2">
+          {isSubmitting ? "Salvando…" : "Salvar nova senha"}
+        </Button>
+      </form>
+    </Modal>
   );
 }

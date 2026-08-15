@@ -33,21 +33,30 @@ export async function inviteUsuario(input: InviteUsuarioInput) {
   const fullName = input.full_name.trim();
   if (!email) return { error: "Informe o e-mail." };
   if (!fullName) return { error: "Informe o nome." };
+  if (input.password.length < 6) return { error: "A senha precisa ter pelo menos 6 caracteres." };
 
   const admin = createAdminClient();
-  const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-    data: { full_name: fullName },
+  // Cadastro direto com senha provisória — sem envio de e-mail de convite,
+  // já que o sistema não tem um serviço de e-mail configurado hoje. O
+  // usuário é forçado a trocar essa senha no primeiro login (ver
+  // must_change_password e src/app/login/page.tsx).
+  const { data, error } = await admin.auth.admin.createUser({
+    email,
+    password: input.password,
+    email_confirm: true,
+    user_metadata: { full_name: fullName },
   });
 
   if (error) return { error: error.message };
 
-  if (input.role !== "comercial") {
-    const { error: roleError } = await admin
-      .from("profiles")
-      .update({ role: input.role })
-      .eq("id", data.user.id);
-    if (roleError) return { error: roleError.message };
-  }
+  const { error: profileError } = await admin
+    .from("profiles")
+    .update({
+      must_change_password: true,
+      ...(input.role !== "comercial" ? { role: input.role } : {}),
+    })
+    .eq("id", data.user.id);
+  if (profileError) return { error: profileError.message };
 
   revalidatePath("/usuarios");
   return { error: null };

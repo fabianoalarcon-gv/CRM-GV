@@ -14,7 +14,7 @@ const ROLE_OPTIONS = [
   { value: "admin", label: "Admin" },
 ];
 
-const EMPTY_VALUES: InviteUsuarioInput = { email: "", full_name: "", role: "comercial" };
+const EMPTY_VALUES: InviteUsuarioInput = { email: "", full_name: "", role: "comercial", password: "" };
 
 export function InviteUsuarioButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -69,8 +69,18 @@ export function InviteUsuarioButton() {
             onChange={(e) => setValues((prev) => ({ ...prev, role: e.target.value as Role }))}
             options={ROLE_OPTIONS}
           />
+          <Input
+            label="Senha"
+            type="password"
+            autoComplete="new-password"
+            required
+            minLength={6}
+            value={values.password}
+            onChange={(e) => setValues((prev) => ({ ...prev, password: e.target.value }))}
+          />
           <p className="text-xs text-brand-graphite-light">
-            Um e-mail de convite será enviado com um link para o usuário definir a própria senha.
+            Essa é uma senha provisória. No primeiro login, o usuário será solicitado a
+            definir uma nova senha antes de acessar o sistema.
           </p>
           {error && <p className="text-sm text-temp-quente">{error}</p>}
           <div className="mt-2 flex justify-end gap-2">
@@ -78,7 +88,7 @@ export function InviteUsuarioButton() {
               Cancelar
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Enviando…" : "Enviar convite"}
+              {isSubmitting ? "Cadastrando…" : "Cadastrar"}
             </Button>
           </div>
         </form>

@@ -13,6 +13,7 @@ export interface InviteUsuarioInput {
   email: string;
   full_name: string;
   role: Role;
+  password: string;
 }
 
 export interface UpdateUsuarioInput {

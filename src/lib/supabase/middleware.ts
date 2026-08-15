@@ -45,16 +45,10 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && pathname === "/login") {
-    const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
-
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("is_active")
+      .select("is_active, must_change_password")
       .eq("id", user.id)
       .maybeSingle();
 
@@ -63,6 +57,25 @@ export async function updateSession(request: NextRequest) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("inativo", "1");
+      return NextResponse.redirect(url);
+    }
+
+    // Com senha provisória pendente, o usuário fica preso em /login (onde o
+    // modal obrigatório de troca aparece) até trocar a senha — sem isso, o
+    // redirect padrão de "autenticado em /login vai pra /" abaixo também
+    // interceptaria a própria requisição da Server Action do modal.
+    if (profile?.must_change_password) {
+      if (pathname !== "/login") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/login";
+        return NextResponse.redirect(url);
+      }
+      return supabaseResponse;
+    }
+
+    if (pathname === "/login") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
       return NextResponse.redirect(url);
     }
   }
