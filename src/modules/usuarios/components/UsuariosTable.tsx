@@ -26,7 +26,13 @@ const ROLE_LABEL: Record<string, string> = {
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 
 function toEditValues(usuario: Usuario): UpdateUsuarioInput {
-  return { full_name: usuario.full_name, role: usuario.role, is_active: usuario.is_active };
+  return {
+    email: usuario.email,
+    full_name: usuario.full_name,
+    role: usuario.role,
+    is_active: usuario.is_active,
+    password: "",
+  };
 }
 
 export interface UsuariosTableProps {
@@ -239,6 +245,13 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
               value={editValues.full_name}
               onChange={(e) => setEditValues((prev) => (prev ? { ...prev, full_name: e.target.value } : prev))}
             />
+            <Input
+              label="E-mail"
+              type="email"
+              required
+              value={editValues.email}
+              onChange={(e) => setEditValues((prev) => (prev ? { ...prev, email: e.target.value } : prev))}
+            />
             <Select
               label="Perfil"
               value={editValues.role}
@@ -247,6 +260,23 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
               }
               options={ROLE_OPTIONS}
             />
+            <div className="flex flex-col gap-1.5">
+              <Input
+                label="Senha"
+                type="password"
+                autoComplete="new-password"
+                minLength={6}
+                placeholder="Deixe em branco para manter a senha atual"
+                value={editValues.password}
+                onChange={(e) =>
+                  setEditValues((prev) => (prev ? { ...prev, password: e.target.value } : prev))
+                }
+              />
+              <p className="text-xs text-brand-graphite-light">
+                Se preenchida, vira uma senha provisória: no próximo login, o usuário será
+                solicitado a definir uma nova senha antes de acessar o sistema.
+              </p>
+            </div>
             <label className="flex items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"

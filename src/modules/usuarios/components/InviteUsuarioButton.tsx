@@ -45,7 +45,7 @@ export function InviteUsuarioButton() {
   return (
     <>
       <Button type="button" onClick={() => setIsOpen(true)}>
-        + Convidar usuário
+        + Novo Usuário
       </Button>
 
       <Modal isOpen={isOpen} onClose={close} title="Convidar usuário" className="max-w-md">

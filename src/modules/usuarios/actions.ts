@@ -67,12 +67,33 @@ export async function updateUsuario(id: string, input: UpdateUsuarioInput) {
   if (guard.error) return { error: guard.error };
 
   const fullName = input.full_name.trim();
+  const email = input.email.trim();
+  const password = input.password.trim();
   if (!fullName) return { error: "Informe o nome." };
+  if (!email) return { error: "Informe o e-mail." };
+  if (password && password.length < 6) {
+    return { error: "A senha precisa ter pelo menos 6 caracteres." };
+  }
 
   const admin = createAdminClient();
+
+  const { error: authError } = await admin.auth.admin.updateUserById(id, {
+    email,
+    email_confirm: true,
+    ...(password ? { password } : {}),
+  });
+  if (authError) return { error: authError.message };
+
+  // Trocar a senha por esse caminho marca ela como provisória de novo — o
+  // usuário é forçado a trocá-la no próximo login, igual ao cadastro inicial.
   const { error } = await admin
     .from("profiles")
-    .update({ full_name: fullName, role: input.role, is_active: input.is_active })
+    .update({
+      full_name: fullName,
+      role: input.role,
+      is_active: input.is_active,
+      ...(password ? { must_change_password: true } : {}),
+    })
     .eq("id", id);
 
   if (error) return { error: error.message };

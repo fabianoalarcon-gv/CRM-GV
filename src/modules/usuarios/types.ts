@@ -17,7 +17,9 @@ export interface InviteUsuarioInput {
 }
 
 export interface UpdateUsuarioInput {
+  email: string;
   full_name: string;
   role: Role;
   is_active: boolean;
+  password: string;
 }
