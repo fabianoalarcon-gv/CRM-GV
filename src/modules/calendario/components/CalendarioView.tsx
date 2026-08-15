@@ -20,6 +20,7 @@ import {
 } from "../utils";
 import { CompromissoDetailModal } from "./CompromissoDetailModal";
 import { CompromissoForm } from "./CompromissoForm";
+import { TodayEventsModal } from "./TodayEventsModal";
 
 type ViewMode = "mes" | "semana" | "dia";
 
@@ -74,6 +75,7 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [selected, setSelected] = useState<Compromisso | null>(null);
   const [createDefaults, setCreateDefaults] = useState<CompromissoInput | null>(null);
+  const [showTodayModal, setShowTodayModal] = useState(false);
 
   const compromissosByDay = useMemo(() => {
     const map = new Map<string, Compromisso[]>();
@@ -97,6 +99,7 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
 
   function goToday() {
     setCurrentDate(new Date());
+    setShowTodayModal(true);
   }
 
   function goPrev() {
@@ -145,7 +148,7 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
           >
             <Icon name="chevron_left" />
           </button>
-          <Button variant="outline" size="sm" onClick={goToday}>
+          <Button variant="secondary" size="sm" onClick={goToday}>
             Hoje
           </Button>
           <button
@@ -235,6 +238,13 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
           onClose={() => setSelected(null)}
         />
       )}
+
+      <TodayEventsModal
+        isOpen={showTodayModal}
+        onClose={() => setShowTodayModal(false)}
+        date={new Date()}
+        compromissos={compromissosOn(new Date())}
+      />
     </div>
   );
 }
