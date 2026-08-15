@@ -185,7 +185,11 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
       </div>
 
       {viewMode === "mes" && (
-        <>
+        // pb extra pra garantir o mesmo respiro abaixo da legenda que existe
+        // nas visões Semana/Dia — sem isso, quando a grade do mês empurra a
+        // página a rolar, o padding inferior do <main> não fica visível
+        // depois do último conteúdo (efeito comum de overflow com scroll).
+        <div className="flex flex-col gap-3 pb-4 sm:pb-6 lg:pb-8">
           <MonthView
             currentDate={currentDate}
             compromissosOn={compromissosOn}
@@ -193,7 +197,7 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
             onCreate={openCreateFor}
           />
           <Legend />
-        </>
+        </div>
       )}
       {viewMode === "semana" && (
         <div className="flex min-h-0 flex-1 flex-col gap-3">
