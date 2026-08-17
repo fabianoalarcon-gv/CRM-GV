@@ -23,8 +23,11 @@ const SLICE_COLORS = [
 ];
 const NEUTRAL_COLOR = { cssVar: "var(--color-brand-route)", hex: "#94a3b8" };
 
+// Só "Sem X" (segmento/serviço não informado) fica em cinza neutro — "Outros"
+// representa serviços de verdade (fora do top N) e entra no rodízio de cores
+// normal, senão ficaria com a mesma cor de "Sem serviço" no mesmo gráfico.
 function isNeutralKey(key: string): boolean {
-  return key === "outros" || key.startsWith("sem_");
+  return key.startsWith("sem_");
 }
 
 function textColorOn(hex: string): string {

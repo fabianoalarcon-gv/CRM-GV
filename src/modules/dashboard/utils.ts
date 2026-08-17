@@ -168,11 +168,15 @@ export interface CategoryBreakdown {
   pct: number;
 }
 
+export function formatCount(count: number): string {
+  const proposta = count === 1 ? "Proposta" : "Propostas";
+  return `${count} ${proposta}`;
+}
+
 // Sem o percentual — ele agora é mostrado direto em cima da cor de cada
 // fatia/faixa do gráfico, não repetido aqui na legenda.
 export function formatBreakdownLegend(count: number, valor: number): string {
-  const proposta = count === 1 ? "Proposta" : "Propostas";
-  return `${count} ${proposta} - ${formatCurrency(valor)}`;
+  return `${formatCount(count)} - ${formatCurrency(valor)}`;
 }
 
 export function computeSegmentoBreakdown(propostas: DashboardProposta[]): CategoryBreakdown[] {
