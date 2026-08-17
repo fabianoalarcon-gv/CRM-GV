@@ -38,7 +38,11 @@ export function KpiCard({
           >
             {value}
           </CardTitle>
-          {caption && <p className="mt-1 text-xs text-brand-graphite-light">{caption}</p>}
+          {caption && (
+            <p className="mt-1 truncate text-xs text-brand-graphite-light" title={caption}>
+              {caption}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
