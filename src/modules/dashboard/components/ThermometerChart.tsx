@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/Card";
+import { Icon } from "@/components/ui/Icon";
 import { formatCount, formatCurrency, type TermometroBreakdown } from "../utils";
 import { CardIcon } from "./CardIcon";
 
@@ -6,13 +7,15 @@ export interface ThermometerChartProps {
   data: TermometroBreakdown[];
 }
 
+// Mesmos ícones do Termômetro do Pipeline (TermometroBadge), pra manter a
+// linguagem visual consistente entre as duas telas.
 const COLOR_BY_TERMOMETRO: Record<
   TermometroBreakdown["termometro"],
-  { cssVar: string; hex: string }
+  { cssVar: string; hex: string; icon: string }
 > = {
-  frio: { cssVar: "var(--color-temp-frio)", hex: "#38bdf8" },
-  morno: { cssVar: "var(--color-temp-morno)", hex: "#facc15" },
-  quente: { cssVar: "var(--color-temp-quente)", hex: "#ef4444" },
+  frio: { cssVar: "var(--color-temp-frio)", hex: "#38bdf8", icon: "ac_unit" },
+  morno: { cssVar: "var(--color-temp-morno)", hex: "#facc15", icon: "wb_sunny" },
+  quente: { cssVar: "var(--color-temp-quente)", hex: "#ef4444", icon: "local_fire_department" },
 };
 
 const TUBE_HEIGHT_PX = 224;
@@ -86,13 +89,15 @@ export function ThermometerChart({ data }: ThermometerChartProps) {
               </div>
             </div>
 
-            <div className="flex w-full min-w-0 flex-col gap-4">
+            <div className="flex min-w-0 flex-col gap-4">
               {data.map((item) => (
                 <div key={item.termometro} className="flex items-start gap-2.5">
                   <span
-                    className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: COLOR_BY_TERMOMETRO[item.termometro].cssVar }}
-                  />
+                    className="mt-0.5 shrink-0"
+                    style={{ color: COLOR_BY_TERMOMETRO[item.termometro].cssVar }}
+                  >
+                    <Icon name={COLOR_BY_TERMOMETRO[item.termometro].icon} size={18} />
+                  </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-foreground">{item.label}</p>
                     <p className="font-mono text-xs text-brand-graphite-light">
