@@ -25,7 +25,7 @@ export function KpiCard({
 }: KpiCardProps) {
   return (
     <Card className={cn("h-full", borderClassName)}>
-      <CardContent className="flex h-full items-center justify-center gap-3 px-4 pt-6 pb-4">
+      <CardContent className="flex h-full items-center justify-center gap-3 px-4 py-3">
         <CardIcon name={icon} color={color} />
         <div className="min-w-0">
           <CardDescription>{label}</CardDescription>
