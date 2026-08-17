@@ -51,6 +51,16 @@ export function toDatetimeLocalValue(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+// O valor de um <input type="datetime-local"> ("YYYY-MM-DDTHH:mm") não leva
+// fuso — se um "use server" (que roda em UTC na Vercel) fizer `new Date()`
+// direto nele, a string é interpretada como UTC em vez de horário de
+// Brasília, salvando a hora errada (ex: 09:00 selecionado vira 06:00
+// gravado). Fixa o offset -03:00 explicitamente: Brasil não observa mais
+// horário de verão desde 2019, então não varia ao longo do ano.
+export function parseBrasiliaDateTime(value: string): Date {
+  return new Date(`${value}:00-03:00`);
+}
+
 // Sobe pro próximo :00/:30 — usado como valor inicial de formulários de Ação
 // (em vez do instante exato "agora", que passa despercebido se o usuário não
 // mexer no campo antes de salvar).
@@ -62,14 +72,21 @@ export function roundUpToHalfHour(date: Date): Date {
   return result;
 }
 
+const brasiliaDateKeyFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Sao_Paulo",
+});
+
+// "YYYY-MM-DD" do dia em Brasília — usa o fuso explícito (em vez de
+// `.setHours(0,0,0,0)`, que zera no fuso de quem RODA o código) porque essa
+// comparação roda tanto no navegador quanto num "use server" na Vercel (UTC).
+function brasiliaDateKey(date: Date): string {
+  return brasiliaDateKeyFormatter.format(date);
+}
+
 // Compara só a data (ignora hora) — usado pra travar exclusão de Ações que
 // já aconteceram (dia de hoje ainda conta como "não passado").
 export function isBeforeToday(dateIso: string): boolean {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const date = new Date(dateIso);
-  date.setHours(0, 0, 0, 0);
-  return date < today;
+  return brasiliaDateKey(new Date(dateIso)) < brasiliaDateKey(new Date());
 }
 
 export function isSameDay(a: Date, b: Date): boolean {

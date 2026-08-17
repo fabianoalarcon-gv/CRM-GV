@@ -3,13 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { CompromissoInput } from "./types";
+import { parseBrasiliaDateTime } from "./utils";
 
 function toRow(input: CompromissoInput) {
   return {
     titulo: input.titulo.trim(),
     descricao: input.descricao.trim() || null,
-    inicio: new Date(input.inicio).toISOString(),
-    fim: input.fim ? new Date(input.fim).toISOString() : null,
+    inicio: parseBrasiliaDateTime(input.inicio).toISOString(),
+    fim: input.fim ? parseBrasiliaDateTime(input.fim).toISOString() : null,
     tipo: input.tipo,
     empresa_id: input.empresa_id,
   };

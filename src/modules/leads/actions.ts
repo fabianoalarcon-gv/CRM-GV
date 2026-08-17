@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { isBeforeToday } from "@/modules/calendario/utils";
+import { isBeforeToday, parseBrasiliaDateTime } from "@/modules/calendario/utils";
 import type { AcaoInput, LeadInput, Repeticao } from "./types";
 
 const MAX_REPETICOES = 100;
@@ -212,8 +212,8 @@ export async function createAcao(leadId: number, empresaId: number, input: AcaoI
   } = await supabase.auth.getUser();
   if (!user) return { error: "Sessão expirada, faça login novamente." };
 
-  const baseInicio = new Date(input.inicio);
-  const baseFim = input.fim ? new Date(input.fim) : null;
+  const baseInicio = parseBrasiliaDateTime(input.inicio);
+  const baseFim = input.fim ? parseBrasiliaDateTime(input.fim) : null;
   // quantidadeRepeticoes é quantas vezes a ação SE REPETE além da original
   // (ex: semanal + 1 repetição = evento de hoje + 1 daqui a uma semana = 2
   // ocorrências no total).
