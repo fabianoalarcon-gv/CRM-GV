@@ -7,14 +7,22 @@ import { useIsAdmin } from "@/lib/auth/context";
 import { deleteProposal, addProposalHistoryEntry } from "@/modules/pipeline/actions";
 import { HistoricoSection } from "@/modules/pipeline/components/HistoricoSection";
 import type { Proposta } from "@/modules/pipeline/types";
-import { TIPO_COLOR, TIPO_LABEL, toDatetimeLocalValue } from "@/modules/calendario/utils";
+import {
+  TIPO_COLOR,
+  TIPO_LABEL,
+  roundUpToHalfHour,
+  toDatetimeLocalValue,
+} from "@/modules/calendario/utils";
 import { useLeadsData } from "../context";
 import { arquivarLead, createAcao, gerarProposta, reativarLead, updateLead } from "../actions";
 import type { AcaoInput, LeadInput } from "../types";
 import { LeadForm } from "./LeadForm";
 import { AcaoForm } from "./AcaoForm";
 
-const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
+const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
+  dateStyle: "short",
+  timeStyle: "short",
+});
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
 
 export interface LeadDetailModalProps {
@@ -55,7 +63,9 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
   const canArchive = currentStatus?.key === "prospeccao" || isQualificacao;
   const statusAnteriorLabel = statuses.find((s) => s.id === proposta.status_anterior_id)?.label;
   const andamentos = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "andamento");
-  const observacoes = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "observacao");
+  const observacoes = history.filter(
+    (h) => h.proposta_id === proposta.id && h.tipo === "observacao",
+  );
   const acoes = compromissos
     .filter((c) => c.proposta_id === proposta.id)
     .slice()
@@ -202,8 +212,15 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
 
         <div className="border-t border-border pt-4">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">Ações</p>
-            <Button type="button" variant="outline" size="sm" onClick={() => setIsCreatingAcao(true)}>
+            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
+              Ações
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCreatingAcao(true)}
+            >
               + Ações
             </Button>
           </div>
@@ -267,7 +284,12 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
                       </Button>
                     </div>
                   ) : (
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmingDelete(true)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmingDelete(true)}
+                    >
                       Excluir
                     </Button>
                   )}
@@ -320,7 +342,9 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
                 {gerarError && <p className="mb-2 text-sm text-temp-quente">{gerarError}</p>}
                 {confirmingGerarProposta ? (
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-brand-graphite-light">Gerar proposta a partir deste lead?</span>
+                    <span className="text-sm text-brand-graphite-light">
+                      Gerar proposta a partir deste lead?
+                    </span>
                     <Button
                       type="button"
                       variant="ghost"
@@ -329,7 +353,12 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
                     >
                       Cancelar
                     </Button>
-                    <Button type="button" size="sm" disabled={isGerandoProposta} onClick={handleGerarProposta}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={isGerandoProposta}
+                      onClick={handleGerarProposta}
+                    >
                       {isGerandoProposta ? "Gerando…" : "Confirmar"}
                     </Button>
                   </div>
@@ -354,7 +383,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
           empresaNome={proposta.empresa_nome}
           initialValues={{
             titulo: "",
-            inicio: toDatetimeLocalValue(new Date()),
+            inicio: toDatetimeLocalValue(roundUpToHalfHour(new Date())),
             fim: "",
             tipo: "reuniao",
             descricao: "",

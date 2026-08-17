@@ -51,6 +51,17 @@ export function toDatetimeLocalValue(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+// Sobe pro próximo :00/:30 — usado como valor inicial de formulários de Ação
+// (em vez do instante exato "agora", que passa despercebido se o usuário não
+// mexer no campo antes de salvar).
+export function roundUpToHalfHour(date: Date): Date {
+  const result = new Date(date);
+  const remainder = result.getMinutes() % 30;
+  if (remainder !== 0) result.setMinutes(result.getMinutes() + (30 - remainder));
+  result.setSeconds(0, 0);
+  return result;
+}
+
 // Compara só a data (ignora hora) — usado pra travar exclusão de Ações que
 // já aconteceram (dia de hoje ainda conta como "não passado").
 export function isBeforeToday(dateIso: string): boolean {

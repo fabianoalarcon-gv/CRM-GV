@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -37,7 +37,10 @@ const GRID_END_HOUR = 24;
 // Com as 24h disponíveis (scroll), a grade abre já centralizada no horário
 // comercial em vez de começar em 00:00.
 const DEFAULT_SCROLL_HOUR = 7;
-const HOURS = Array.from({ length: GRID_END_HOUR - GRID_START_HOUR }, (_, i) => GRID_START_HOUR + i);
+const HOURS = Array.from(
+  { length: GRID_END_HOUR - GRID_START_HOUR },
+  (_, i) => GRID_START_HOUR + i,
+);
 
 const monthLabelFormatter = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" });
 const dayLabelFormatter = new Intl.DateTimeFormat("pt-BR", {
@@ -49,9 +52,14 @@ const dayLabelFormatter = new Intl.DateTimeFormat("pt-BR", {
 const weekDayShortFormatter = new Intl.DateTimeFormat("pt-BR", { weekday: "short" });
 const timeFormatter = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-function emptyValues(date: Date): CompromissoInput {
+// `hour`/`minute` explícitos (ex: clique numa célula da grade de Semana/Dia)
+// sempre vencem — sem eles, cai no 9h padrão só quando a data recebida já
+// vier zerada (meia-noite), como as células do MonthView.
+function emptyValues(date: Date, hour?: number, minute?: number): CompromissoInput {
   const withDefaultHour = new Date(date);
-  if (withDefaultHour.getHours() === 0 && withDefaultHour.getMinutes() === 0) {
+  if (hour !== undefined) {
+    withDefaultHour.setHours(hour, minute ?? 0, 0, 0);
+  } else if (withDefaultHour.getHours() === 0 && withDefaultHour.getMinutes() === 0) {
     withDefaultHour.setHours(9, 0, 0, 0);
   }
   return {
@@ -117,12 +125,14 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
     else setCurrentDate((d) => addDays(d, 1));
   }
 
-  function openCreateFor(date: Date) {
-    setCreateDefaults(emptyValues(date));
+  function openCreateFor(date: Date, hour?: number, minute?: number) {
+    setCreateDefaults(emptyValues(date, hour, minute));
   }
 
   const headerLabel =
-    viewMode === "dia" ? dayLabelFormatter.format(currentDate) : monthLabelFormatter.format(currentDate);
+    viewMode === "dia"
+      ? dayLabelFormatter.format(currentDate)
+      : monthLabelFormatter.format(currentDate);
 
   return (
     <div className="flex h-full flex-col gap-6">
@@ -135,7 +145,7 @@ export function CalendarioView({ compromissos, empresas }: CalendarioViewProps) 
             Compromissos
           </h1>
         </div>
-        <Button type="button" onClick={() => openCreateFor(currentDate)} className="gap-1.5">
+        <Button type="button" onClick={() => openCreateFor(currentDate, 9, 0)} className="gap-1.5">
           <Icon name="add" size={18} />
           Novo compromisso
         </Button>
@@ -360,7 +370,7 @@ interface HourGridProps {
   days: Date[];
   compromissosOn: (date: Date) => Compromisso[];
   onSelect: (c: Compromisso) => void;
-  onCreate: (date: Date) => void;
+  onCreate: (date: Date, hour?: number, minute?: number) => void;
 }
 
 interface Placement {
@@ -395,7 +405,9 @@ function layoutColumns(items: Compromisso[]): Placement[] {
 
 function getEventPosition(compromisso: Compromisso): { top: number; height: number } {
   const start = new Date(compromisso.inicio);
-  const end = compromisso.fim ? new Date(compromisso.fim) : new Date(start.getTime() + 60 * 60 * 1000);
+  const end = compromisso.fim
+    ? new Date(compromisso.fim)
+    : new Date(start.getTime() + 60 * 60 * 1000);
   const startHour = start.getHours() + start.getMinutes() / 60;
   const endHour = Math.max(startHour + 0.25, end.getHours() + end.getMinutes() / 60);
   const top = Math.max(0, (startHour - GRID_START_HOUR) * HOUR_HEIGHT);
@@ -413,6 +425,21 @@ function HourGrid({ days, compromissosOn, onSelect, onCreate }: HourGridProps) {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: (DEFAULT_SCROLL_HOUR - GRID_START_HOUR) * HOUR_HEIGHT });
   }, [days]);
+
+  // Converte a posição Y do clique na coluna do dia pra hora/minuto (snap de
+  // 30 em 30 min) — sem isso, clicar em qualquer ponto da grade criava o
+  // compromisso com a hora atual (ou 9h padrão), ignorando onde foi clicado.
+  function handleColumnClick(event: MouseEvent<HTMLDivElement>, day: Date) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const offsetY = event.clientY - rect.top;
+    const rawMinutes = (GRID_START_HOUR + offsetY / HOUR_HEIGHT) * 60;
+    const snappedMinutes = Math.round(rawMinutes / 30) * 30;
+    const clampedMinutes = Math.min(
+      Math.max(snappedMinutes, GRID_START_HOUR * 60),
+      GRID_END_HOUR * 60 - 30,
+    );
+    onCreate(day, Math.floor(clampedMinutes / 60), clampedMinutes % 60);
+  }
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-lg border border-border bg-surface">
@@ -476,70 +503,76 @@ function HourGrid({ days, compromissosOn, onSelect, onCreate }: HourGridProps) {
 
           {days.map((day) => {
             const items = compromissosOn(day);
-              const placements = layoutColumns(items);
-              const isToday = isSameDay(day, now);
-              const nowOffset = isToday
-                ? (now.getHours() + now.getMinutes() / 60 - GRID_START_HOUR) * HOUR_HEIGHT
-                : null;
+            const placements = layoutColumns(items);
+            const isToday = isSameDay(day, now);
+            const nowOffset = isToday
+              ? (now.getHours() + now.getMinutes() / 60 - GRID_START_HOUR) * HOUR_HEIGHT
+              : null;
 
-              return (
-                <div
-                  key={day.toISOString()}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => onCreate(day)}
-                  className="relative flex-1 border-l border-border"
-                  style={{ height: gridHeight }}
-                >
-                  {HOURS.map((h) => (
-                    <div key={h} style={{ height: HOUR_HEIGHT }} className="border-b border-border/60" />
-                  ))}
+            return (
+              <div
+                key={day.toISOString()}
+                role="button"
+                tabIndex={0}
+                onClick={(e) => handleColumnClick(e, day)}
+                className="relative flex-1 border-l border-border"
+                style={{ height: gridHeight }}
+              >
+                {HOURS.map((h) => (
+                  <div
+                    key={h}
+                    style={{ height: HOUR_HEIGHT }}
+                    className="border-b border-border/60"
+                  />
+                ))}
 
-                  {nowOffset !== null && nowOffset >= 0 && nowOffset <= gridHeight && (
-                    <div
-                      aria-hidden
-                      className="absolute right-0 left-0 z-20 h-px bg-temp-quente"
-                      style={{ top: nowOffset }}
+                {nowOffset !== null && nowOffset >= 0 && nowOffset <= gridHeight && (
+                  <div
+                    aria-hidden
+                    className="absolute right-0 left-0 z-20 h-px bg-temp-quente"
+                    style={{ top: nowOffset }}
+                  >
+                    <div className="absolute -top-1 -left-1 h-2 w-2 rounded-full bg-temp-quente" />
+                  </div>
+                )}
+
+                {placements.map(({ item, col, cols }) => {
+                  const { top, height } = getEventPosition(item);
+                  const color = tipoColor(item);
+                  const widthPct = 100 / cols;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelect(item);
+                      }}
+                      className="absolute z-10 overflow-hidden rounded-md border-l-[3px] p-1.5 text-left shadow-sm transition-shadow hover:shadow-md"
+                      style={{
+                        top,
+                        height,
+                        left: `calc(${col * widthPct}% + 2px)`,
+                        width: `calc(${widthPct}% - 4px)`,
+                        backgroundColor: `color-mix(in srgb, ${color} 12%, white)`,
+                        borderLeftColor: color,
+                      }}
                     >
-                      <div className="absolute -top-1 -left-1 h-2 w-2 rounded-full bg-temp-quente" />
-                    </div>
-                  )}
-
-                  {placements.map(({ item, col, cols }) => {
-                    const { top, height } = getEventPosition(item);
-                    const color = tipoColor(item);
-                    const widthPct = 100 / cols;
-                    return (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelect(item);
-                        }}
-                        className="absolute z-10 overflow-hidden rounded-md border-l-[3px] p-1.5 text-left shadow-sm transition-shadow hover:shadow-md"
-                        style={{
-                          top,
-                          height,
-                          left: `calc(${col * widthPct}% + 2px)`,
-                          width: `calc(${widthPct}% - 4px)`,
-                          backgroundColor: `color-mix(in srgb, ${color} 12%, white)`,
-                          borderLeftColor: color,
-                        }}
-                      >
-                        <p className="truncate text-[11px] font-semibold text-foreground">{item.titulo}</p>
-                        <p className="truncate text-[10px] text-brand-graphite-light">
-                          {timeFormatter.format(new Date(item.inicio))}
-                          {item.tipo && ` · ${TIPO_LABEL[item.tipo]}`}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              );
-            })}
-          </div>
+                      <p className="truncate text-[11px] font-semibold text-foreground">
+                        {item.titulo}
+                      </p>
+                      <p className="truncate text-[10px] text-brand-graphite-light">
+                        {timeFormatter.format(new Date(item.inicio))}
+                        {item.tipo && ` · ${TIPO_LABEL[item.tipo]}`}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       </div>
+    </div>
   );
 }

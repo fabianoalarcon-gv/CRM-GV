@@ -10,7 +10,12 @@ import { HistoricoSection } from "./HistoricoSection";
 import { createAcao, reverterParaQualificacao } from "@/modules/leads/actions";
 import type { AcaoInput } from "@/modules/leads/types";
 import { AcaoForm } from "@/modules/leads/components/AcaoForm";
-import { TIPO_COLOR, TIPO_LABEL, toDatetimeLocalValue } from "@/modules/calendario/utils";
+import {
+  TIPO_COLOR,
+  TIPO_LABEL,
+  roundUpToHalfHour,
+  toDatetimeLocalValue,
+} from "@/modules/calendario/utils";
 import { ProposalForm } from "./ProposalForm";
 import type { Proposta } from "../types";
 
@@ -49,13 +54,16 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
   const [isCreatingAcao, setIsCreatingAcao] = useState(false);
 
   const andamentos = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "andamento");
-  const observacoes = history.filter((h) => h.proposta_id === proposta.id && h.tipo === "observacao");
+  const observacoes = history.filter(
+    (h) => h.proposta_id === proposta.id && h.tipo === "observacao",
+  );
   const acoes = compromissos
     .filter((c) => c.proposta_id === proposta.id)
     .slice()
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   const canRevert =
-    proposta.gerado_de_lead && statuses.find((s) => s.id === proposta.status_id)?.key === "proposta";
+    proposta.gerado_de_lead &&
+    statuses.find((s) => s.id === proposta.status_id)?.key === "proposta";
 
   function handleClose() {
     setConfirmingDelete(false);
@@ -137,18 +145,13 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     valor: proposta.valor ?? 0,
     status_id: proposta.status_id,
     termometro: proposta.termometro,
-    tipo_servico: proposta.tipo_servico ?? "spot" as const,
+    tipo_servico: proposta.tipo_servico ?? ("spot" as const),
     responsavel_id: proposta.responsavel_id,
     resultado: proposta.resultado,
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title={modalTitle}
-      className="max-w-2xl"
-    >
+    <Modal isOpen={isOpen} onClose={handleClose} title={modalTitle} className="max-w-2xl">
       <div className="flex flex-col gap-5">
         {proposta.gerado_de_lead && proposta.numero_lead && (
           <p className="text-xs text-brand-graphite-light">
@@ -187,8 +190,15 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
 
         <div className="border-t border-border pt-4">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">Ações</p>
-            <Button type="button" variant="outline" size="sm" onClick={() => setIsCreatingAcao(true)}>
+            <p className="text-xs font-medium tracking-wide text-brand-graphite-light uppercase">
+              Ações
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsCreatingAcao(true)}
+            >
               + Ações
             </Button>
           </div>
@@ -232,7 +242,9 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
                   {deleteError && <p className="mb-2 text-sm text-temp-quente">{deleteError}</p>}
                   {confirmingDelete ? (
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-brand-graphite-light">Excluir esta proposta?</span>
+                      <span className="text-sm text-brand-graphite-light">
+                        Excluir esta proposta?
+                      </span>
                       <Button
                         type="button"
                         variant="danger"
@@ -273,7 +285,12 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
                     <span className="text-sm text-brand-graphite-light">
                       Reverter esta proposta para Qualificação?
                     </span>
-                    <Button type="button" variant="ghost" size="sm" onClick={() => setConfirmingRevert(false)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setConfirmingRevert(false)}
+                    >
                       Cancelar
                     </Button>
                     <Button type="button" size="sm" disabled={isReverting} onClick={handleRevert}>
@@ -301,7 +318,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
           empresaNome={proposta.empresa_nome}
           initialValues={{
             titulo: "",
-            inicio: toDatetimeLocalValue(new Date()),
+            inicio: toDatetimeLocalValue(roundUpToHalfHour(new Date())),
             fim: "",
             tipo: "reuniao",
             descricao: "",
