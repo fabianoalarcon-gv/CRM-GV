@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { Segmento } from "@/modules/pipeline/types";
 import type { DashboardProposta, Resultado, StatusKey, TipoServico } from "./types";
 
 export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
@@ -6,7 +7,7 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, numero_lead, valor, data_envio, tipo_servico, resultado, empresas(nome), proposal_statuses!status_id(key, label, sort_order)",
+      "id, numero_proposta, numero_lead, valor, data_envio, tipo_servico, servico, segmento, resultado, empresas(nome), proposal_statuses!status_id(key, label, sort_order)",
     )
     .order("data_envio");
 
@@ -22,6 +23,8 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
     valor: p.valor == null ? 0 : Number(p.valor),
     data_envio: p.data_envio,
     tipo_servico: p.tipo_servico as TipoServico,
+    servico: p.servico,
+    segmento: p.segmento as Segmento | null,
     status_key: (p.proposal_statuses?.key ?? "prospeccao") as StatusKey,
     status_label: p.proposal_statuses?.label ?? "—",
     status_sort_order: p.proposal_statuses?.sort_order ?? 0,

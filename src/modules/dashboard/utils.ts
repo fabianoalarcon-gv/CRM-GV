@@ -28,6 +28,8 @@ export function applyFilters(
     if (filters.dataInicio && p.data_envio < filters.dataInicio) return false;
     if (filters.dataFim && p.data_envio > filters.dataFim) return false;
     if (filters.tipoServico && p.tipo_servico !== filters.tipoServico) return false;
+    if (filters.segmento && p.segmento !== filters.segmento) return false;
+    if (filters.servico && p.servico !== filters.servico) return false;
     return true;
   });
 }

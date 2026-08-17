@@ -1,8 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
+import { SEGMENTO_OPTIONS } from "@/modules/pipeline/types";
 import {
   applyFilters,
   computeConversionRates,
@@ -19,12 +21,23 @@ import { RankingTable } from "./RankingTable";
 import { SalesFunnel } from "./SalesFunnel";
 import type { DashboardFilters, DashboardProposta, StatusKey } from "../types";
 
-const TIPO_SERVICO_OPTIONS = [
+const TODOS_OPTION = { value: "", label: "Todos" };
+
+const TIPO_FILTER_OPTIONS = [
+  TODOS_OPTION,
   { value: "fixo", label: "Fixo" },
   { value: "spot", label: "Spot" },
 ];
 
-const EMPTY_FILTERS: DashboardFilters = { dataInicio: "", dataFim: "", tipoServico: "" };
+const SEGMENTO_FILTER_OPTIONS = [TODOS_OPTION, ...SEGMENTO_OPTIONS];
+
+const EMPTY_FILTERS: DashboardFilters = {
+  dataInicio: "",
+  dataFim: "",
+  tipoServico: "",
+  segmento: "",
+  servico: "",
+};
 
 export interface DashboardViewProps {
   propostas: DashboardProposta[];
@@ -33,6 +46,19 @@ export interface DashboardViewProps {
 
 export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
   const [filters, setFilters] = useState<DashboardFilters>(EMPTY_FILTERS);
+
+  const servicoOptions = useMemo(() => {
+    const values = new Set<string>();
+    for (const p of propostas) {
+      if (p.servico) values.add(p.servico);
+    }
+    return [
+      TODOS_OPTION,
+      ...Array.from(values)
+        .sort((a, b) => a.localeCompare(b, "pt-BR"))
+        .map((v) => ({ value: v, label: v })),
+    ];
+  }, [propostas]);
 
   const filtered = useMemo(() => applyFilters(propostas, filters), [propostas, filters]);
   const statusAggregates = useMemo(
@@ -91,8 +117,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
             className="w-40"
           />
           <Select
-            label="Tipo de serviço"
-            placeholder="Todos os tipos"
+            label="Tipo"
             value={filters.tipoServico}
             onChange={(e) =>
               setFilters((prev) => ({
@@ -100,16 +125,41 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
                 tipoServico: e.target.value as DashboardFilters["tipoServico"],
               }))
             }
-            options={TIPO_SERVICO_OPTIONS}
+            options={TIPO_FILTER_OPTIONS}
+            className="w-32"
+          />
+          <Select
+            label="Segmento"
+            value={filters.segmento}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                segmento: e.target.value as DashboardFilters["segmento"],
+              }))
+            }
+            options={SEGMENTO_FILTER_OPTIONS}
+            className="w-36"
+          />
+          <Select
+            label="Serviço"
+            value={filters.servico}
+            onChange={(e) => setFilters((prev) => ({ ...prev, servico: e.target.value }))}
+            options={servicoOptions}
             className="w-40"
           />
-          {(filters.dataInicio || filters.dataFim || filters.tipoServico) && (
+          {(filters.dataInicio ||
+            filters.dataFim ||
+            filters.tipoServico ||
+            filters.segmento ||
+            filters.servico) && (
             <button
               type="button"
               onClick={() => setFilters(EMPTY_FILTERS)}
-              className="h-10 text-sm text-brand-graphite-light hover:text-brand-accent"
+              title="Limpar filtros"
+              aria-label="Limpar filtros"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"
             >
-              Limpar filtros
+              <Icon name="close" size={20} />
             </button>
           )}
         </div>
