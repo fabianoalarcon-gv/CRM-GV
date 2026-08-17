@@ -10,12 +10,22 @@ export interface KpiCardProps {
   icon: string;
   color: string;
   valueClassName?: string;
+  borderClassName?: string;
 }
 
-export function KpiCard({ label, value, caption, accent, icon, color, valueClassName }: KpiCardProps) {
+export function KpiCard({
+  label,
+  value,
+  caption,
+  accent,
+  icon,
+  color,
+  valueClassName,
+  borderClassName,
+}: KpiCardProps) {
   return (
-    <Card className={cn("h-full", accent && "border-brand-accent/30 bg-brand-accent/5")}>
-      <CardContent className="flex h-full items-center justify-center gap-3 p-4">
+    <Card className={cn("h-full", borderClassName)}>
+      <CardContent className="flex h-full items-center justify-center gap-3 px-4 pt-6 pb-4">
         <CardIcon name={icon} color={color} />
         <div className="min-w-0">
           <CardDescription>{label}</CardDescription>

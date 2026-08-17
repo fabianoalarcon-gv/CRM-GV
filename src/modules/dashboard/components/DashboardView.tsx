@@ -122,6 +122,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
           caption={`${qtdTotal} proposta${qtdTotal === 1 ? "" : "s"}`}
           icon="payments"
           color="var(--color-brand-accent)"
+          borderClassName="border-brand-accent/30 bg-brand-accent/5"
           accent
         />
         <KpiCard
@@ -130,6 +131,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
           caption={`${qtdAndamento} proposta${qtdAndamento === 1 ? "" : "s"}`}
           icon="hourglass_top"
           color="var(--color-temp-frio)"
+          borderClassName="border-temp-frio/30 bg-temp-frio/5"
         />
         <KpiCard
           label="Aprovado"
@@ -137,6 +139,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
           caption={`${qtdAprovado} proposta${qtdAprovado === 1 ? "" : "s"}`}
           icon="check_circle"
           color="var(--color-status-aprovado)"
+          borderClassName="border-status-aprovado/30 bg-status-aprovado/5"
         />
         <KpiCard
           label="Reprovado"
@@ -144,6 +147,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
           caption={`${qtdReprovado} proposta${qtdReprovado === 1 ? "" : "s"}`}
           icon="cancel"
           color="var(--color-temp-quente)"
+          borderClassName="border-temp-quente/30 bg-temp-quente/5"
         />
       </div>
 
