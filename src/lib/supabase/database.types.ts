@@ -244,6 +244,91 @@ export type Database = {
         }
         Relationships: []
       }
+      notificacoes: {
+        Row: {
+          compromisso_id: number | null
+          created_at: string
+          empresa_id: number | null
+          id: number
+          mensagem: string
+          proposta_id: number | null
+          tipo: string
+        }
+        Insert: {
+          compromisso_id?: number | null
+          created_at?: string
+          empresa_id?: number | null
+          id?: never
+          mensagem: string
+          proposta_id?: number | null
+          tipo: string
+        }
+        Update: {
+          compromisso_id?: number | null
+          created_at?: string
+          empresa_id?: number | null
+          id?: never
+          mensagem?: string
+          proposta_id?: number | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_compromisso_id_fkey"
+            columns: ["compromisso_id"]
+            isOneToOne: false
+            referencedRelation: "compromissos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacoes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacoes_proposta_id_fkey"
+            columns: ["proposta_id"]
+            isOneToOne: false
+            referencedRelation: "propostas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notificacoes_lidas: {
+        Row: {
+          lida_em: string
+          notificacao_id: number
+          user_id: string
+        }
+        Insert: {
+          lida_em?: string
+          notificacao_id: number
+          user_id: string
+        }
+        Update: {
+          lida_em?: string
+          notificacao_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notificacoes_lidas_notificacao_id_fkey"
+            columns: ["notificacao_id"]
+            isOneToOne: false
+            referencedRelation: "notificacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notificacoes_lidas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -475,6 +560,18 @@ export type Database = {
     }
     Functions: {
       gerar_numero_proposta: { Args: never; Returns: string }
+      get_unread_notificacoes: {
+        Args: never
+        Returns: {
+          compromisso_id: number | null
+          created_at: string
+          empresa_id: number | null
+          id: number
+          mensagem: string
+          proposta_id: number | null
+          tipo: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
