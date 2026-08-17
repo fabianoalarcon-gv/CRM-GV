@@ -1,3 +1,4 @@
+import { SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
 import type { DashboardFilters, DashboardProposta, StatusKey } from "./types";
 
 export const STATUS_ORDER: StatusKey[] = [
@@ -155,9 +156,154 @@ export function computeForecast(propostas: DashboardProposta[], rates: Conversio
   };
 }
 
-export function rankTopPropostas(
+export function rankTopPropostas(propostas: DashboardProposta[], limit = 5): DashboardProposta[] {
+  return [...propostas].sort((a, b) => b.valor - a.valor).slice(0, limit);
+}
+
+export interface CategoryBreakdown {
+  key: string;
+  label: string;
+  count: number;
+  valor: number;
+  pct: number;
+}
+
+export function formatBreakdownLegend(count: number, valor: number, pct: number): string {
+  const proposta = count === 1 ? "Proposta" : "Propostas";
+  return `${count} ${proposta} - ${formatCurrency(valor)} (${Math.round(pct * 100)}%)`;
+}
+
+export function computeSegmentoBreakdown(propostas: DashboardProposta[]): CategoryBreakdown[] {
+  const total = propostas.length;
+  const map = new Map<string, { label: string; count: number; valor: number }>();
+  for (const seg of SEGMENTO_OPTIONS) map.set(seg.value, { label: seg.label, count: 0, valor: 0 });
+
+  let semSegmento = { count: 0, valor: 0 };
+  for (const p of propostas) {
+    if (p.segmento) {
+      const entry = map.get(p.segmento)!;
+      entry.count += 1;
+      entry.valor += p.valor;
+    } else {
+      semSegmento = { count: semSegmento.count + 1, valor: semSegmento.valor + p.valor };
+    }
+  }
+
+  const result: CategoryBreakdown[] = [];
+  for (const [key, v] of map) {
+    if (v.count > 0) {
+      result.push({
+        key,
+        label: v.label,
+        count: v.count,
+        valor: v.valor,
+        pct: total > 0 ? v.count / total : 0,
+      });
+    }
+  }
+  if (semSegmento.count > 0) {
+    result.push({
+      key: "sem_segmento",
+      label: "Sem segmento",
+      count: semSegmento.count,
+      valor: semSegmento.valor,
+      pct: total > 0 ? semSegmento.count / total : 0,
+    });
+  }
+  return result;
+}
+
+// Serviço é texto livre (sem lista fixa) — mostra os N mais frequentes e
+// agrupa o restante em "Outros" pra não estourar o número de fatias do gráfico.
+export function computeServicoBreakdown(
   propostas: DashboardProposta[],
   limit = 5,
-): DashboardProposta[] {
-  return [...propostas].sort((a, b) => b.valor - a.valor).slice(0, limit);
+): CategoryBreakdown[] {
+  const total = propostas.length;
+  const map = new Map<string, { count: number; valor: number }>();
+  let semServico = { count: 0, valor: 0 };
+
+  for (const p of propostas) {
+    const key = p.servico?.trim();
+    if (!key) {
+      semServico = { count: semServico.count + 1, valor: semServico.valor + p.valor };
+      continue;
+    }
+    const entry = map.get(key) ?? { count: 0, valor: 0 };
+    entry.count += 1;
+    entry.valor += p.valor;
+    map.set(key, entry);
+  }
+
+  const sorted = Array.from(map.entries())
+    .map(([key, v]) => ({ key, label: key, count: v.count, valor: v.valor }))
+    .sort((a, b) => b.count - a.count);
+
+  const top = sorted.slice(0, limit);
+  const rest = sorted.slice(limit);
+  const outros = rest.reduce(
+    (acc, r) => ({ count: acc.count + r.count, valor: acc.valor + r.valor }),
+    { count: 0, valor: 0 },
+  );
+
+  const toPct = (count: number) => (total > 0 ? count / total : 0);
+
+  const result: CategoryBreakdown[] = top.map((t) => ({ ...t, pct: toPct(t.count) }));
+  if (outros.count > 0) {
+    result.push({
+      key: "outros",
+      label: "Outros",
+      count: outros.count,
+      valor: outros.valor,
+      pct: toPct(outros.count),
+    });
+  }
+  if (semServico.count > 0) {
+    result.push({
+      key: "sem_servico",
+      label: "Sem serviço",
+      count: semServico.count,
+      valor: semServico.valor,
+      pct: toPct(semServico.count),
+    });
+  }
+  return result;
+}
+
+export interface TermometroBreakdown {
+  termometro: Termometro;
+  label: string;
+  count: number;
+  valor: number;
+  pct: number;
+}
+
+const TERMOMETRO_ORDER: Termometro[] = ["quente", "morno", "frio"];
+const TERMOMETRO_LABEL: Record<Termometro, string> = {
+  quente: "Quente",
+  morno: "Morno",
+  frio: "Frio",
+};
+
+export function computeTermometroBreakdown(propostas: DashboardProposta[]): TermometroBreakdown[] {
+  const total = propostas.length;
+  const map = new Map<Termometro, { count: number; valor: number }>(
+    TERMOMETRO_ORDER.map((t) => [t, { count: 0, valor: 0 }]),
+  );
+  for (const p of propostas) {
+    const entry = map.get(p.termometro);
+    if (!entry) continue;
+    entry.count += 1;
+    entry.valor += p.valor;
+  }
+  return TERMOMETRO_ORDER.map((t) => {
+    const v = map.get(t)!;
+    return {
+      termometro: t,
+      label: TERMOMETRO_LABEL[t],
+      count: v.count,
+      valor: v.valor,
+      pct: total > 0 ? v.count / total : 0,
+    };
+  });
 }

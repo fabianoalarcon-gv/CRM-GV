@@ -11,14 +11,19 @@ import {
   computeForecast,
   computeFunnelStages,
   computeMonthlyAggregates,
+  computeSegmentoBreakdown,
+  computeServicoBreakdown,
   computeStatusAggregates,
+  computeTermometroBreakdown,
   formatCurrency,
   rankTopPropostas,
 } from "../utils";
 import { KpiCard } from "./KpiCard";
 import { MonthlyBarChart } from "./MonthlyBarChart";
+import { PieChartCard } from "./PieChartCard";
 import { RankingTable } from "./RankingTable";
 import { SalesFunnel } from "./SalesFunnel";
+import { ThermometerChart } from "./ThermometerChart";
 import type { DashboardFilters, DashboardProposta, StatusKey } from "../types";
 
 const TODOS_OPTION = { value: "", label: "Todos" };
@@ -78,6 +83,9 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
   const forecast = useMemo(() => computeForecast(filtered, rates), [filtered, rates]);
   const funnelStages = useMemo(() => computeFunnelStages(statusAggregates), [statusAggregates]);
   const ranking = useMemo(() => rankTopPropostas(filtered, 5), [filtered]);
+  const segmentoBreakdown = useMemo(() => computeSegmentoBreakdown(filtered), [filtered]);
+  const servicoBreakdown = useMemo(() => computeServicoBreakdown(filtered), [filtered]);
+  const termometroBreakdown = useMemo(() => computeTermometroBreakdown(filtered), [filtered]);
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);
   const qtdTotal = filtered.length;
@@ -232,7 +240,9 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
         />
         <KpiCard
           label="Taxa de reprovação"
-          value={rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"}
+          value={
+            rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"
+          }
           caption="Reprovadas ÷ (aprovadas + reprovadas)"
           icon="trending_down"
           color="var(--color-temp-quente)"
@@ -253,6 +263,24 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <MonthlyBarChart monthly={monthly} />
         <SalesFunnel stages={funnelStages} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <PieChartCard
+          title="Segmento"
+          subtitle="Propostas por segmento"
+          icon="donut_large"
+          iconColor="var(--color-chart-cat-1)"
+          data={segmentoBreakdown}
+        />
+        <PieChartCard
+          title="Serviço"
+          subtitle="Propostas por serviço"
+          icon="category"
+          iconColor="var(--color-chart-cat-2)"
+          data={servicoBreakdown}
+        />
+        <ThermometerChart data={termometroBreakdown} />
       </div>
 
       <RankingTable propostas={ranking} />

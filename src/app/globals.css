@@ -57,6 +57,15 @@
   /* Follow-Up (LEAD): 9ª cor da categoria, validada junto com as 8 já
      existentes (validate_palette.js). */
   --cal-followup: #16a34a;
+
+  /* Categorias dos gráficos de pizza do Dashboard (Segmento/Serviço): 5
+     cores + "Outros"/"Sem X" em brand-route (neutro). Paleta validada com a
+     skill dataviz (validate_palette.js), ordem fixa (nunca ciclada). */
+  --chart-cat-1: #2a78d6;
+  --chart-cat-2: #eb6834;
+  --chart-cat-3: #1baf7a;
+  --chart-cat-4: #eda100;
+  --chart-cat-5: #e87ba4;
 }
 
 @theme inline {
@@ -85,6 +94,12 @@
   --color-cal-email: var(--cal-email);
   --color-cal-visita: var(--cal-visita);
   --color-cal-followup: var(--cal-followup);
+
+  --color-chart-cat-1: var(--chart-cat-1);
+  --color-chart-cat-2: var(--chart-cat-2);
+  --color-chart-cat-3: var(--chart-cat-3);
+  --color-chart-cat-4: var(--chart-cat-4);
+  --color-chart-cat-5: var(--chart-cat-5);
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
