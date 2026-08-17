@@ -51,8 +51,8 @@ export function ThermometerChart({ data }: ThermometerChartProps) {
   const quente = data.find((d) => d.termometro === "quente");
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-3 px-5 pt-6 pb-5">
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col gap-3 px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
           <CardIcon name="thermostat" color="var(--color-temp-quente)" />
           <div>
@@ -66,7 +66,7 @@ export function ThermometerChart({ data }: ThermometerChartProps) {
             Nenhuma proposta no período selecionado.
           </p>
         ) : (
-          <div className="flex items-center gap-7">
+          <div className="flex flex-1 items-center justify-center gap-7">
             <div className="flex shrink-0 flex-col items-center">
               <div
                 className="relative flex w-12 flex-col-reverse overflow-hidden rounded-full border-2 border-border bg-background shadow-inner"

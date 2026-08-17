@@ -90,8 +90,8 @@ export function PieChartCard({
   const isSingleSlice = slicesWithCount.length === 1;
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-3 px-5 pt-6 pb-5">
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col gap-3 px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
           <CardIcon name={icon} color={iconColor} />
           <div>
@@ -103,7 +103,7 @@ export function PieChartCard({
         {total === 0 ? (
           <p className="text-sm text-brand-graphite-light">{emptyMessage}</p>
         ) : (
-          <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-4 sm:flex-row">
             <svg
               viewBox={`0 0 ${SIZE} ${SIZE}`}
               width={SIZE}
