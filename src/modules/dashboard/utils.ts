@@ -30,6 +30,7 @@ export function applyFilters(
     if (filters.tipoServico && p.tipo_servico !== filters.tipoServico) return false;
     if (filters.segmento && p.segmento !== filters.segmento) return false;
     if (filters.servico && p.servico !== filters.servico) return false;
+    if (filters.termometro && p.termometro !== filters.termometro) return false;
     return true;
   });
 }

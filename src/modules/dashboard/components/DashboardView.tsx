@@ -31,12 +31,20 @@ const TIPO_FILTER_OPTIONS = [
 
 const SEGMENTO_FILTER_OPTIONS = [TODOS_OPTION, ...SEGMENTO_OPTIONS];
 
+const TERMOMETRO_FILTER_OPTIONS = [
+  TODOS_OPTION,
+  { value: "frio", label: "Frio" },
+  { value: "morno", label: "Morno" },
+  { value: "quente", label: "Quente" },
+];
+
 const EMPTY_FILTERS: DashboardFilters = {
   dataInicio: "",
   dataFim: "",
   tipoServico: "",
   segmento: "",
   servico: "",
+  termometro: "",
 };
 
 export interface DashboardViewProps {
@@ -147,11 +155,24 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
             options={servicoOptions}
             className="w-40"
           />
+          <Select
+            label="Termômetro"
+            value={filters.termometro}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                termometro: e.target.value as DashboardFilters["termometro"],
+              }))
+            }
+            options={TERMOMETRO_FILTER_OPTIONS}
+            className="w-32"
+          />
           {(filters.dataInicio ||
             filters.dataFim ||
             filters.tipoServico ||
             filters.segmento ||
-            filters.servico) && (
+            filters.servico ||
+            filters.termometro) && (
             <button
               type="button"
               onClick={() => setFilters(EMPTY_FILTERS)}

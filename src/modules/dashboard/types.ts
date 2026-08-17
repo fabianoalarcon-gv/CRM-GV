@@ -1,4 +1,4 @@
-import type { Segmento } from "@/modules/pipeline/types";
+import type { Segmento, Termometro } from "@/modules/pipeline/types";
 
 export type StatusKey = "prospeccao" | "qualificacao" | "proposta" | "negociacao" | "fechado";
 export type Resultado = "aprovado" | "reprovado";
@@ -14,6 +14,7 @@ export interface DashboardProposta {
   tipo_servico: TipoServico;
   servico: string | null;
   segmento: Segmento | null;
+  termometro: Termometro;
   status_key: StatusKey;
   status_label: string;
   status_sort_order: number;
@@ -26,4 +27,5 @@ export interface DashboardFilters {
   tipoServico: TipoServico | "";
   segmento: Segmento | "";
   servico: string;
+  termometro: Termometro | "";
 }
