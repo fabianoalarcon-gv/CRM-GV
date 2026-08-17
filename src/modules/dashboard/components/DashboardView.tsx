@@ -46,15 +46,19 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
   const ranking = useMemo(() => rankTopPropostas(filtered, 5), [filtered]);
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);
-  const valorAndamento = statusAggregates
-    .filter((a) => a.status !== "fechado")
-    .reduce((acc, a) => acc + a.valor, 0);
-  const valorAprovado = filtered
-    .filter((p) => p.resultado === "aprovado")
-    .reduce((acc, p) => acc + p.valor, 0);
-  const valorReprovado = filtered
-    .filter((p) => p.resultado === "reprovado")
-    .reduce((acc, p) => acc + p.valor, 0);
+  const qtdTotal = filtered.length;
+
+  const propostasAndamento = filtered.filter((p) => p.status_key !== "fechado");
+  const valorAndamento = propostasAndamento.reduce((acc, p) => acc + p.valor, 0);
+  const qtdAndamento = propostasAndamento.length;
+
+  const propostasAprovadas = filtered.filter((p) => p.resultado === "aprovado");
+  const valorAprovado = propostasAprovadas.reduce((acc, p) => acc + p.valor, 0);
+  const qtdAprovado = propostasAprovadas.length;
+
+  const propostasReprovadas = filtered.filter((p) => p.resultado === "reprovado");
+  const valorReprovado = propostasReprovadas.reduce((acc, p) => acc + p.valor, 0);
+  const qtdReprovado = propostasReprovadas.length;
 
   return (
     <div className="flex flex-col gap-8">
@@ -115,6 +119,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
         <KpiCard
           label="Valor total em propostas"
           value={formatCurrency(valorTotal)}
+          caption={`${qtdTotal} proposta${qtdTotal === 1 ? "" : "s"}`}
           icon="payments"
           color="var(--color-brand-accent)"
           accent
@@ -122,19 +127,21 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
         <KpiCard
           label="Em andamento"
           value={formatCurrency(valorAndamento)}
-          caption="Prospecção a Negociação"
+          caption={`${qtdAndamento} proposta${qtdAndamento === 1 ? "" : "s"}`}
           icon="hourglass_top"
           color="var(--color-temp-frio)"
         />
         <KpiCard
           label="Aprovado"
           value={formatCurrency(valorAprovado)}
+          caption={`${qtdAprovado} proposta${qtdAprovado === 1 ? "" : "s"}`}
           icon="check_circle"
           color="var(--color-status-aprovado)"
         />
         <KpiCard
           label="Reprovado"
           value={formatCurrency(valorReprovado)}
+          caption={`${qtdReprovado} proposta${qtdReprovado === 1 ? "" : "s"}`}
           icon="cancel"
           color="var(--color-temp-quente)"
         />
