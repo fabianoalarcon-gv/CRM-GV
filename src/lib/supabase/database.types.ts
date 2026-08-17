@@ -246,6 +246,7 @@ export type Database = {
       }
       notificacoes: {
         Row: {
+          autor_id: string | null
           compromisso_id: number | null
           created_at: string
           empresa_id: number | null
@@ -255,6 +256,7 @@ export type Database = {
           tipo: string
         }
         Insert: {
+          autor_id?: string | null
           compromisso_id?: number | null
           created_at?: string
           empresa_id?: number | null
@@ -264,6 +266,7 @@ export type Database = {
           tipo: string
         }
         Update: {
+          autor_id?: string | null
           compromisso_id?: number | null
           created_at?: string
           empresa_id?: number | null
@@ -273,6 +276,13 @@ export type Database = {
           tipo?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "notificacoes_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notificacoes_compromisso_id_fkey"
             columns: ["compromisso_id"]
@@ -563,6 +573,7 @@ export type Database = {
       get_unread_notificacoes: {
         Args: never
         Returns: {
+          autor_id: string | null
           compromisso_id: number | null
           created_at: string
           empresa_id: number | null

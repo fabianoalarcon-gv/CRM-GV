@@ -9,6 +9,17 @@ export async function getUnreadNotifications(): Promise<Notificacao[]> {
 
   if (error || !data) return [];
 
+  const autorIds = [...new Set(data.map((n) => n.autor_id).filter((id) => id != null))];
+  const nomeByAutorId = new Map<string, string>();
+
+  if (autorIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", autorIds);
+    for (const p of profiles ?? []) nomeByAutorId.set(p.id, p.full_name);
+  }
+
   return data.map((n) => ({
     id: n.id,
     tipo: n.tipo as NotificacaoTipo,
@@ -17,6 +28,7 @@ export async function getUnreadNotifications(): Promise<Notificacao[]> {
     propostaId: n.proposta_id,
     compromissoId: n.compromisso_id,
     createdAt: n.created_at,
+    autorNome: n.autor_id ? (nomeByAutorId.get(n.autor_id) ?? null) : null,
   }));
 }
 

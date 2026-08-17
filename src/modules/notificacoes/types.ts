@@ -15,4 +15,5 @@ export interface Notificacao {
   propostaId: number | null;
   compromissoId: number | null;
   createdAt: string;
+  autorNome: string | null;
 }

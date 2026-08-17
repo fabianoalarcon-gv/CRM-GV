@@ -31,7 +31,7 @@ export function NotificationsModal({ isOpen, onClose, notifications }: Notificat
       {notifications.length === 0 ? (
         <p className="text-sm text-brand-graphite-light">Nenhuma notificação nova.</p>
       ) : (
-        <ul className="flex flex-col gap-2.5">
+        <ul className="flex max-h-[420px] flex-col gap-2.5 overflow-y-auto pr-1">
           {notifications.map((n) => {
             const { icon, color } = ICON_BY_TIPO[n.tipo];
             return (
@@ -49,6 +49,7 @@ export function NotificationsModal({ isOpen, onClose, notifications }: Notificat
                   <p className="text-sm text-foreground">{n.mensagem}</p>
                   <p className="mt-1 text-xs text-brand-graphite-light">
                     {dateFormatter.format(new Date(n.createdAt))}
+                    {n.autorNome && ` · ${n.autorNome}`}
                   </p>
                 </div>
               </li>
