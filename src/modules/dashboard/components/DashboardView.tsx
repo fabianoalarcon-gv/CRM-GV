@@ -97,7 +97,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
             Dashboard Comercial
           </h1>
           <p className="mt-2 text-sm text-brand-graphite-light">
-            Acompanhamento do pipeline de propostas da Granvale Logística.
+            Dashboard com indicadores comercias.
           </p>
         </div>
 
