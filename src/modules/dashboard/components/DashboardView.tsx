@@ -84,7 +84,7 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
   const funnelStages = useMemo(() => computeFunnelStages(statusAggregates), [statusAggregates]);
   const ranking = useMemo(() => rankTopPropostas(filtered, 5), [filtered]);
   const segmentoBreakdown = useMemo(() => computeSegmentoBreakdown(filtered), [filtered]);
-  const servicoBreakdown = useMemo(() => computeServicoBreakdown(filtered), [filtered]);
+  const servicoBreakdown = useMemo(() => computeServicoBreakdown(filtered, 4), [filtered]);
   const termometroBreakdown = useMemo(() => computeTermometroBreakdown(filtered), [filtered]);
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);
