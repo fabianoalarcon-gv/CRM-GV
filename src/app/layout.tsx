@@ -21,6 +21,9 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "LogiHub CRM",
   description: "CRM comercial da Granvale Logística e Transportes",
+  icons: {
+    icon: "/icone_logo.png",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
