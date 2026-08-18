@@ -111,7 +111,7 @@ export default function LoginPage() {
         />
 
         <div className="relative w-fit rounded-xl bg-white p-3 shadow-lg">
-          <Logo height={28} />
+          <Logo height={52} />
         </div>
 
         <div className="relative">
@@ -121,13 +121,11 @@ export default function LoginPage() {
             Acompanhe todo o trajeto.
           </p>
           <p className="mt-4 max-w-xs text-sm text-white/60">
-            Pipeline comercial, empresas e indicadores da Granvale Logística em um só lugar.
+            Pipeline comercial, indicadores e gestão comercial da empresa em um só lugar.
           </p>
         </div>
 
-        <p className="relative text-xs text-white/40">
-          © {new Date().getFullYear()} Granvale Logística e Transportes
-        </p>
+        <p className="relative text-xs text-white/40">© {new Date().getFullYear()} LogiHub CRM</p>
       </div>
 
       {/* Painel direito: formulário */}
@@ -261,7 +259,9 @@ function PasswordSetupModal({ onComplete }: { onComplete: () => void }) {
     // onClose vazio: essa troca é obrigatória antes de entrar no sistema,
     // não dá pra fechar clicando fora ou com Esc.
     <Modal isOpen onClose={() => {}} title="Defina sua nova senha" className="max-w-sm">
-      <p className="-mt-2 mb-4 text-sm text-brand-graphite-light">Insira sua nova senha de acesso.</p>
+      <p className="-mt-2 mb-4 text-sm text-brand-graphite-light">
+        Insira sua nova senha de acesso.
+      </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
