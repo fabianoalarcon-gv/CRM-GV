@@ -427,6 +427,7 @@ export type Database = {
           empresa_id: number
           gerado_de_lead: boolean
           id: number
+          motivo_reprovacao: string | null
           numero_lead: string | null
           numero_proposta: string | null
           responsavel_id: string | null
@@ -449,6 +450,7 @@ export type Database = {
           empresa_id: number
           gerado_de_lead?: boolean
           id?: never
+          motivo_reprovacao?: string | null
           numero_lead?: string | null
           numero_proposta?: string | null
           responsavel_id?: string | null
@@ -471,6 +473,7 @@ export type Database = {
           empresa_id?: number
           gerado_de_lead?: boolean
           id?: never
+          motivo_reprovacao?: string | null
           numero_lead?: string | null
           numero_proposta?: string | null
           responsavel_id?: string | null

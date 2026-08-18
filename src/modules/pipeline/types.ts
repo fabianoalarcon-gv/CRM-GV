@@ -47,6 +47,7 @@ export interface Proposta {
   tipo_servico: TipoServico | null;
   responsavel_id: string | null;
   resultado: Resultado | null;
+  motivo_reprovacao: string | null;
   gerado_de_lead: boolean;
   created_at: string;
   updated_at: string;
@@ -94,4 +95,5 @@ export interface ProposalInput {
   tipo_servico: TipoServico;
   responsavel_id: string | null;
   resultado: Resultado | null;
+  motivo_reprovacao: string;
 }

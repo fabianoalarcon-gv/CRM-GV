@@ -53,6 +53,7 @@ export function ProposalForm({
   const { statuses, empresas, profiles } = usePipelineData();
   const [values, setValues] = useState<ProposalInput>(initialValues);
   const [empresaError, setEmpresaError] = useState<string | null>(null);
+  const [motivoError, setMotivoError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
@@ -67,10 +68,12 @@ export function ProposalForm({
     setValues((prev) => ({ ...prev, [key]: value }));
     setJustSaved(false);
     if (key === "empresa_id") setEmpresaError(null);
+    if (key === "resultado" || key === "motivo_reprovacao") setMotivoError(null);
   }
 
   const selectedStatus = statuses.find((s) => s.id === values.status_id);
   const isFechado = selectedStatus?.key === "fechado";
+  const isReprovado = values.resultado === "reprovado";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -81,6 +84,12 @@ export function ProposalForm({
       return;
     }
     setEmpresaError(null);
+
+    if (isReprovado && !values.motivo_reprovacao.trim()) {
+      setMotivoError("Informe o motivo da reprovação.");
+      return;
+    }
+    setMotivoError(null);
 
     setIsSubmitting(true);
     const result = await onSubmit(values);
@@ -98,7 +107,9 @@ export function ProposalForm({
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className={mode === "edit" ? "grid grid-cols-1 gap-4 sm:grid-cols-2" : undefined}>
-        {mode === "edit" && <Input label="Número da proposta" value={values.numero_proposta} disabled />}
+        {mode === "edit" && (
+          <Input label="Número da proposta" value={values.numero_proposta} disabled />
+        )}
         <Input
           label="Data de envio"
           type="date"
@@ -172,7 +183,9 @@ export function ProposalForm({
           label="Segmento"
           placeholder="Sem segmento"
           value={values.segmento ?? ""}
-          onChange={(e) => update("segmento", (e.target.value || null) as ProposalInput["segmento"])}
+          onChange={(e) =>
+            update("segmento", (e.target.value || null) as ProposalInput["segmento"])
+          }
           options={SEGMENTO_OPTIONS}
         />
       </div>
@@ -182,8 +195,20 @@ export function ProposalForm({
           label="Resultado"
           placeholder="Ainda não decidido"
           value={values.resultado ?? ""}
-          onChange={(e) => update("resultado", (e.target.value || null) as ProposalInput["resultado"])}
+          onChange={(e) =>
+            update("resultado", (e.target.value || null) as ProposalInput["resultado"])
+          }
           options={RESULTADO_OPTIONS}
+        />
+      )}
+
+      {isFechado && isReprovado && (
+        <Input
+          label="Motivo"
+          required
+          value={values.motivo_reprovacao}
+          onChange={(e) => update("motivo_reprovacao", e.target.value)}
+          error={motivoError ?? undefined}
         />
       )}
 

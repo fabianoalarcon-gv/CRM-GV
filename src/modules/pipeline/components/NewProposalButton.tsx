@@ -34,6 +34,7 @@ export function NewProposalButton({ columnStatuses }: NewProposalButtonProps) {
     tipo_servico: "spot",
     responsavel_id: null,
     resultado: null,
+    motivo_reprovacao: "",
   };
 
   return (

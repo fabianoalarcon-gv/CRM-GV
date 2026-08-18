@@ -148,6 +148,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     tipo_servico: proposta.tipo_servico ?? ("spot" as const),
     responsavel_id: proposta.responsavel_id,
     resultado: proposta.resultado,
+    motivo_reprovacao: proposta.motivo_reprovacao ?? "",
   };
 
   return (

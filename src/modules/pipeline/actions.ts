@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { isValidNumeroProposta } from "./validation";
+import { isValidMotivoReprovacao, isValidNumeroProposta } from "./validation";
 import type { HistoricoTipo, ProposalInput } from "./types";
 
 export async function updateProposalStatus(proposalId: number, statusId: number) {
@@ -35,6 +35,10 @@ function toRow(input: ProposalInput) {
     tipo_servico: input.tipo_servico,
     responsavel_id: input.responsavel_id,
     resultado: input.resultado,
+    // Só guarda motivo quando o resultado realmente é reprovado — evita um
+    // motivo "fantasma" sobrevivendo se o usuário mudar de ideia depois.
+    motivo_reprovacao:
+      input.resultado === "reprovado" ? input.motivo_reprovacao.trim() || null : null,
   };
 }
 
@@ -44,6 +48,10 @@ function friendlyError(error: { code?: string; message: string }): string {
 }
 
 export async function createProposal(input: ProposalInput) {
+  if (!isValidMotivoReprovacao(input.resultado, input.motivo_reprovacao)) {
+    return { error: "Informe o motivo da reprovação." };
+  }
+
   const supabase = await createClient();
 
   // Número da proposta é sempre gerado pelo sistema na criação (PNNN/AA,
@@ -69,6 +77,9 @@ export async function createProposal(input: ProposalInput) {
 export async function updateProposal(proposalId: number, input: ProposalInput) {
   if (!isValidNumeroProposta(input.numero_proposta)) {
     return { error: "Número da proposta inválido. Use o formato NNN/AA (ex: 028/25)." };
+  }
+  if (!isValidMotivoReprovacao(input.resultado, input.motivo_reprovacao)) {
+    return { error: "Informe o motivo da reprovação." };
   }
 
   const supabase = await createClient();
