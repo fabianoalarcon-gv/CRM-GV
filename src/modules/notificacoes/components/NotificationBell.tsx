@@ -45,6 +45,7 @@ export function NotificationBell() {
       <button
         type="button"
         onClick={handleOpen}
+        title="Notificações"
         aria-label={hasUnread ? "Notificações — há novidades" : "Notificações"}
         className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-brand-graphite hover:bg-black/[.04]"
       >
