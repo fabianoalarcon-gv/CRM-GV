@@ -362,7 +362,6 @@ export function DashboardView({
 
       <RankingTable
         propostas={leadsRanking}
-        title="Ranking"
         subtitle="Leads de maior valor"
         icon="person_search"
         iconColor="var(--color-chart-cat-3)"

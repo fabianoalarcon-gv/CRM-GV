@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
+import { TermometroBadge } from "@/modules/pipeline/components/TermometroBadge";
 import { formatCurrency } from "../utils";
 import { CardIcon } from "./CardIcon";
 import type { DashboardProposta } from "../types";
@@ -37,7 +38,7 @@ export interface RankingTableProps {
 
 export function RankingTable({
   propostas,
-  title = "Ranking",
+  title = "Ranking Top 5",
   subtitle = "Propostas de maior valor",
   icon = "leaderboard",
   iconColor = "var(--color-temp-morno)",
@@ -63,6 +64,7 @@ export function RankingTable({
                 <TableHead>Nº</TableHead>
                 <TableHead>Empresa</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Termômetro</TableHead>
                 <TableHead>Valor</TableHead>
               </TableRow>
             </TableHeader>
@@ -75,6 +77,9 @@ export function RankingTable({
                   <TableCell>{p.empresa_nome}</TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(p)}>{statusLabel(p)}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <TermometroBadge value={p.termometro} />
                   </TableCell>
                   <TableCell className="font-mono font-semibold">
                     {formatCurrency(p.valor)}
