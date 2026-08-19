@@ -21,6 +21,7 @@ import {
   computeTermometroBreakdown,
   formatCurrency,
   formatDaysLegend,
+  formatEmpresaLegend,
   isLeadRecord,
   isPipelineRecord,
   PIPELINE_STATUS_ORDER,
@@ -132,8 +133,11 @@ export function DashboardView({
   // Pipeline não conta mais como Lead.
   const leadsFiltered = useMemo(() => filtered.filter(isLeadRecord), [filtered]);
   const leadsMonthly = useMemo(() => computeLeadMonthlyAggregates(leadsFiltered), [leadsFiltered]);
-  const origemBreakdown = useMemo(() => computeOrigemBreakdown(leadsFiltered), [leadsFiltered]);
   const leadsRanking = useMemo(() => rankTopPropostas(leadsFiltered, 5), [leadsFiltered]);
+  // Origem é uma característica da empresa, não da etapa do registro — conta
+  // tanto Leads quanto Propostas, senão a visão fica incompleta (uma empresa
+  // que já virou Proposta desaparecia do gráfico).
+  const origemBreakdown = useMemo(() => computeOrigemBreakdown(filtered), [filtered]);
 
   // Cadência de ações e tempo por etapa são cruzados entre Leads e Pipeline
   // por natureza (uma ação pode ter sido registrada quando o registro ainda
@@ -370,8 +374,10 @@ export function DashboardView({
           subtitle="Origem dos Leads"
           icon="share"
           iconColor="var(--color-chart-cat-4)"
-          emptyMessage="Nenhum Lead no período selecionado."
+          emptyMessage="Nenhuma empresa no período selecionado."
           data={origemBreakdown}
+          legendFormatter={(item) => formatEmpresaLegend(item.count)}
+          centered
         />
       </div>
 

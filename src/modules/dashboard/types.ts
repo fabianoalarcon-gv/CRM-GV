@@ -8,6 +8,7 @@ export interface DashboardProposta {
   id: number;
   numero_proposta: string | null;
   numero_lead: string | null;
+  empresa_id: number;
   empresa_nome: string;
   origem_lead: string | null;
   valor: number;

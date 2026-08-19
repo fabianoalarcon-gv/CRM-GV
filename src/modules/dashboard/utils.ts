@@ -374,19 +374,25 @@ export function computeLeadMonthlyAggregates(propostas: DashboardProposta[]): Mo
   return Array.from(map.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
 }
 
+// Conta EMPRESAS distintas por origem, não propostas/leads — uma empresa com
+// vários registros (leads e/ou propostas) não pode contar várias vezes a
+// mesma origem, senão o gráfico infla artificialmente quem tem mais volume.
 export function computeOrigemBreakdown(propostas: DashboardProposta[]): CategoryBreakdown[] {
-  const total = propostas.length;
-  const map = new Map<string, { label: string; count: number; valor: number }>();
-  for (const o of ORIGEM_LEAD_OPTIONS) map.set(o.value, { label: o.label, count: 0, valor: 0 });
-
-  let semOrigem = { count: 0, valor: 0 };
+  const origemPorEmpresa = new Map<number, string | null>();
   for (const p of propostas) {
-    if (p.origem_lead && map.has(p.origem_lead)) {
-      const entry = map.get(p.origem_lead)!;
-      entry.count += 1;
-      entry.valor += p.valor;
+    if (!origemPorEmpresa.has(p.empresa_id)) origemPorEmpresa.set(p.empresa_id, p.origem_lead);
+  }
+  const total = origemPorEmpresa.size;
+
+  const map = new Map<string, { label: string; count: number }>();
+  for (const o of ORIGEM_LEAD_OPTIONS) map.set(o.value, { label: o.label, count: 0 });
+
+  let semOrigem = 0;
+  for (const origem of origemPorEmpresa.values()) {
+    if (origem && map.has(origem)) {
+      map.get(origem)!.count += 1;
     } else {
-      semOrigem = { count: semOrigem.count + 1, valor: semOrigem.valor + p.valor };
+      semOrigem += 1;
     }
   }
 
@@ -397,18 +403,18 @@ export function computeOrigemBreakdown(propostas: DashboardProposta[]): Category
         key,
         label: v.label,
         count: v.count,
-        valor: v.valor,
+        valor: 0,
         pct: total > 0 ? v.count / total : 0,
       });
     }
   }
-  if (semOrigem.count > 0) {
+  if (semOrigem > 0) {
     result.push({
       key: "sem_origem",
       label: "Sem origem",
-      count: semOrigem.count,
-      valor: semOrigem.valor,
-      pct: total > 0 ? semOrigem.count / total : 0,
+      count: semOrigem,
+      valor: 0,
+      pct: total > 0 ? semOrigem / total : 0,
     });
   }
   return result;
@@ -416,6 +422,10 @@ export function computeOrigemBreakdown(propostas: DashboardProposta[]): Category
 
 export function formatDaysLegend(avgDays: number, amostras: number): string {
   return `${avgDays.toFixed(1)} dias em média · ${amostras} amostra${amostras === 1 ? "" : "s"}`;
+}
+
+export function formatEmpresaLegend(count: number): string {
+  return `${count} Empresa${count === 1 ? "" : "s"}`;
 }
 
 // Tempo médio entre duas ações CONSECUTIVAS DA MESMA CATEGORIA no mesmo

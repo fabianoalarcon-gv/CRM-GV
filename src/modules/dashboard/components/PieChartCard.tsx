@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/Card";
+import { cn } from "@/lib/cn";
 import { formatBreakdownLegend, type CategoryBreakdown } from "../utils";
 import { CardIcon } from "./CardIcon";
 
@@ -13,6 +14,10 @@ export interface PieChartCardProps {
   // campos count/valor de CategoryBreakdown são reaproveitados pra outra
   // grandeza (ex: dias em média, em vez de contagem de propostas).
   legendFormatter?: (item: CategoryBreakdown) => string;
+  // Centraliza o bloco gráfico+legenda como um grupo compacto (em vez da
+  // legenda esticar até a borda do card) — melhor quando a legenda tem
+  // poucos itens/textos curtos, que senão ficam desbalanceados pra esquerda.
+  centered?: boolean;
 }
 
 // Paleta categórica do Dashboard (globals.css) — hex fixo aqui só pra decidir
@@ -70,6 +75,7 @@ export function PieChartCard({
   emptyMessage = "Nenhuma proposta no período selecionado.",
   data,
   legendFormatter,
+  centered = false,
 }: PieChartCardProps) {
   const total = data.reduce((sum, d) => sum + d.count, 0);
 
@@ -164,7 +170,7 @@ export function PieChartCard({
               )}
             </svg>
 
-            <div className="flex w-full min-w-0 flex-col gap-2">
+            <div className={cn("flex min-w-0 flex-col gap-2", centered ? "w-fit" : "w-full")}>
               {items.map((item) => (
                 <div key={item.key} className="flex items-center gap-2.5">
                   <span
