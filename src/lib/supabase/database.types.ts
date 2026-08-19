@@ -567,6 +567,42 @@ export type Database = {
           },
         ]
       }
+      propostas_status_historico: {
+        Row: {
+          entrou_em: string
+          id: number
+          proposta_id: number
+          status_id: number
+        }
+        Insert: {
+          entrou_em?: string
+          id?: never
+          proposta_id: number
+          status_id: number
+        }
+        Update: {
+          entrou_em?: string
+          id?: never
+          proposta_id?: number
+          status_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "propostas_status_historico_proposta_id_fkey"
+            columns: ["proposta_id"]
+            isOneToOne: false
+            referencedRelation: "propostas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "propostas_status_historico_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "proposal_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

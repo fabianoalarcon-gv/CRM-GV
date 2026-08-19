@@ -9,8 +9,10 @@ export interface DashboardProposta {
   numero_proposta: string | null;
   numero_lead: string | null;
   empresa_nome: string;
+  origem_lead: string | null;
   valor: number;
   data_envio: string;
+  data_inicio_lead: string;
   tipo_servico: TipoServico;
   servico: string | null;
   segmento: Segmento | null;
@@ -19,6 +21,18 @@ export interface DashboardProposta {
   status_label: string;
   status_sort_order: number;
   resultado: Resultado | null;
+}
+
+export interface DashboardAcao {
+  proposta_id: number;
+  tipo: string;
+  inicio: string;
+}
+
+export interface DashboardStatusHistoricoEntry {
+  proposta_id: number;
+  status_key: StatusKey;
+  entrou_em: string;
 }
 
 export interface DashboardFilters {

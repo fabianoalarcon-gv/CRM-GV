@@ -7,15 +7,21 @@ import { Select } from "@/components/ui/Select";
 import { SEGMENTO_OPTIONS } from "@/modules/pipeline/types";
 import {
   applyFilters,
+  computeAcaoIntervalBreakdown,
   computeConversionRates,
   computeForecast,
   computeFunnelStages,
+  computeLeadMonthlyAggregates,
   computeMonthlyAggregates,
+  computeOrigemBreakdown,
   computeSegmentoBreakdown,
   computeServicoBreakdown,
+  computeStageDurations,
   computeStatusAggregates,
   computeTermometroBreakdown,
   formatCurrency,
+  formatDaysLegend,
+  rankTopLeads,
   rankTopPropostas,
 } from "../utils";
 import { KpiCard } from "./KpiCard";
@@ -23,8 +29,15 @@ import { MonthlyBarChart } from "./MonthlyBarChart";
 import { PieChartCard } from "./PieChartCard";
 import { RankingTable } from "./RankingTable";
 import { SalesFunnel } from "./SalesFunnel";
+import { StageDurationCard } from "./StageDurationCard";
 import { ThermometerChart } from "./ThermometerChart";
-import type { DashboardFilters, DashboardProposta, StatusKey } from "../types";
+import type {
+  DashboardAcao,
+  DashboardFilters,
+  DashboardProposta,
+  DashboardStatusHistoricoEntry,
+  StatusKey,
+} from "../types";
 
 const TODOS_OPTION = { value: "", label: "Todos" };
 
@@ -55,9 +68,16 @@ const EMPTY_FILTERS: DashboardFilters = {
 export interface DashboardViewProps {
   propostas: DashboardProposta[];
   statusLabels: Partial<Record<StatusKey, string>>;
+  acoes: DashboardAcao[];
+  statusHistorico: DashboardStatusHistoricoEntry[];
 }
 
-export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
+export function DashboardView({
+  propostas,
+  statusLabels,
+  acoes,
+  statusHistorico,
+}: DashboardViewProps) {
   const [filters, setFilters] = useState<DashboardFilters>(EMPTY_FILTERS);
 
   const servicoOptions = useMemo(() => {
@@ -86,6 +106,23 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
   const segmentoBreakdown = useMemo(() => computeSegmentoBreakdown(filtered), [filtered]);
   const servicoBreakdown = useMemo(() => computeServicoBreakdown(filtered, 4), [filtered]);
   const termometroBreakdown = useMemo(() => computeTermometroBreakdown(filtered), [filtered]);
+
+  const filteredIds = useMemo(() => new Set(filtered.map((p) => p.id)), [filtered]);
+  const leadsMonthly = useMemo(() => computeLeadMonthlyAggregates(filtered), [filtered]);
+  const origemBreakdown = useMemo(() => computeOrigemBreakdown(filtered), [filtered]);
+  const leadsRanking = useMemo(() => rankTopLeads(filtered, 5), [filtered]);
+  const acoesFiltradas = useMemo(
+    () => acoes.filter((a) => filteredIds.has(a.proposta_id)),
+    [acoes, filteredIds],
+  );
+  const acaoIntervalBreakdown = useMemo(
+    () => computeAcaoIntervalBreakdown(acoesFiltradas),
+    [acoesFiltradas],
+  );
+  const stageDurations = useMemo(
+    () => computeStageDurations(statusHistorico, filteredIds, statusLabels),
+    [statusHistorico, filteredIds, statusLabels],
+  );
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);
   const qtdTotal = filtered.length;
@@ -284,6 +321,55 @@ export function DashboardView({ propostas, statusLabels }: DashboardViewProps) {
       </div>
 
       <RankingTable propostas={ranking} />
+
+      <div>
+        <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">Leads</p>
+        <h2 className="mt-1 font-display text-xl font-semibold tracking-tight text-foreground">
+          Indicadores de Leads
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MonthlyBarChart
+          monthly={leadsMonthly}
+          title="Leads por mês"
+          subtitle="Volume de Leads criados ao longo do tempo"
+          icon="person_add"
+          iconColor="var(--color-chart-cat-3)"
+          emptyMessage="Nenhum Lead no período selecionado."
+          metric="count"
+        />
+        <PieChartCard
+          title="Origem"
+          subtitle="Origem dos Leads"
+          icon="share"
+          iconColor="var(--color-chart-cat-4)"
+          emptyMessage="Nenhum Lead no período selecionado."
+          data={origemBreakdown}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <PieChartCard
+          title="Cadência"
+          subtitle="Tempo médio entre ações por categoria"
+          icon="event_repeat"
+          iconColor="var(--color-chart-cat-5)"
+          emptyMessage="Sem ações repetidas na mesma categoria no período selecionado."
+          data={acaoIntervalBreakdown}
+          legendFormatter={(item) => formatDaysLegend(item.count, item.valor)}
+        />
+        <StageDurationCard stages={stageDurations} />
+      </div>
+
+      <RankingTable
+        propostas={leadsRanking}
+        title="Ranking"
+        subtitle="Leads de maior valor"
+        icon="person_search"
+        iconColor="var(--color-chart-cat-3)"
+        emptyMessage="Nenhum Lead no menu Leads no período selecionado."
+      />
     </div>
   );
 }

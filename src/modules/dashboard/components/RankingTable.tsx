@@ -1,6 +1,13 @@
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/Card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 import { formatCurrency } from "../utils";
 import { CardIcon } from "./CardIcon";
 import type { DashboardProposta } from "../types";
@@ -21,22 +28,34 @@ function statusLabel(p: DashboardProposta): string {
 
 export interface RankingTableProps {
   propostas: DashboardProposta[];
+  title?: string;
+  subtitle?: string;
+  icon?: string;
+  iconColor?: string;
+  emptyMessage?: string;
 }
 
-export function RankingTable({ propostas }: RankingTableProps) {
+export function RankingTable({
+  propostas,
+  title = "Ranking",
+  subtitle = "Propostas de maior valor",
+  icon = "leaderboard",
+  iconColor = "var(--color-temp-morno)",
+  emptyMessage = "Nenhuma proposta no período selecionado.",
+}: RankingTableProps) {
   return (
     <Card>
       <CardContent className="flex flex-col gap-4 px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
-          <CardIcon name="leaderboard" color="var(--color-temp-morno)" />
+          <CardIcon name={icon} color={iconColor} />
           <div>
-            <CardDescription>Ranking</CardDescription>
-            <CardTitle className="mt-1 font-display text-base">Propostas de maior valor</CardTitle>
+            <CardDescription>{title}</CardDescription>
+            <CardTitle className="mt-1 font-display text-base">{subtitle}</CardTitle>
           </div>
         </div>
 
         {propostas.length === 0 ? (
-          <p className="text-sm text-brand-graphite-light">Nenhuma proposta no período selecionado.</p>
+          <p className="text-sm text-brand-graphite-light">{emptyMessage}</p>
         ) : (
           <Table>
             <TableHeader>
@@ -57,7 +76,9 @@ export function RankingTable({ propostas }: RankingTableProps) {
                   <TableCell>
                     <Badge variant={statusVariant(p)}>{statusLabel(p)}</Badge>
                   </TableCell>
-                  <TableCell className="font-mono font-semibold">{formatCurrency(p.valor)}</TableCell>
+                  <TableCell className="font-mono font-semibold">
+                    {formatCurrency(p.valor)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

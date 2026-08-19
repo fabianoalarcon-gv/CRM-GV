@@ -1,5 +1,15 @@
-import { SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
-import type { DashboardFilters, DashboardProposta, StatusKey } from "./types";
+import { ORIGEM_LEAD_OPTIONS } from "@/modules/empresas/constants";
+import { TIPO_LABEL } from "@/modules/calendario/utils";
+import { LEADS_STATUS_KEYS, SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
+import type {
+  DashboardAcao,
+  DashboardFilters,
+  DashboardProposta,
+  DashboardStatusHistoricoEntry,
+  StatusKey,
+} from "./types";
+
+const LEADS_STATUS_KEY_SET = new Set<string>(LEADS_STATUS_KEYS);
 
 export const STATUS_ORDER: StatusKey[] = [
   "prospeccao",
@@ -310,6 +320,190 @@ export function computeTermometroBreakdown(propostas: DashboardProposta[]): Term
       count: v.count,
       valor: v.valor,
       pct: total > 0 ? v.count / total : 0,
+    };
+  });
+}
+
+// --- Indicadores de Leads ---
+
+export function isLeadRecord(p: DashboardProposta): boolean {
+  return LEADS_STATUS_KEY_SET.has(p.status_key);
+}
+
+// Mesmo agrupamento por mês do gráfico de propostas, mas usando a data de
+// início do Lead (campo que o usuário controla) em vez da data de envio da
+// proposta — mostra quando o Lead entrou, não quando virou proposta formal.
+export function computeLeadMonthlyAggregates(propostas: DashboardProposta[]): MonthlyAggregate[] {
+  const map = new Map<string, MonthlyAggregate>();
+
+  for (const p of propostas) {
+    const date = new Date(`${p.data_inicio_lead}T00:00:00`);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const existing = map.get(monthKey);
+    if (existing) {
+      existing.count += 1;
+      existing.valor += p.valor;
+    } else {
+      map.set(monthKey, {
+        monthKey,
+        label: monthLabelFormatter.format(date),
+        count: 1,
+        valor: p.valor,
+      });
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+}
+
+export function computeOrigemBreakdown(propostas: DashboardProposta[]): CategoryBreakdown[] {
+  const total = propostas.length;
+  const map = new Map<string, { label: string; count: number; valor: number }>();
+  for (const o of ORIGEM_LEAD_OPTIONS) map.set(o.value, { label: o.label, count: 0, valor: 0 });
+
+  let semOrigem = { count: 0, valor: 0 };
+  for (const p of propostas) {
+    if (p.origem_lead && map.has(p.origem_lead)) {
+      const entry = map.get(p.origem_lead)!;
+      entry.count += 1;
+      entry.valor += p.valor;
+    } else {
+      semOrigem = { count: semOrigem.count + 1, valor: semOrigem.valor + p.valor };
+    }
+  }
+
+  const result: CategoryBreakdown[] = [];
+  for (const [key, v] of map) {
+    if (v.count > 0) {
+      result.push({
+        key,
+        label: v.label,
+        count: v.count,
+        valor: v.valor,
+        pct: total > 0 ? v.count / total : 0,
+      });
+    }
+  }
+  if (semOrigem.count > 0) {
+    result.push({
+      key: "sem_origem",
+      label: "Sem origem",
+      count: semOrigem.count,
+      valor: semOrigem.valor,
+      pct: total > 0 ? semOrigem.count / total : 0,
+    });
+  }
+  return result;
+}
+
+// Mesmo ranking de RankingTable, mas só entre registros que ainda estão no
+// menu Leads (Prospecção/Qualificação/Arquivado) — uma proposta já promovida
+// pro Pipeline não conta mais como Lead.
+export function rankTopLeads(propostas: DashboardProposta[], limit = 5): DashboardProposta[] {
+  return rankTopPropostas(propostas.filter(isLeadRecord), limit);
+}
+
+export function formatDaysLegend(avgDays: number, amostras: number): string {
+  return `${avgDays.toFixed(1)} dias em média · ${amostras} amostra${amostras === 1 ? "" : "s"}`;
+}
+
+// Tempo médio entre duas ações CONSECUTIVAS DA MESMA CATEGORIA no mesmo
+// Lead/Proposta (ex: quantos dias em média se passam entre uma ligação e a
+// próxima, no mesmo registro) — não entre categorias diferentes. Reaproveita
+// CategoryBreakdown: `count` guarda a média em dias (é o que dimensiona a
+// fatia do gráfico), `valor` guarda o nº de intervalos medidos.
+export function computeAcaoIntervalBreakdown(acoes: DashboardAcao[]): CategoryBreakdown[] {
+  const byPropostaTipo = new Map<string, string[]>();
+  for (const a of acoes) {
+    if (!a.tipo) continue;
+    const key = `${a.proposta_id}|${a.tipo}`;
+    const arr = byPropostaTipo.get(key) ?? [];
+    arr.push(a.inicio);
+    byPropostaTipo.set(key, arr);
+  }
+
+  const diffsByTipo = new Map<string, number[]>();
+  for (const [key, inicios] of byPropostaTipo) {
+    if (inicios.length < 2) continue;
+    const tipo = key.slice(key.indexOf("|") + 1);
+    const sorted = [...inicios].sort();
+    for (let i = 1; i < sorted.length; i++) {
+      const diffDays =
+        (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime()) / 86_400_000;
+      const arr = diffsByTipo.get(tipo) ?? [];
+      arr.push(diffDays);
+      diffsByTipo.set(tipo, arr);
+    }
+  }
+
+  const entries = Array.from(diffsByTipo.entries()).map(([tipo, diffs]) => ({
+    tipo,
+    avgDays: diffs.reduce((sum, d) => sum + d, 0) / diffs.length,
+    amostras: diffs.length,
+  }));
+
+  const totalAvgDays = entries.reduce((sum, e) => sum + e.avgDays, 0);
+
+  return entries
+    .sort((a, b) => b.avgDays - a.avgDays)
+    .map((e) => ({
+      key: e.tipo,
+      label: TIPO_LABEL[e.tipo as keyof typeof TIPO_LABEL] ?? e.tipo,
+      count: e.avgDays,
+      valor: e.amostras,
+      pct: totalAvgDays > 0 ? e.avgDays / totalAvgDays : 0,
+    }));
+}
+
+export interface StageDuration {
+  status: StatusKey;
+  label: string;
+  avgDays: number;
+  amostras: number;
+}
+
+const STAGE_DURATION_TARGETS: StatusKey[] = ["prospeccao", "negociacao"];
+
+// Duração de um estágio = diferença entre a linha do histórico e a próxima da
+// mesma proposta (ou "agora", se for a mais recente — ainda em andamento
+// nesse estágio). `allowedIds`, quando informado, restringe às propostas do
+// conjunto filtrado no momento (mesmo padrão dos outros indicadores da
+// página).
+export function computeStageDurations(
+  historico: DashboardStatusHistoricoEntry[],
+  allowedIds: Set<number> | null,
+  statusLabels: Partial<Record<StatusKey, string>>,
+): StageDuration[] {
+  const byProposta = new Map<number, DashboardStatusHistoricoEntry[]>();
+  for (const h of historico) {
+    if (allowedIds && !allowedIds.has(h.proposta_id)) continue;
+    const arr = byProposta.get(h.proposta_id) ?? [];
+    arr.push(h);
+    byProposta.set(h.proposta_id, arr);
+  }
+
+  const now = Date.now();
+  const daysByStatus = new Map<StatusKey, number[]>();
+
+  for (const entries of byProposta.values()) {
+    const sorted = [...entries].sort((a, b) => a.entrou_em.localeCompare(b.entrou_em));
+    for (let i = 0; i < sorted.length; i++) {
+      const start = new Date(sorted[i].entrou_em).getTime();
+      const end = i + 1 < sorted.length ? new Date(sorted[i + 1].entrou_em).getTime() : now;
+      const days = (end - start) / 86_400_000;
+      const arr = daysByStatus.get(sorted[i].status_key) ?? [];
+      arr.push(days);
+      daysByStatus.set(sorted[i].status_key, arr);
+    }
+  }
+
+  return STAGE_DURATION_TARGETS.map((status) => {
+    const days = daysByStatus.get(status) ?? [];
+    return {
+      status,
+      label: statusLabels[status] ?? status,
+      avgDays: days.length > 0 ? days.reduce((sum, d) => sum + d, 0) / days.length : 0,
+      amostras: days.length,
     };
   });
 }

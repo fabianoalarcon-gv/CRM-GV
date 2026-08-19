@@ -9,6 +9,10 @@ export interface PieChartCardProps {
   iconColor: string;
   emptyMessage?: string;
   data: CategoryBreakdown[];
+  // Sobrescreve a legenda padrão ("N Propostas - R$ X") — usado quando os
+  // campos count/valor de CategoryBreakdown são reaproveitados pra outra
+  // grandeza (ex: dias em média, em vez de contagem de propostas).
+  legendFormatter?: (item: CategoryBreakdown) => string;
 }
 
 // Paleta categórica do Dashboard (globals.css) — hex fixo aqui só pra decidir
@@ -65,6 +69,7 @@ export function PieChartCard({
   iconColor,
   emptyMessage = "Nenhuma proposta no período selecionado.",
   data,
+  legendFormatter,
 }: PieChartCardProps) {
   const total = data.reduce((sum, d) => sum + d.count, 0);
 
@@ -169,7 +174,9 @@ export function PieChartCard({
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-foreground">{item.label}</p>
                     <p className="font-mono text-xs text-brand-graphite-light">
-                      {formatBreakdownLegend(item.count, item.valor)}
+                      {legendFormatter
+                        ? legendFormatter(item)
+                        : formatBreakdownLegend(item.count, item.valor)}
                     </p>
                   </div>
                 </div>
