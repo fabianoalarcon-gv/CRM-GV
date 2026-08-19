@@ -17,14 +17,14 @@ export function SalesFunnel({ stages }: SalesFunnelProps) {
           <CardIcon name="filter_alt" color="var(--color-brand-accent)" />
           <div>
             <CardDescription>Funil de vendas</CardDescription>
-            <CardTitle className="mt-1 font-display text-base">
-              Da prospecção ao fechamento
-            </CardTitle>
+            <CardTitle className="mt-1 font-display text-base">Da proposta ao fechamento</CardTitle>
           </div>
         </div>
 
         {total === 0 ? (
-          <p className="text-sm text-brand-graphite-light">Nenhuma proposta no período selecionado.</p>
+          <p className="text-sm text-brand-graphite-light">
+            Nenhuma proposta no período selecionado.
+          </p>
         ) : (
           <div className="flex flex-col items-center">
             {stages.map((stage, i) => {
@@ -39,7 +39,9 @@ export function SalesFunnel({ stages }: SalesFunnelProps) {
                     className="flex h-12 items-center justify-between gap-3 px-5 text-sm font-semibold text-white"
                     style={{
                       width: `${widthPct}%`,
-                      backgroundColor: isLast ? "var(--color-brand-accent)" : "var(--color-brand-navy)",
+                      backgroundColor: isLast
+                        ? "var(--color-brand-accent)"
+                        : "var(--color-brand-navy)",
                       clipPath: "polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%)",
                     }}
                   >

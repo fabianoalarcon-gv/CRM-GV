@@ -1,6 +1,11 @@
 import { ORIGEM_LEAD_OPTIONS } from "@/modules/empresas/constants";
 import { TIPO_LABEL } from "@/modules/calendario/utils";
-import { LEADS_STATUS_KEYS, SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
+import {
+  LEADS_STATUS_KEYS,
+  PIPELINE_STATUS_KEYS,
+  SEGMENTO_OPTIONS,
+  type Termometro,
+} from "@/modules/pipeline/types";
 import type {
   DashboardAcao,
   DashboardFilters,
@@ -10,6 +15,7 @@ import type {
 } from "./types";
 
 const LEADS_STATUS_KEY_SET = new Set<string>(LEADS_STATUS_KEYS);
+const PIPELINE_STATUS_KEY_SET = new Set<string>(PIPELINE_STATUS_KEYS);
 
 export const STATUS_ORDER: StatusKey[] = [
   "prospeccao",
@@ -18,6 +24,11 @@ export const STATUS_ORDER: StatusKey[] = [
   "negociacao",
   "fechado",
 ];
+
+// Estágios exibidos no menu Pipeline — usado tanto pra filtrar os registros
+// dos indicadores de Propostas quanto pra limitar o Funil de Vendas a essas
+// 3 etapas (Prospecção/Qualificação são etapas de Lead, não de Pipeline).
+export const PIPELINE_STATUS_ORDER: StatusKey[] = ["proposta", "negociacao", "fechado"];
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -56,9 +67,10 @@ export interface StatusAggregate {
 export function computeStatusAggregates(
   propostas: DashboardProposta[],
   labelByStatus: Partial<Record<StatusKey, string>> = {},
+  order: StatusKey[] = STATUS_ORDER,
 ): StatusAggregate[] {
   const map = new Map<StatusKey, StatusAggregate>();
-  for (const key of STATUS_ORDER) {
+  for (const key of order) {
     map.set(key, { status: key, label: labelByStatus[key] ?? key, count: 0, valor: 0 });
   }
   for (const p of propostas) {
@@ -67,7 +79,7 @@ export function computeStatusAggregates(
     agg.count += 1;
     agg.valor += p.valor;
   }
-  return STATUS_ORDER.map((key) => map.get(key)!);
+  return order.map((key) => map.get(key)!);
 }
 
 export interface FunnelStage {
@@ -330,6 +342,12 @@ export function isLeadRecord(p: DashboardProposta): boolean {
   return LEADS_STATUS_KEY_SET.has(p.status_key);
 }
 
+// Um registro só existe no menu Pipeline a partir do estágio "Proposta" em
+// diante — os mesmos 3 estágios do Funil de Vendas.
+export function isPipelineRecord(p: DashboardProposta): boolean {
+  return PIPELINE_STATUS_KEY_SET.has(p.status_key);
+}
+
 // Mesmo agrupamento por mês do gráfico de propostas, mas usando a data de
 // início do Lead (campo que o usuário controla) em vez da data de envio da
 // proposta — mostra quando o Lead entrou, não quando virou proposta formal.
@@ -394,13 +412,6 @@ export function computeOrigemBreakdown(propostas: DashboardProposta[]): Category
     });
   }
   return result;
-}
-
-// Mesmo ranking de RankingTable, mas só entre registros que ainda estão no
-// menu Leads (Prospecção/Qualificação/Arquivado) — uma proposta já promovida
-// pro Pipeline não conta mais como Lead.
-export function rankTopLeads(propostas: DashboardProposta[], limit = 5): DashboardProposta[] {
-  return rankTopPropostas(propostas.filter(isLeadRecord), limit);
 }
 
 export function formatDaysLegend(avgDays: number, amostras: number): string {

@@ -21,7 +21,9 @@ import {
   computeTermometroBreakdown,
   formatCurrency,
   formatDaysLegend,
-  rankTopLeads,
+  isLeadRecord,
+  isPipelineRecord,
+  PIPELINE_STATUS_ORDER,
   rankTopPropostas,
 } from "../utils";
 import { KpiCard } from "./KpiCard";
@@ -95,23 +97,49 @@ export function DashboardView({
   }, [propostas]);
 
   const filtered = useMemo(() => applyFilters(propostas, filters), [propostas, filters]);
-  const statusAggregates = useMemo(
-    () => computeStatusAggregates(filtered, statusLabels),
-    [filtered, statusLabels],
-  );
-  const rates = useMemo(() => computeConversionRates(filtered), [filtered]);
-  const monthly = useMemo(() => computeMonthlyAggregates(filtered), [filtered]);
-  const forecast = useMemo(() => computeForecast(filtered, rates), [filtered, rates]);
-  const funnelStages = useMemo(() => computeFunnelStages(statusAggregates), [statusAggregates]);
-  const ranking = useMemo(() => rankTopPropostas(filtered, 5), [filtered]);
-  const segmentoBreakdown = useMemo(() => computeSegmentoBreakdown(filtered), [filtered]);
-  const servicoBreakdown = useMemo(() => computeServicoBreakdown(filtered, 4), [filtered]);
-  const termometroBreakdown = useMemo(() => computeTermometroBreakdown(filtered), [filtered]);
 
+  // Indicadores de Propostas: só registros que estão no menu Pipeline
+  // (Proposta/Negociação/Fechado) — Prospecção/Qualificação/Arquivado são
+  // etapas de Lead, não entram aqui.
+  const pipelineFiltered = useMemo(() => filtered.filter(isPipelineRecord), [filtered]);
+  const statusAggregates = useMemo(
+    () => computeStatusAggregates(pipelineFiltered, statusLabels, PIPELINE_STATUS_ORDER),
+    [pipelineFiltered, statusLabels],
+  );
+  const rates = useMemo(() => computeConversionRates(pipelineFiltered), [pipelineFiltered]);
+  const monthly = useMemo(() => computeMonthlyAggregates(pipelineFiltered), [pipelineFiltered]);
+  const forecast = useMemo(
+    () => computeForecast(pipelineFiltered, rates),
+    [pipelineFiltered, rates],
+  );
+  const funnelStages = useMemo(() => computeFunnelStages(statusAggregates), [statusAggregates]);
+  const ranking = useMemo(() => rankTopPropostas(pipelineFiltered, 5), [pipelineFiltered]);
+  const segmentoBreakdown = useMemo(
+    () => computeSegmentoBreakdown(pipelineFiltered),
+    [pipelineFiltered],
+  );
+  const servicoBreakdown = useMemo(
+    () => computeServicoBreakdown(pipelineFiltered, 4),
+    [pipelineFiltered],
+  );
+  const termometroBreakdown = useMemo(
+    () => computeTermometroBreakdown(pipelineFiltered),
+    [pipelineFiltered],
+  );
+
+  // Indicadores de Leads: só registros que estão no menu Leads
+  // (Prospecção/Qualificação/Arquivado) — uma proposta já promovida pro
+  // Pipeline não conta mais como Lead.
+  const leadsFiltered = useMemo(() => filtered.filter(isLeadRecord), [filtered]);
+  const leadsMonthly = useMemo(() => computeLeadMonthlyAggregates(leadsFiltered), [leadsFiltered]);
+  const origemBreakdown = useMemo(() => computeOrigemBreakdown(leadsFiltered), [leadsFiltered]);
+  const leadsRanking = useMemo(() => rankTopPropostas(leadsFiltered, 5), [leadsFiltered]);
+
+  // Cadência de ações e tempo por etapa são cruzados entre Leads e Pipeline
+  // por natureza (uma ação pode ter sido registrada quando o registro ainda
+  // era Lead; "tempo em Negociação" é uma etapa do Pipeline) — por isso usam
+  // o conjunto filtrado geral, não só um dos dois menus.
   const filteredIds = useMemo(() => new Set(filtered.map((p) => p.id)), [filtered]);
-  const leadsMonthly = useMemo(() => computeLeadMonthlyAggregates(filtered), [filtered]);
-  const origemBreakdown = useMemo(() => computeOrigemBreakdown(filtered), [filtered]);
-  const leadsRanking = useMemo(() => rankTopLeads(filtered, 5), [filtered]);
   const acoesFiltradas = useMemo(
     () => acoes.filter((a) => filteredIds.has(a.proposta_id)),
     [acoes, filteredIds],
@@ -126,17 +154,17 @@ export function DashboardView({
   );
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);
-  const qtdTotal = filtered.length;
+  const qtdTotal = pipelineFiltered.length;
 
-  const propostasAndamento = filtered.filter((p) => p.status_key !== "fechado");
+  const propostasAndamento = pipelineFiltered.filter((p) => p.status_key !== "fechado");
   const valorAndamento = propostasAndamento.reduce((acc, p) => acc + p.valor, 0);
   const qtdAndamento = propostasAndamento.length;
 
-  const propostasAprovadas = filtered.filter((p) => p.resultado === "aprovado");
+  const propostasAprovadas = pipelineFiltered.filter((p) => p.resultado === "aprovado");
   const valorAprovado = propostasAprovadas.reduce((acc, p) => acc + p.valor, 0);
   const qtdAprovado = propostasAprovadas.length;
 
-  const propostasReprovadas = filtered.filter((p) => p.resultado === "reprovado");
+  const propostasReprovadas = pipelineFiltered.filter((p) => p.resultado === "reprovado");
   const valorReprovado = propostasReprovadas.reduce((acc, p) => acc + p.valor, 0);
   const qtdReprovado = propostasReprovadas.length;
 
