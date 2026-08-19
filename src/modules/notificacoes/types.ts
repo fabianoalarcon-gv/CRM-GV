@@ -5,7 +5,12 @@ export type NotificacaoTipo =
   | "movimentacao_card"
   | "proposta_aprovada"
   | "proposta_reprovada"
-  | "nova_acao";
+  | "nova_acao"
+  | "lead_sem_movimentacao"
+  | "proposta_sem_movimentacao"
+  | "empresa_sem_contato"
+  | "lead_sem_acao"
+  | "proposta_sem_acao";
 
 export interface Notificacao {
   id: number;

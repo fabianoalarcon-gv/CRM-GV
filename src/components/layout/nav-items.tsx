@@ -15,4 +15,5 @@ export const navItems: NavItem[] = [
 
 export const adminNavItems: NavItem[] = [
   { label: "Usuários", href: "/usuarios", icon: "admin_panel_settings", adminOnly: true },
+  { label: "Parâmetros", href: "/parametros", icon: "tune", adminOnly: true },
 ];

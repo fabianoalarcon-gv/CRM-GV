@@ -16,6 +16,11 @@ const ICON_BY_TIPO: Record<NotificacaoTipo, { icon: string; color: string }> = {
   proposta_aprovada: { icon: "check_circle", color: "var(--color-status-aprovado)" },
   proposta_reprovada: { icon: "cancel", color: "var(--color-temp-quente)" },
   nova_acao: { icon: "event", color: "var(--color-cal-reuniao)" },
+  lead_sem_movimentacao: { icon: "hourglass_top", color: "var(--color-temp-quente)" },
+  proposta_sem_movimentacao: { icon: "hourglass_bottom", color: "var(--color-temp-quente)" },
+  empresa_sem_contato: { icon: "person_off", color: "var(--color-temp-quente)" },
+  lead_sem_acao: { icon: "event_busy", color: "var(--color-temp-quente)" },
+  proposta_sem_acao: { icon: "notifications_paused", color: "var(--color-temp-quente)" },
 };
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", {

@@ -250,6 +250,7 @@ export type Database = {
           compromisso_id: number | null
           created_at: string
           empresa_id: number | null
+          evento_dia: string | null
           id: number
           mensagem: string
           proposta_id: number | null
@@ -260,6 +261,7 @@ export type Database = {
           compromisso_id?: number | null
           created_at?: string
           empresa_id?: number | null
+          evento_dia?: string | null
           id?: never
           mensagem: string
           proposta_id?: number | null
@@ -270,6 +272,7 @@ export type Database = {
           compromisso_id?: number | null
           created_at?: string
           empresa_id?: number | null
+          evento_dia?: string | null
           id?: never
           mensagem?: string
           proposta_id?: number | null
@@ -333,6 +336,47 @@ export type Database = {
           {
             foreignKeyName: "notificacoes_lidas_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parametros_notificacao: {
+        Row: {
+          dias_empresa_sem_contato: number
+          dias_lead_sem_acao: number
+          dias_lead_sem_movimentacao: number
+          dias_proposta_sem_acao: number
+          dias_proposta_sem_movimentacao: number
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          dias_empresa_sem_contato?: number
+          dias_lead_sem_acao?: number
+          dias_lead_sem_movimentacao?: number
+          dias_proposta_sem_acao?: number
+          dias_proposta_sem_movimentacao?: number
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          dias_empresa_sem_contato?: number
+          dias_lead_sem_acao?: number
+          dias_lead_sem_movimentacao?: number
+          dias_proposta_sem_acao?: number
+          dias_proposta_sem_movimentacao?: number
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parametros_notificacao_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -611,6 +655,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      gerar_notificacoes_diarias: { Args: never; Returns: number }
       gerar_numero_proposta: { Args: never; Returns: string }
       get_unread_notificacoes: {
         Args: never
@@ -619,6 +664,7 @@ export type Database = {
           compromisso_id: number | null
           created_at: string
           empresa_id: number | null
+          evento_dia: string | null
           id: number
           mensagem: string
           proposta_id: number | null
