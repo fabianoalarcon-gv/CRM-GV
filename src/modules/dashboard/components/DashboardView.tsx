@@ -29,6 +29,7 @@ import { MonthlyBarChart } from "./MonthlyBarChart";
 import { PieChartCard } from "./PieChartCard";
 import { RankingTable } from "./RankingTable";
 import { SalesFunnel } from "./SalesFunnel";
+import { SectionHeading } from "./SectionHeading";
 import { StageDurationCard } from "./StageDurationCard";
 import { ThermometerChart } from "./ThermometerChart";
 import type {
@@ -231,6 +232,8 @@ export function DashboardView({
         </div>
       </div>
 
+      <SectionHeading eyebrow="Propostas" title="Indicadores de Propostas" />
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
           label="Valor total em propostas"
@@ -322,12 +325,7 @@ export function DashboardView({
 
       <RankingTable propostas={ranking} />
 
-      <div>
-        <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">Leads</p>
-        <h2 className="mt-1 font-display text-xl font-semibold tracking-tight text-foreground">
-          Indicadores de Leads
-        </h2>
-      </div>
+      <SectionHeading eyebrow="Leads" title="Indicadores de Leads" />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <MonthlyBarChart
