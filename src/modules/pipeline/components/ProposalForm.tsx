@@ -7,8 +7,11 @@ import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
+import { cn } from "@/lib/cn";
 import { usePipelineData } from "../context";
 import {
+  MOTIVO_REPROVACAO_DETALHE_MAX_LENGTH,
+  MOTIVO_REPROVACAO_OPTIONS,
   PIPELINE_STATUS_KEYS,
   SEGMENTO_OPTIONS,
   type ProposalInput,
@@ -54,6 +57,7 @@ export function ProposalForm({
   const [values, setValues] = useState<ProposalInput>(initialValues);
   const [empresaError, setEmpresaError] = useState<string | null>(null);
   const [motivoError, setMotivoError] = useState<string | null>(null);
+  const [detalheError, setDetalheError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [justSaved, setJustSaved] = useState(false);
@@ -65,10 +69,17 @@ export function ProposalForm({
   }, [justSaved]);
 
   function update<K extends keyof ProposalInput>(key: K, value: ProposalInput[K]) {
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setValues((prev) => {
+      const next = { ...prev, [key]: value };
+      // Troca de motivo pra algo diferente de "Outro" descarta o detalhe já
+      // digitado — evita salvar um detalhe "fantasma" de uma opção anterior.
+      if (key === "motivo_reprovacao" && value !== "outro") next.motivo_reprovacao_detalhe = "";
+      return next;
+    });
     setJustSaved(false);
     if (key === "empresa_id") setEmpresaError(null);
     if (key === "resultado" || key === "motivo_reprovacao") setMotivoError(null);
+    if (key === "motivo_reprovacao_detalhe") setDetalheError(null);
   }
 
   const selectedStatus = statuses.find((s) => s.id === values.status_id);
@@ -85,11 +96,21 @@ export function ProposalForm({
     }
     setEmpresaError(null);
 
-    if (isReprovado && !values.motivo_reprovacao.trim()) {
-      setMotivoError("Informe o motivo da reprovação.");
+    if (isReprovado && !values.motivo_reprovacao) {
+      setMotivoError("Selecione o motivo da reprovação.");
       return;
     }
     setMotivoError(null);
+
+    if (
+      isReprovado &&
+      values.motivo_reprovacao === "outro" &&
+      !values.motivo_reprovacao_detalhe.trim()
+    ) {
+      setDetalheError("Descreva o motivo.");
+      return;
+    }
+    setDetalheError(null);
 
     setIsSubmitting(true);
     const result = await onSubmit(values);
@@ -203,13 +224,40 @@ export function ProposalForm({
       )}
 
       {isFechado && isReprovado && (
-        <Input
+        <Select
           label="Motivo"
           required
+          placeholder="Selecione o motivo"
           value={values.motivo_reprovacao}
           onChange={(e) => update("motivo_reprovacao", e.target.value)}
+          options={MOTIVO_REPROVACAO_OPTIONS}
           error={motivoError ?? undefined}
         />
+      )}
+
+      {isFechado && isReprovado && values.motivo_reprovacao === "outro" && (
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-medium text-foreground">Detalhe do motivo</label>
+            <span
+              className={cn(
+                "text-xs",
+                values.motivo_reprovacao_detalhe.length >= MOTIVO_REPROVACAO_DETALHE_MAX_LENGTH
+                  ? "font-semibold text-temp-quente"
+                  : "text-brand-graphite-light",
+              )}
+            >
+              {values.motivo_reprovacao_detalhe.length}/{MOTIVO_REPROVACAO_DETALHE_MAX_LENGTH}
+            </span>
+          </div>
+          <Input
+            required
+            maxLength={MOTIVO_REPROVACAO_DETALHE_MAX_LENGTH}
+            value={values.motivo_reprovacao_detalhe}
+            onChange={(e) => update("motivo_reprovacao_detalhe", e.target.value)}
+            error={detalheError ?? undefined}
+          />
+        </div>
       )}
 
       {formError && <p className="text-sm text-temp-quente">{formError}</p>}

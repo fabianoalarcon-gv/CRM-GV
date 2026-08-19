@@ -17,6 +17,7 @@ import {
   toDatetimeLocalValue,
 } from "@/modules/calendario/utils";
 import { ProposalForm } from "./ProposalForm";
+import { resolveMotivoReprovacaoInicial } from "../types";
 import type { Proposta } from "../types";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
@@ -135,6 +136,11 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
 
   const modalTitle = `Criado em ${dateFormatter.format(new Date(proposta.created_at))}`;
 
+  const { motivo: motivoInicial, detalhe: motivoDetalheInicial } = resolveMotivoReprovacaoInicial(
+    proposta.motivo_reprovacao,
+    proposta.motivo_reprovacao_detalhe,
+  );
+
   const initialValues = {
     numero_proposta: proposta.numero_proposta ?? "",
     data_envio: proposta.data_envio,
@@ -148,7 +154,8 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     tipo_servico: proposta.tipo_servico ?? ("spot" as const),
     responsavel_id: proposta.responsavel_id,
     resultado: proposta.resultado,
-    motivo_reprovacao: proposta.motivo_reprovacao ?? "",
+    motivo_reprovacao: motivoInicial,
+    motivo_reprovacao_detalhe: motivoDetalheInicial,
   };
 
   return (

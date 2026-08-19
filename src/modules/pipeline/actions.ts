@@ -37,8 +37,13 @@ function toRow(input: ProposalInput) {
     resultado: input.resultado,
     // Só guarda motivo quando o resultado realmente é reprovado — evita um
     // motivo "fantasma" sobrevivendo se o usuário mudar de ideia depois.
-    motivo_reprovacao:
-      input.resultado === "reprovado" ? input.motivo_reprovacao.trim() || null : null,
+    motivo_reprovacao: input.resultado === "reprovado" ? input.motivo_reprovacao || null : null,
+    // Detalhe só existe quando o motivo escolhido é "Outro" — trim/slice de
+    // novo aqui é só uma garantia extra (o client já limita a 50 caracteres).
+    motivo_reprovacao_detalhe:
+      input.resultado === "reprovado" && input.motivo_reprovacao === "outro"
+        ? input.motivo_reprovacao_detalhe.trim().slice(0, 50) || null
+        : null,
   };
 }
 
@@ -48,7 +53,13 @@ function friendlyError(error: { code?: string; message: string }): string {
 }
 
 export async function createProposal(input: ProposalInput) {
-  if (!isValidMotivoReprovacao(input.resultado, input.motivo_reprovacao)) {
+  if (
+    !isValidMotivoReprovacao(
+      input.resultado,
+      input.motivo_reprovacao,
+      input.motivo_reprovacao_detalhe,
+    )
+  ) {
     return { error: "Informe o motivo da reprovação." };
   }
 
@@ -78,7 +89,13 @@ export async function updateProposal(proposalId: number, input: ProposalInput) {
   if (!isValidNumeroProposta(input.numero_proposta)) {
     return { error: "Número da proposta inválido. Use o formato NNN/AA (ex: 028/25)." };
   }
-  if (!isValidMotivoReprovacao(input.resultado, input.motivo_reprovacao)) {
+  if (
+    !isValidMotivoReprovacao(
+      input.resultado,
+      input.motivo_reprovacao,
+      input.motivo_reprovacao_detalhe,
+    )
+  ) {
     return { error: "Informe o motivo da reprovação." };
   }
 

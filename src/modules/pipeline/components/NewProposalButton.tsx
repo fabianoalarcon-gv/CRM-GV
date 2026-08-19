@@ -35,6 +35,7 @@ export function NewProposalButton({ columnStatuses }: NewProposalButtonProps) {
     responsavel_id: null,
     resultado: null,
     motivo_reprovacao: "",
+    motivo_reprovacao_detalhe: "",
   };
 
   return (

@@ -14,6 +14,52 @@ export const SEGMENTO_LABEL: Record<Segmento, string> = Object.fromEntries(
   SEGMENTO_OPTIONS.map((o) => [o.value, o.label]),
 ) as Record<Segmento, string>;
 
+// Lista fixa de motivos de reprovação (PIPE) — em ordem alfabética, com
+// "Outro" ao final (convenção de catch-all, fora da ordem alfabética).
+export type MotivoReprovacao =
+  | "condicoes_pagamento"
+  | "desistencia_cliente"
+  | "desistencia_interna"
+  | "falta_capacidade"
+  | "mudanca_escopo"
+  | "prazo_longo"
+  | "restricoes"
+  | "tarifa_alta"
+  | "taxas_adicionais"
+  | "outro";
+
+export const MOTIVO_REPROVACAO_OPTIONS: { value: MotivoReprovacao; label: string }[] = [
+  { value: "condicoes_pagamento", label: "Condições de pagamento" },
+  { value: "desistencia_cliente", label: "Desistência do cliente" },
+  { value: "desistencia_interna", label: "Desistência interna" },
+  { value: "falta_capacidade", label: "Falta de capacidade" },
+  { value: "mudanca_escopo", label: "Mudança de escopo" },
+  { value: "prazo_longo", label: "Prazo longo" },
+  { value: "restricoes", label: "Restrições" },
+  { value: "tarifa_alta", label: "Tarifa alta" },
+  { value: "taxas_adicionais", label: "Taxas adicionais" },
+  { value: "outro", label: "Outro" },
+];
+
+const MOTIVO_REPROVACAO_KEYS = new Set<string>(MOTIVO_REPROVACAO_OPTIONS.map((o) => o.value));
+
+export const MOTIVO_REPROVACAO_DETALHE_MAX_LENGTH = 50;
+
+// Propostas reprovadas antes desta lista fixa existir guardaram o motivo como
+// texto livre — não bate com nenhuma chave conhecida. Trata como "Outro" (e
+// preserva o texto original como detalhe) em vez de perder a informação já
+// registrada.
+export function resolveMotivoReprovacaoInicial(
+  motivo: string | null,
+  detalhe: string | null,
+): { motivo: string; detalhe: string } {
+  if (!motivo) return { motivo: "", detalhe: "" };
+  if (MOTIVO_REPROVACAO_KEYS.has(motivo)) {
+    return { motivo, detalhe: motivo === "outro" ? (detalhe ?? "") : "" };
+  }
+  return { motivo: "outro", detalhe: motivo.slice(0, MOTIVO_REPROVACAO_DETALHE_MAX_LENGTH) };
+}
+
 export interface ProposalStatus {
   id: number;
   key: string;
@@ -48,6 +94,7 @@ export interface Proposta {
   responsavel_id: string | null;
   resultado: Resultado | null;
   motivo_reprovacao: string | null;
+  motivo_reprovacao_detalhe: string | null;
   gerado_de_lead: boolean;
   created_at: string;
   updated_at: string;
@@ -96,4 +143,5 @@ export interface ProposalInput {
   responsavel_id: string | null;
   resultado: Resultado | null;
   motivo_reprovacao: string;
+  motivo_reprovacao_detalhe: string;
 }

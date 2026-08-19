@@ -10,10 +10,15 @@ export function isValidNumeroProposta(value: string): boolean {
 export const NUMERO_PROPOSTA_HINT = "Formato NNN/AA, ex: 028/25 (ou 028/25.1 para revisão)";
 
 // Motivo só é exigido quando o resultado é Reprovado — Aprovado (ou ainda
-// sem decisão) não precisa dele.
+// sem decisão) não precisa dele. Quando o motivo escolhido é "Outro", o
+// detalhe também é obrigatório.
 export function isValidMotivoReprovacao(
   resultado: "aprovado" | "reprovado" | null,
   motivo: string,
+  detalhe: string,
 ): boolean {
-  return resultado !== "reprovado" || motivo.trim().length > 0;
+  if (resultado !== "reprovado") return true;
+  if (!motivo) return false;
+  if (motivo === "outro") return detalhe.trim().length > 0;
+  return true;
 }
