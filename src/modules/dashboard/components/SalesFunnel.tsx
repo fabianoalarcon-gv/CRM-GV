@@ -7,12 +7,21 @@ export interface SalesFunnelProps {
   stages: FunnelStage[];
 }
 
+// Cada camada do funil é um ponto numa rampa contínua entre o navy (início)
+// e o laranja de destaque (fechamento) — reforça a progressão do funil em
+// vez de só "todas navy + a última laranja".
+function stageColor(index: number, total: number): string {
+  if (total <= 1) return "var(--color-brand-accent)";
+  const t = (index / (total - 1)) * 100;
+  return `color-mix(in srgb, var(--color-brand-navy) ${100 - t}%, var(--color-brand-accent) ${t}%)`;
+}
+
 export function SalesFunnel({ stages }: SalesFunnelProps) {
   const total = stages[0]?.count ?? 0;
 
   return (
-    <Card>
-      <CardContent className="flex flex-col gap-4 px-5 pt-6 pb-5">
+    <Card className="h-full">
+      <CardContent className="flex h-full flex-col gap-4 px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
           <CardIcon name="filter_alt" color="var(--color-brand-accent)" />
           <div>
@@ -26,9 +35,9 @@ export function SalesFunnel({ stages }: SalesFunnelProps) {
             Nenhuma proposta no período selecionado.
           </p>
         ) : (
-          <div className="flex flex-col items-center">
+          <div className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2">
             {stages.map((stage, i) => {
-              const widthPct = Math.max((stage.count / total) * 100, 46);
+              const widthPct = Math.max((stage.count / total) * 100, 52);
               const isLast = i === stages.length - 1;
               const next = stages[i + 1];
               const conversion = next && stage.count > 0 ? next.count / stage.count : null;
@@ -36,13 +45,11 @@ export function SalesFunnel({ stages }: SalesFunnelProps) {
               return (
                 <div key={stage.status} className="flex w-full flex-col items-center">
                   <div
-                    className="flex h-12 items-center justify-between gap-3 px-5 text-sm font-semibold text-white"
+                    className="flex h-14 items-center justify-between gap-3 rounded-sm px-5 text-sm font-semibold text-white shadow-[0_2px_6px_rgba(15,23,42,0.18)]"
                     style={{
                       width: `${widthPct}%`,
-                      backgroundColor: isLast
-                        ? "var(--color-brand-accent)"
-                        : "var(--color-brand-navy)",
-                      clipPath: "polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%)",
+                      backgroundColor: stageColor(i, stages.length),
+                      clipPath: "polygon(3% 0%, 97% 0%, 100% 100%, 0% 100%)",
                     }}
                   >
                     <span className="shrink-0 truncate">{stage.label}</span>
@@ -52,7 +59,11 @@ export function SalesFunnel({ stages }: SalesFunnelProps) {
                   </div>
 
                   {!isLast && (
-                    <div className="z-10 -my-2.5 flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-semibold text-brand-graphite shadow-sm">
+                    <div
+                      className="z-10 -my-3 flex items-center gap-1 rounded-full border bg-surface px-2.5 py-1 text-xs font-semibold text-brand-graphite shadow-sm"
+                      style={{ borderColor: stageColor(i, stages.length) }}
+                      title={`${conversion !== null ? `${(conversion * 100).toFixed(0)}%` : "—"} dos registros em "${stage.label}" avançaram para a próxima etapa`}
+                    >
                       {conversion !== null ? `${(conversion * 100).toFixed(0)}%` : "—"}
                       <Icon name="arrow_downward" size={13} className="text-brand-graphite-light" />
                     </div>
