@@ -176,97 +176,96 @@ export function DashboardView({
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-start justify-between gap-6">
+      <div className="flex flex-col gap-6">
         <div>
           <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">
             Visão geral
           </p>
-          <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Dashboard Comercial
-          </h1>
+          <div className="mt-1 flex flex-wrap items-center justify-between gap-4">
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              Dashboard Comercial
+            </h1>
+            <ExportDashboardButton targetRef={exportRef} />
+          </div>
           <p className="mt-2 text-sm text-brand-graphite-light">
             Dashboard com indicadores comercias.
           </p>
         </div>
 
-        <div className="flex flex-col items-end gap-3">
-          <ExportDashboardButton targetRef={exportRef} />
-
-          <div className="flex flex-wrap items-end gap-3">
-            <Input
-              label="De"
-              type="date"
-              value={filters.dataInicio}
-              onChange={(e) => setFilters((prev) => ({ ...prev, dataInicio: e.target.value }))}
-              className="w-40"
-            />
-            <Input
-              label="Até"
-              type="date"
-              value={filters.dataFim}
-              onChange={(e) => setFilters((prev) => ({ ...prev, dataFim: e.target.value }))}
-              className="w-40"
-            />
-            <Select
-              label="Tipo"
-              value={filters.tipoServico}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  tipoServico: e.target.value as DashboardFilters["tipoServico"],
-                }))
-              }
-              options={TIPO_FILTER_OPTIONS}
-              className="w-32"
-            />
-            <Select
-              label="Segmento"
-              value={filters.segmento}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  segmento: e.target.value as DashboardFilters["segmento"],
-                }))
-              }
-              options={SEGMENTO_FILTER_OPTIONS}
-              className="w-36"
-            />
-            <Select
-              label="Serviço"
-              value={filters.servico}
-              onChange={(e) => setFilters((prev) => ({ ...prev, servico: e.target.value }))}
-              options={servicoOptions}
-              className="w-40"
-            />
-            <Select
-              label="Termômetro"
-              value={filters.termometro}
-              onChange={(e) =>
-                setFilters((prev) => ({
-                  ...prev,
-                  termometro: e.target.value as DashboardFilters["termometro"],
-                }))
-              }
-              options={TERMOMETRO_FILTER_OPTIONS}
-              className="w-32"
-            />
-            {(filters.dataInicio ||
-              filters.dataFim ||
-              filters.tipoServico ||
-              filters.segmento ||
-              filters.servico ||
-              filters.termometro) && (
-              <button
-                type="button"
-                onClick={() => setFilters(EMPTY_FILTERS)}
-                title="Limpar filtros"
-                aria-label="Limpar filtros"
-                className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"
-              >
-                <Icon name="close" size={20} />
-              </button>
-            )}
-          </div>
+        <div className="flex flex-wrap items-end justify-end gap-3">
+          <Input
+            label="De"
+            type="date"
+            value={filters.dataInicio}
+            onChange={(e) => setFilters((prev) => ({ ...prev, dataInicio: e.target.value }))}
+            className="w-40"
+          />
+          <Input
+            label="Até"
+            type="date"
+            value={filters.dataFim}
+            onChange={(e) => setFilters((prev) => ({ ...prev, dataFim: e.target.value }))}
+            className="w-40"
+          />
+          <Select
+            label="Tipo"
+            value={filters.tipoServico}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                tipoServico: e.target.value as DashboardFilters["tipoServico"],
+              }))
+            }
+            options={TIPO_FILTER_OPTIONS}
+            className="w-32"
+          />
+          <Select
+            label="Segmento"
+            value={filters.segmento}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                segmento: e.target.value as DashboardFilters["segmento"],
+              }))
+            }
+            options={SEGMENTO_FILTER_OPTIONS}
+            className="w-36"
+          />
+          <Select
+            label="Serviço"
+            value={filters.servico}
+            onChange={(e) => setFilters((prev) => ({ ...prev, servico: e.target.value }))}
+            options={servicoOptions}
+            className="w-40"
+          />
+          <Select
+            label="Termômetro"
+            value={filters.termometro}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                termometro: e.target.value as DashboardFilters["termometro"],
+              }))
+            }
+            options={TERMOMETRO_FILTER_OPTIONS}
+            className="w-32"
+          />
+          {(filters.dataInicio ||
+            filters.dataFim ||
+            filters.tipoServico ||
+            filters.segmento ||
+            filters.servico ||
+            filters.termometro) && (
+            <button
+              type="button"
+              onClick={() => setFilters(EMPTY_FILTERS)}
+              title="Limpar filtros"
+              aria-label="Limpar filtros"
+              className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"
+            >
+              <Icon name="close" size={20} />
+            </button>
+          )}
         </div>
       </div>
 
