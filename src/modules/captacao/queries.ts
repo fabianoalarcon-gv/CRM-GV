@@ -6,7 +6,7 @@ export async function getCaptacoes(): Promise<Captacao[]> {
 
   const { data, error } = await supabase
     .from("captacoes")
-    .select("id, empresa_id, created_at, empresas(nome, setor, cidade, uf)")
+    .select("id, empresa_id, created_at, empresas(nome, setor, cidade, uf, origem_lead)")
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -29,6 +29,7 @@ export async function getCaptacoes(): Promise<Captacao[]> {
     setor: c.empresas?.setor ?? null,
     cidade: c.empresas?.cidade ?? null,
     uf: c.empresas?.uf ?? null,
+    origemLead: c.empresas?.origem_lead ?? null,
     temContato: empresasComContato.has(c.empresa_id),
     createdAt: c.created_at,
   }));

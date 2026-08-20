@@ -19,6 +19,22 @@ export const ORIGEM_LEAD_LABEL: Record<string, string> = Object.fromEntries(
   ORIGEM_LEAD_OPTIONS.map((o) => [o.value, o.label]),
 );
 
+// Mesma paleta categórica dos gráficos do Dashboard (PieChartCard/globals.css)
+// — dá uma cor fixa e consistente pra cada origem em qualquer badge que a
+// exiba. Só 5 cores pra 9 origens: repete o ciclo, igual PieChartCard faz
+// quando tem mais fatias que cores.
+const ORIGEM_LEAD_PALETTE = [
+  "var(--color-chart-cat-1)",
+  "var(--color-chart-cat-2)",
+  "var(--color-chart-cat-3)",
+  "var(--color-chart-cat-4)",
+  "var(--color-chart-cat-5)",
+];
+
+export const ORIGEM_LEAD_COLOR: Record<string, string> = Object.fromEntries(
+  ORIGEM_LEAD_OPTIONS.map((o, i) => [o.value, ORIGEM_LEAD_PALETTE[i % ORIGEM_LEAD_PALETTE.length]]),
+);
+
 export const TELEFONE_TIPO_OPTIONS = [
   { value: "celular", label: "Celular" },
   { value: "fixo", label: "Fixo" },

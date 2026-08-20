@@ -5,6 +5,7 @@ export interface Captacao {
   setor: string | null;
   cidade: string | null;
   uf: string | null;
+  origemLead: string | null;
   temContato: boolean;
   createdAt: string;
 }

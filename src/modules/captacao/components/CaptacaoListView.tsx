@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Icon } from "@/components/ui/Icon";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import { ORIGEM_LEAD_COLOR, ORIGEM_LEAD_LABEL } from "@/modules/empresas/constants";
 import { deleteCaptacao, transformarCaptacaoEmLead } from "../actions";
 import type { Captacao } from "../types";
 
@@ -56,6 +57,7 @@ export function CaptacaoListView({ captacoes }: CaptacaoListViewProps) {
           <TableHead>Setor</TableHead>
           <TableHead>Cidade</TableHead>
           <TableHead>UF</TableHead>
+          <TableHead>Origem</TableHead>
           <TableHead>Contato</TableHead>
           <TableHead>Data de Inclusão</TableHead>
           <TableHead className="text-right">Ações</TableHead>
@@ -68,6 +70,21 @@ export function CaptacaoListView({ captacoes }: CaptacaoListViewProps) {
             <TableCell className="text-brand-graphite-light">{captacao.setor ?? "—"}</TableCell>
             <TableCell className="text-brand-graphite-light">{captacao.cidade ?? "—"}</TableCell>
             <TableCell className="text-brand-graphite-light">{captacao.uf ?? "—"}</TableCell>
+            <TableCell>
+              {captacao.origemLead ? (
+                <span
+                  className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  style={{
+                    backgroundColor: `color-mix(in srgb, ${ORIGEM_LEAD_COLOR[captacao.origemLead]} 14%, transparent)`,
+                    color: ORIGEM_LEAD_COLOR[captacao.origemLead],
+                  }}
+                >
+                  {ORIGEM_LEAD_LABEL[captacao.origemLead] ?? captacao.origemLead}
+                </span>
+              ) : (
+                "—"
+              )}
+            </TableCell>
             <TableCell>
               <Badge variant={captacao.temContato ? "success" : "danger"}>
                 {captacao.temContato ? "Sim" : "Não"}
