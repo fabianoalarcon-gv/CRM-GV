@@ -7,6 +7,7 @@ export interface NotificationsModalProps {
   onClose: () => void;
   notifications: Notificacao[];
   onMarkAsRead: (id: number) => void;
+  onMarkAllAsRead: () => void;
 }
 
 const ICON_BY_TIPO: Record<NotificacaoTipo, { icon: string; color: string }> = {
@@ -36,9 +37,21 @@ export function NotificationsModal({
   onClose,
   notifications,
   onMarkAsRead,
+  onMarkAllAsRead,
 }: NotificationsModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Notificações" className="max-w-md">
+      {notifications.length > 0 && (
+        <div className="mb-3 flex justify-end">
+          <button
+            type="button"
+            onClick={onMarkAllAsRead}
+            className="text-xs font-medium text-brand-accent hover:underline"
+          >
+            Marcar todas como lidas
+          </button>
+        </div>
+      )}
       {notifications.length === 0 ? (
         <p className="text-sm text-brand-graphite-light">Nenhuma notificação nova.</p>
       ) : (

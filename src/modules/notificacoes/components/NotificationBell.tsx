@@ -44,6 +44,16 @@ export function NotificationBell() {
     await markNotificationsAsRead([id]);
   }
 
+  // Marca de uma vez só as notificações exibidas neste exato momento — se
+  // alguma nova chegar depois do clique (via polling), ela não entra nessa
+  // leva e continua aparecendo normalmente.
+  async function handleMarkAllAsRead() {
+    const ids = notifications.map((n) => n.id);
+    if (ids.length === 0) return;
+    setNotifications([]);
+    await markNotificationsAsRead(ids);
+  }
+
   const hasUnread = notifications.length > 0;
 
   return (
@@ -65,6 +75,7 @@ export function NotificationBell() {
         onClose={() => setIsOpen(false)}
         notifications={notifications}
         onMarkAsRead={handleMarkAsRead}
+        onMarkAllAsRead={handleMarkAllAsRead}
       />
     </>
   );
