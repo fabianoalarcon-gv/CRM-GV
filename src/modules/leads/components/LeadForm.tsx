@@ -100,6 +100,7 @@ export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onS
         <Select
           label="Termômetro"
           placeholder="Sem termômetro"
+          placeholderSelectable
           value={values.termometro ?? ""}
           onChange={(e) => update("termometro", (e.target.value || null) as LeadInput["termometro"])}
           options={TERMOMETRO_OPTIONS}
