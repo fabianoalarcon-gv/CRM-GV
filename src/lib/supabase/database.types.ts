@@ -117,6 +117,42 @@ export type Database = {
           },
         ]
       }
+      captacoes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          empresa_id: number
+          id: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          empresa_id: number
+          id?: never
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          empresa_id?: number
+          id?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "captacoes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "captacoes_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "empresas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       compromissos: {
         Row: {
           created_at: string
