@@ -39,11 +39,7 @@ export function UpdatesButton() {
         aria-label={hasUnseen ? "Atualizações — há novidades" : "Atualizações"}
         className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg text-brand-graphite hover:bg-black/[.04]"
       >
-        {/* Não usar o ícone "campaign": bloqueadores de anúncios (uBlock,
-        AdGuard, Brave Shields — ativos mesmo em aba anônima) costumam ocultar
-        elementos cujo texto contenha termos de marketing, e o Material
-        Symbols renderiza o nome do ícone como texto literal. */}
-        <Icon name="new_releases" />
+        <Icon name="campaign" />
         {hasUnseen && (
           <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-temp-quente ring-2 ring-surface" />
         )}
