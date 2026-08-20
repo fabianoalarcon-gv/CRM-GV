@@ -17,7 +17,11 @@ export default async function CaptacaoPage() {
             Captação
           </h1>
           <p className="mt-1 text-sm text-brand-graphite-light">
-            Empresas cadastradas aguardando virar Lead.
+            Empresas cadastradas aguardando virar Lead{" "}
+            <span className="font-semibold">
+              · {captacoes.length}{" "}
+              {captacoes.length === 1 ? "captação registrada" : "captações registradas"}
+            </span>
           </p>
         </div>
         <NovaCaptacaoButton empresas={empresas} />

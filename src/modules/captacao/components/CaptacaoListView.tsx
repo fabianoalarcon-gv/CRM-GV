@@ -7,6 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { deleteCaptacao, transformarCaptacaoEmLead } from "../actions";
 import type { Captacao } from "../types";
 
+const dateFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
+
 export interface CaptacaoListViewProps {
   captacoes: Captacao[];
 }
@@ -55,6 +57,7 @@ export function CaptacaoListView({ captacoes }: CaptacaoListViewProps) {
           <TableHead>Cidade</TableHead>
           <TableHead>UF</TableHead>
           <TableHead>Contato</TableHead>
+          <TableHead>Data de Inclusão</TableHead>
           <TableHead className="text-right">Ações</TableHead>
         </TableRow>
       </TableHeader>
@@ -66,9 +69,12 @@ export function CaptacaoListView({ captacoes }: CaptacaoListViewProps) {
             <TableCell className="text-brand-graphite-light">{captacao.cidade ?? "—"}</TableCell>
             <TableCell className="text-brand-graphite-light">{captacao.uf ?? "—"}</TableCell>
             <TableCell>
-              <Badge variant={captacao.temContato ? "success" : "default"}>
+              <Badge variant={captacao.temContato ? "success" : "danger"}>
                 {captacao.temContato ? "Sim" : "Não"}
               </Badge>
+            </TableCell>
+            <TableCell className="text-brand-graphite-light">
+              {dateFormatter.format(new Date(captacao.createdAt))}
             </TableCell>
             <TableCell>
               {deletingId === captacao.id ? (
