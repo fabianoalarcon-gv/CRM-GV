@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -27,6 +27,7 @@ import {
   PIPELINE_STATUS_ORDER,
   rankTopPropostas,
 } from "../utils";
+import { ExportDashboardButton } from "./ExportDashboardButton";
 import { KpiCard } from "./KpiCard";
 import { MonthlyBarChart } from "./MonthlyBarChart";
 import { PieChartCard } from "./PieChartCard";
@@ -83,6 +84,7 @@ export function DashboardView({
   statusHistorico,
 }: DashboardViewProps) {
   const [filters, setFilters] = useState<DashboardFilters>(EMPTY_FILTERS);
+  const exportRef = useRef<HTMLDivElement>(null);
 
   const servicoOptions = useMemo(() => {
     const values = new Set<string>();
@@ -187,221 +189,229 @@ export function DashboardView({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-end gap-3">
-          <Input
-            label="De"
-            type="date"
-            value={filters.dataInicio}
-            onChange={(e) => setFilters((prev) => ({ ...prev, dataInicio: e.target.value }))}
-            className="w-40"
-          />
-          <Input
-            label="Até"
-            type="date"
-            value={filters.dataFim}
-            onChange={(e) => setFilters((prev) => ({ ...prev, dataFim: e.target.value }))}
-            className="w-40"
-          />
-          <Select
-            label="Tipo"
-            value={filters.tipoServico}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                tipoServico: e.target.value as DashboardFilters["tipoServico"],
-              }))
-            }
-            options={TIPO_FILTER_OPTIONS}
-            className="w-32"
-          />
-          <Select
-            label="Segmento"
-            value={filters.segmento}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                segmento: e.target.value as DashboardFilters["segmento"],
-              }))
-            }
-            options={SEGMENTO_FILTER_OPTIONS}
-            className="w-36"
-          />
-          <Select
-            label="Serviço"
-            value={filters.servico}
-            onChange={(e) => setFilters((prev) => ({ ...prev, servico: e.target.value }))}
-            options={servicoOptions}
-            className="w-40"
-          />
-          <Select
-            label="Termômetro"
-            value={filters.termometro}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                termometro: e.target.value as DashboardFilters["termometro"],
-              }))
-            }
-            options={TERMOMETRO_FILTER_OPTIONS}
-            className="w-32"
-          />
-          {(filters.dataInicio ||
-            filters.dataFim ||
-            filters.tipoServico ||
-            filters.segmento ||
-            filters.servico ||
-            filters.termometro) && (
-            <button
-              type="button"
-              onClick={() => setFilters(EMPTY_FILTERS)}
-              title="Limpar filtros"
-              aria-label="Limpar filtros"
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"
-            >
-              <Icon name="close" size={20} />
-            </button>
-          )}
+        <div className="flex flex-col items-end gap-3">
+          <ExportDashboardButton targetRef={exportRef} />
+
+          <div className="flex flex-wrap items-end gap-3">
+            <Input
+              label="De"
+              type="date"
+              value={filters.dataInicio}
+              onChange={(e) => setFilters((prev) => ({ ...prev, dataInicio: e.target.value }))}
+              className="w-40"
+            />
+            <Input
+              label="Até"
+              type="date"
+              value={filters.dataFim}
+              onChange={(e) => setFilters((prev) => ({ ...prev, dataFim: e.target.value }))}
+              className="w-40"
+            />
+            <Select
+              label="Tipo"
+              value={filters.tipoServico}
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  tipoServico: e.target.value as DashboardFilters["tipoServico"],
+                }))
+              }
+              options={TIPO_FILTER_OPTIONS}
+              className="w-32"
+            />
+            <Select
+              label="Segmento"
+              value={filters.segmento}
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  segmento: e.target.value as DashboardFilters["segmento"],
+                }))
+              }
+              options={SEGMENTO_FILTER_OPTIONS}
+              className="w-36"
+            />
+            <Select
+              label="Serviço"
+              value={filters.servico}
+              onChange={(e) => setFilters((prev) => ({ ...prev, servico: e.target.value }))}
+              options={servicoOptions}
+              className="w-40"
+            />
+            <Select
+              label="Termômetro"
+              value={filters.termometro}
+              onChange={(e) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  termometro: e.target.value as DashboardFilters["termometro"],
+                }))
+              }
+              options={TERMOMETRO_FILTER_OPTIONS}
+              className="w-32"
+            />
+            {(filters.dataInicio ||
+              filters.dataFim ||
+              filters.tipoServico ||
+              filters.segmento ||
+              filters.servico ||
+              filters.termometro) && (
+              <button
+                type="button"
+                onClick={() => setFilters(EMPTY_FILTERS)}
+                title="Limpar filtros"
+                aria-label="Limpar filtros"
+                className="flex h-10 w-10 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"
+              >
+                <Icon name="close" size={20} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <SectionHeading eyebrow="Propostas" title="Indicadores de Propostas" />
+      <div ref={exportRef} className="flex flex-col gap-8">
+        <SectionHeading eyebrow="Propostas" title="Indicadores de Propostas" />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          label="Valor total em propostas"
-          value={formatCurrency(valorTotal)}
-          caption={`${qtdTotal} proposta${qtdTotal === 1 ? "" : "s"}`}
-          icon="payments"
-          color="var(--color-brand-accent)"
-          borderClassName="border-brand-accent/30 bg-brand-accent/5"
-          accent
-        />
-        <KpiCard
-          label="Em andamento"
-          value={formatCurrency(valorAndamento)}
-          caption={`${qtdAndamento} proposta${qtdAndamento === 1 ? "" : "s"}`}
-          icon="hourglass_top"
-          color="var(--color-temp-frio)"
-          borderClassName="border-temp-frio/30 bg-temp-frio/5"
-        />
-        <KpiCard
-          label="Aprovado"
-          value={formatCurrency(valorAprovado)}
-          caption={`${qtdAprovado} proposta${qtdAprovado === 1 ? "" : "s"}`}
-          icon="check_circle"
-          color="var(--color-status-aprovado)"
-          borderClassName="border-status-aprovado/30 bg-status-aprovado/5"
-        />
-        <KpiCard
-          label="Reprovado"
-          value={formatCurrency(valorReprovado)}
-          caption={`${qtdReprovado} proposta${qtdReprovado === 1 ? "" : "s"}`}
-          icon="cancel"
-          color="var(--color-temp-quente)"
-          borderClassName="border-temp-quente/30 bg-temp-quente/5"
-        />
-      </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <KpiCard
+            label="Valor total em propostas"
+            value={formatCurrency(valorTotal)}
+            caption={`${qtdTotal} proposta${qtdTotal === 1 ? "" : "s"}`}
+            icon="payments"
+            color="var(--color-brand-accent)"
+            borderClassName="border-brand-accent/30 bg-brand-accent/5"
+            accent
+          />
+          <KpiCard
+            label="Em andamento"
+            value={formatCurrency(valorAndamento)}
+            caption={`${qtdAndamento} proposta${qtdAndamento === 1 ? "" : "s"}`}
+            icon="hourglass_top"
+            color="var(--color-temp-frio)"
+            borderClassName="border-temp-frio/30 bg-temp-frio/5"
+          />
+          <KpiCard
+            label="Aprovado"
+            value={formatCurrency(valorAprovado)}
+            caption={`${qtdAprovado} proposta${qtdAprovado === 1 ? "" : "s"}`}
+            icon="check_circle"
+            color="var(--color-status-aprovado)"
+            borderClassName="border-status-aprovado/30 bg-status-aprovado/5"
+          />
+          <KpiCard
+            label="Reprovado"
+            value={formatCurrency(valorReprovado)}
+            caption={`${qtdReprovado} proposta${qtdReprovado === 1 ? "" : "s"}`}
+            icon="cancel"
+            color="var(--color-temp-quente)"
+            borderClassName="border-temp-quente/30 bg-temp-quente/5"
+          />
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <KpiCard
-          label="Taxa de conversão"
-          value={rates.taxaConversao !== null ? `${(rates.taxaConversao * 100).toFixed(0)}%` : "—"}
-          caption="Aprovadas ÷ (aprovadas + reprovadas)"
-          icon="trending_up"
-          color="var(--color-status-aprovado)"
-        />
-        <KpiCard
-          label="Taxa de reprovação"
-          value={
-            rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"
-          }
-          caption="Reprovadas ÷ (aprovadas + reprovadas)"
-          icon="trending_down"
-          color="var(--color-temp-quente)"
-        />
-        <KpiCard
-          label="Previsão de receita"
-          value={formatCurrency(forecast.valor)}
-          caption={
-            forecast.temHistorico
-              ? `Aprovado + (em andamento × ${(forecast.taxaUsada * 100).toFixed(0)}% de conversão histórica)`
-              : "Aprovado + 50% do valor em andamento (ainda sem propostas decididas para calcular a taxa real)"
-          }
-          icon="insights"
-          color="var(--color-cal-embarque)"
-        />
-      </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <KpiCard
+            label="Taxa de conversão"
+            value={
+              rates.taxaConversao !== null ? `${(rates.taxaConversao * 100).toFixed(0)}%` : "—"
+            }
+            caption="Aprovadas ÷ (aprovadas + reprovadas)"
+            icon="trending_up"
+            color="var(--color-status-aprovado)"
+          />
+          <KpiCard
+            label="Taxa de reprovação"
+            value={
+              rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"
+            }
+            caption="Reprovadas ÷ (aprovadas + reprovadas)"
+            icon="trending_down"
+            color="var(--color-temp-quente)"
+          />
+          <KpiCard
+            label="Previsão de receita"
+            value={formatCurrency(forecast.valor)}
+            caption={
+              forecast.temHistorico
+                ? `Aprovado + (em andamento × ${(forecast.taxaUsada * 100).toFixed(0)}% de conversão histórica)`
+                : "Aprovado + 50% do valor em andamento (ainda sem propostas decididas para calcular a taxa real)"
+            }
+            icon="insights"
+            color="var(--color-cal-embarque)"
+          />
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <MonthlyBarChart monthly={monthly} />
-        <SalesFunnel stages={funnelStages} />
-      </div>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <MonthlyBarChart monthly={monthly} />
+          <SalesFunnel stages={funnelStages} />
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <PieChartCard
-          title="Segmento"
-          subtitle="Propostas por segmento"
-          icon="donut_large"
-          iconColor="var(--color-chart-cat-1)"
-          data={segmentoBreakdown}
-        />
-        <PieChartCard
-          title="Serviço"
-          subtitle="Propostas por serviço"
-          icon="category"
-          iconColor="var(--color-chart-cat-2)"
-          data={servicoBreakdown}
-        />
-        <ThermometerChart data={termometroBreakdown} />
-      </div>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <PieChartCard
+            title="Segmento"
+            subtitle="Propostas por segmento"
+            icon="donut_large"
+            iconColor="var(--color-chart-cat-1)"
+            data={segmentoBreakdown}
+          />
+          <PieChartCard
+            title="Serviço"
+            subtitle="Propostas por serviço"
+            icon="category"
+            iconColor="var(--color-chart-cat-2)"
+            data={servicoBreakdown}
+          />
+          <ThermometerChart data={termometroBreakdown} />
+        </div>
 
-      <RankingTable propostas={ranking} />
+        <RankingTable propostas={ranking} />
 
-      <SectionHeading eyebrow="Leads" title="Indicadores de Leads" />
+        <SectionHeading eyebrow="Leads" title="Indicadores de Leads" />
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <MonthlyBarChart
-          monthly={leadsMonthly}
-          title="Leads por mês"
-          subtitle="Volume de Leads criados ao longo do tempo"
-          icon="person_add"
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <MonthlyBarChart
+            monthly={leadsMonthly}
+            title="Leads por mês"
+            subtitle="Volume de Leads criados ao longo do tempo"
+            icon="person_add"
+            iconColor="var(--color-chart-cat-3)"
+            emptyMessage="Nenhum Lead no período selecionado."
+            metric="count"
+          />
+          <PieChartCard
+            title="Origem"
+            subtitle="Origem dos Leads"
+            icon="share"
+            iconColor="var(--color-chart-cat-4)"
+            emptyMessage="Nenhuma empresa no período selecionado."
+            data={origemBreakdown}
+            legendFormatter={(item) => formatEmpresaLegend(item.count)}
+            centered
+          />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <PieChartCard
+            title="Cadência"
+            subtitle="Tempo médio entre ações por categoria"
+            icon="event_repeat"
+            iconColor="var(--color-chart-cat-5)"
+            emptyMessage="Sem ações repetidas na mesma categoria no período selecionado."
+            data={acaoIntervalBreakdown}
+            legendFormatter={(item) => formatDaysLegend(item.count, item.valor)}
+            centered
+          />
+          <StageDurationCard stages={stageDurations} />
+        </div>
+
+        <RankingTable
+          propostas={leadsRanking}
+          subtitle="Leads de maior valor"
+          icon="person_search"
           iconColor="var(--color-chart-cat-3)"
-          emptyMessage="Nenhum Lead no período selecionado."
-          metric="count"
-        />
-        <PieChartCard
-          title="Origem"
-          subtitle="Origem dos Leads"
-          icon="share"
-          iconColor="var(--color-chart-cat-4)"
-          emptyMessage="Nenhuma empresa no período selecionado."
-          data={origemBreakdown}
-          legendFormatter={(item) => formatEmpresaLegend(item.count)}
-          centered
+          emptyMessage="Nenhum Lead no menu Leads no período selecionado."
         />
       </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <PieChartCard
-          title="Cadência"
-          subtitle="Tempo médio entre ações por categoria"
-          icon="event_repeat"
-          iconColor="var(--color-chart-cat-5)"
-          emptyMessage="Sem ações repetidas na mesma categoria no período selecionado."
-          data={acaoIntervalBreakdown}
-          legendFormatter={(item) => formatDaysLegend(item.count, item.valor)}
-          centered
-        />
-        <StageDurationCard stages={stageDurations} />
-      </div>
-
-      <RankingTable
-        propostas={leadsRanking}
-        subtitle="Leads de maior valor"
-        icon="person_search"
-        iconColor="var(--color-chart-cat-3)"
-        emptyMessage="Nenhum Lead no menu Leads no período selecionado."
-      />
     </div>
   );
 }
