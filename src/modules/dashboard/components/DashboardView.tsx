@@ -192,7 +192,7 @@ export function DashboardView({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-end justify-end gap-3">
+        <div className="flex flex-wrap items-end gap-3">
           <Input
             label="De"
             type="date"
