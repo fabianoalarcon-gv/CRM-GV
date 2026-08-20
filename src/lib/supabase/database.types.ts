@@ -14,6 +14,109 @@ export type Database = {
   }
   public: {
     Tables: {
+      atualizacoes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data_hora: string
+          id: number
+          numero_patch: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data_hora: string
+          id?: never
+          numero_patch: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data_hora?: string
+          id?: never
+          numero_patch?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atualizacoes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atualizacoes_itens: {
+        Row: {
+          atualizacao_id: number
+          created_at: string
+          descricao: string
+          id: number
+          local: string
+          numero_chamado: string | null
+          tipo: string
+        }
+        Insert: {
+          atualizacao_id: number
+          created_at?: string
+          descricao: string
+          id?: never
+          local: string
+          numero_chamado?: string | null
+          tipo: string
+        }
+        Update: {
+          atualizacao_id?: number
+          created_at?: string
+          descricao?: string
+          id?: never
+          local?: string
+          numero_chamado?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atualizacoes_itens_atualizacao_id_fkey"
+            columns: ["atualizacao_id"]
+            isOneToOne: false
+            referencedRelation: "atualizacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atualizacoes_vistas: {
+        Row: {
+          atualizacao_id: number
+          user_id: string
+          vista_em: string
+        }
+        Insert: {
+          atualizacao_id: number
+          user_id: string
+          vista_em?: string
+        }
+        Update: {
+          atualizacao_id?: number
+          user_id?: string
+          vista_em?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atualizacoes_vistas_atualizacao_id_fkey"
+            columns: ["atualizacao_id"]
+            isOneToOne: false
+            referencedRelation: "atualizacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atualizacoes_vistas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       compromissos: {
         Row: {
           created_at: string
@@ -670,7 +773,14 @@ export type Database = {
           proposta_id: number | null
           tipo: string
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "notificacoes"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
+      get_unseen_atualizacoes_ids: { Args: never; Returns: number[] }
     }
     Enums: {
       [_ in never]: never
