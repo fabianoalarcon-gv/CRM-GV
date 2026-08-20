@@ -390,6 +390,7 @@ export function DashboardView({
           emptyMessage="Sem ações repetidas na mesma categoria no período selecionado."
           data={acaoIntervalBreakdown}
           legendFormatter={(item) => formatDaysLegend(item.count, item.valor)}
+          centered
         />
         <StageDurationCard stages={stageDurations} />
       </div>

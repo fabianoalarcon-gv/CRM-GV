@@ -421,7 +421,7 @@ export function computeOrigemBreakdown(propostas: DashboardProposta[]): Category
 }
 
 export function formatDaysLegend(avgDays: number, amostras: number): string {
-  return `${avgDays.toFixed(1)} dias em média · ${amostras} amostra${amostras === 1 ? "" : "s"}`;
+  return `${Math.round(avgDays)} dias em média · ${amostras} amostra${amostras === 1 ? "" : "s"}`;
 }
 
 export function formatEmpresaLegend(count: number): string {
