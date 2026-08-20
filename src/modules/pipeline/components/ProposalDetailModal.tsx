@@ -150,7 +150,11 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     segmento: proposta.segmento,
     valor: proposta.valor ?? 0,
     status_id: proposta.status_id,
-    termometro: proposta.termometro,
+    // ProposalInput.termometro continua obrigatório (não relaxamos a
+    // exigência no Pipeline) — mas a proposta pode ter vindo de um Lead sem
+    // termômetro definido (mesma linha, só promovida), então precisa de um
+    // fallback pra não quebrar o Select do formulário.
+    termometro: proposta.termometro ?? "morno",
     tipo_servico: proposta.tipo_servico ?? ("spot" as const),
     responsavel_id: proposta.responsavel_id,
     resultado: proposta.resultado,

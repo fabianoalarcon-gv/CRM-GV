@@ -89,7 +89,11 @@ export interface Proposta {
   valor: number | null;
   status_id: number;
   status_anterior_id: number | null;
-  termometro: Termometro;
+  // Obrigatório só no formulário de Proposta (ProposalInput.termometro
+  // continua não-nulo) — cards de Lead (Prospecção/Qualificação/Arquivado)
+  // podem ficar sem nenhum. Como Lead e Proposta são a mesma linha (um Lead
+  // promovido não duplica registro), o valor nulo pode aparecer aqui também.
+  termometro: Termometro | null;
   tipo_servico: TipoServico | null;
   responsavel_id: string | null;
   resultado: Resultado | null;

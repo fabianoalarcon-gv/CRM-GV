@@ -6,9 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { cn } from "@/lib/cn";
 import { usePipelineData } from "../context";
 import { ProposalDetailModal } from "./ProposalDetailModal";
-import { SEGMENTO_LABEL, type Proposta } from "../types";
+import { SEGMENTO_LABEL, type Proposta, type Termometro } from "../types";
 
-const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
+const TERMOMETRO_LABEL: Record<Termometro, string> = {
   frio: "Frio",
   morno: "Morno",
   quente: "Quente",
@@ -55,7 +55,11 @@ export function ProposalListView({ propostas }: { propostas: Proposta[] }) {
               <TableCell>{proposta.empresa_nome}</TableCell>
               <TableCell>{statuses.find((s) => s.id === proposta.status_id)?.label ?? "—"}</TableCell>
               <TableCell>
-                <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
+                {proposta.termometro ? (
+                  <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
+                ) : (
+                  "—"
+                )}
               </TableCell>
               <TableCell>{proposta.segmento ? SEGMENTO_LABEL[proposta.segmento] : "—"}</TableCell>
               <TableCell>

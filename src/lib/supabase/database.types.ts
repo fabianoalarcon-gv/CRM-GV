@@ -584,7 +584,7 @@ export type Database = {
           servico: string | null
           status_anterior_id: number | null
           status_id: number
-          termometro: string
+          termometro: string | null
           tipo_servico: string | null
           updated_at: string
           valor: number | null
@@ -608,7 +608,7 @@ export type Database = {
           servico?: string | null
           status_anterior_id?: number | null
           status_id: number
-          termometro?: string
+          termometro?: string | null
           tipo_servico?: string | null
           updated_at?: string
           valor?: number | null
@@ -632,7 +632,7 @@ export type Database = {
           servico?: string | null
           status_anterior_id?: number | null
           status_id?: number
-          termometro?: string
+          termometro?: string | null
           tipo_servico?: string | null
           updated_at?: string
           valor?: number | null

@@ -46,7 +46,9 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
         ref={setNodeRef}
         style={{
           ...(transform ? { transform: CSS.Translate.toString(transform) } : undefined),
-          borderTop: `3px solid ${TERMOMETRO_COLOR[proposta.termometro]}`,
+          ...(proposta.termometro
+            ? { borderTop: `3px solid ${TERMOMETRO_COLOR[proposta.termometro]}` }
+            : undefined),
         }}
         {...listeners}
         {...attributes}
@@ -63,7 +65,7 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
         <CardContent className="flex flex-col gap-2 p-3">
           <div className="flex items-center justify-between gap-2">
             <span className="font-mono text-xs text-brand-graphite-light">{proposta.numero_lead}</span>
-            <TermometroBadge value={proposta.termometro} />
+            {proposta.termometro && <TermometroBadge value={proposta.termometro} />}
           </div>
 
           {proposta.segmento && (

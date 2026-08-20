@@ -314,15 +314,19 @@ const TERMOMETRO_LABEL: Record<Termometro, string> = {
 };
 
 export function computeTermometroBreakdown(propostas: DashboardProposta[]): TermometroBreakdown[] {
-  const total = propostas.length;
   const map = new Map<Termometro, { count: number; valor: number }>(
     TERMOMETRO_ORDER.map((t) => [t, { count: 0, valor: 0 }]),
   );
+  // Propostas/Leads sem termômetro definido não entram no total — senão o
+  // percentual das categorias reais somaria menos de 100%.
+  let total = 0;
   for (const p of propostas) {
+    if (!p.termometro) continue;
     const entry = map.get(p.termometro);
     if (!entry) continue;
     entry.count += 1;
     entry.valor += p.valor;
+    total += 1;
   }
   return TERMOMETRO_ORDER.map((t) => {
     const v = map.get(t)!;

@@ -78,9 +78,7 @@ export function RankingTable({
                   <TableCell>
                     <Badge variant={statusVariant(p)}>{statusLabel(p)}</Badge>
                   </TableCell>
-                  <TableCell>
-                    <TermometroBadge value={p.termometro} />
-                  </TableCell>
+                  <TableCell>{p.termometro ? <TermometroBadge value={p.termometro} /> : "—"}</TableCell>
                   <TableCell className="font-mono font-semibold">
                     {formatCurrency(p.valor)}
                   </TableCell>

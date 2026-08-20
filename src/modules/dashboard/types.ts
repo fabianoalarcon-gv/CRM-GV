@@ -17,7 +17,7 @@ export interface DashboardProposta {
   tipo_servico: TipoServico;
   servico: string | null;
   segmento: Segmento | null;
-  termometro: Termometro;
+  termometro: Termometro | null;
   status_key: StatusKey;
   status_label: string;
   status_sort_order: number;

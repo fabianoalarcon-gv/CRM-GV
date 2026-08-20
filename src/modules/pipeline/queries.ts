@@ -48,7 +48,7 @@ export async function getPropostas(): Promise<Proposta[]> {
     valor: p.valor == null ? null : Number(p.valor),
     status_id: p.status_id,
     status_anterior_id: p.status_anterior_id,
-    termometro: p.termometro as Termometro,
+    termometro: p.termometro as Termometro | null,
     tipo_servico: p.tipo_servico as TipoServico | null,
     responsavel_id: p.responsavel_id,
     resultado: p.resultado as Proposta["resultado"],

@@ -64,7 +64,7 @@ export interface PropostaResumo {
   numero_lead: string | null;
   segmento: string | null;
   valor: number | null;
-  termometro: "frio" | "morno" | "quente";
+  termometro: "frio" | "morno" | "quente" | null;
   status_label: string;
   created_at: string;
   updated_at: string;

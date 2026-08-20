@@ -45,7 +45,9 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
         ref={setNodeRef}
         style={{
           ...(transform ? { transform: CSS.Translate.toString(transform) } : undefined),
-          borderTop: `3px solid ${TERMOMETRO_COLOR[proposta.termometro]}`,
+          ...(proposta.termometro
+            ? { borderTop: `3px solid ${TERMOMETRO_COLOR[proposta.termometro]}` }
+            : undefined),
         }}
         {...listeners}
         {...attributes}
@@ -60,7 +62,7 @@ export function ProposalCard({ proposta }: { proposta: Proposta }) {
             <span className="font-mono text-xs text-brand-graphite-light">
               {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
             </span>
-            <TermometroBadge value={proposta.termometro} />
+            {proposta.termometro && <TermometroBadge value={proposta.termometro} />}
           </div>
 
           {isFechado && (

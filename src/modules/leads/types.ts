@@ -4,7 +4,7 @@ import type { CompromissoTipo } from "@/modules/calendario/types";
 export interface LeadInput {
   empresa_id: number;
   data_inicio_lead: string;
-  termometro: Termometro;
+  termometro: Termometro | null;
   descricao: string;
   segmento: Segmento | null;
   valor_estimado: number | null;

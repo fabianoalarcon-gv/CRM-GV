@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
-import { SEGMENTO_LABEL, type Proposta } from "@/modules/pipeline/types";
+import { SEGMENTO_LABEL, type Proposta, type Termometro } from "@/modules/pipeline/types";
 import { useLeadsData } from "../context";
 import { LeadDetailModal } from "./LeadDetailModal";
 
-const TERMOMETRO_LABEL: Record<Proposta["termometro"], string> = {
+const TERMOMETRO_LABEL: Record<Termometro, string> = {
   frio: "Frio",
   morno: "Morno",
   quente: "Quente",
@@ -51,7 +51,11 @@ export function LeadListView({ propostas }: { propostas: Proposta[] }) {
               <TableCell>{proposta.empresa_nome}</TableCell>
               <TableCell>{statuses.find((s) => s.id === proposta.status_id)?.label ?? "—"}</TableCell>
               <TableCell>
-                <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
+                {proposta.termometro ? (
+                  <Badge variant={proposta.termometro}>{TERMOMETRO_LABEL[proposta.termometro]}</Badge>
+                ) : (
+                  "—"
+                )}
               </TableCell>
               <TableCell>{proposta.segmento ? SEGMENTO_LABEL[proposta.segmento] : "—"}</TableCell>
               <TableCell className="font-mono font-semibold">

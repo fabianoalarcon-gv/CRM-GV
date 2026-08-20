@@ -35,7 +35,7 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
     tipo_servico: p.tipo_servico as TipoServico,
     servico: p.servico,
     segmento: p.segmento as Segmento | null,
-    termometro: p.termometro as Termometro,
+    termometro: p.termometro as Termometro | null,
     status_key: (p.proposal_statuses?.key ?? "prospeccao") as StatusKey,
     status_label: p.proposal_statuses?.label ?? "—",
     status_sort_order: p.proposal_statuses?.sort_order ?? 0,
