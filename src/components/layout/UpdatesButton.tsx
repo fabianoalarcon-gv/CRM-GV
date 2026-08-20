@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
-import { Modal } from "@/components/ui/Modal";
 import { getHasUnseenAtualizacoes, markAtualizacoesAsSeen } from "@/modules/atualizacoes/actions";
+import { AtualizacoesModal } from "@/modules/atualizacoes/components/AtualizacoesModal";
 
 const POLL_INTERVAL_MS = 30_000;
 
@@ -45,9 +45,7 @@ export function UpdatesButton() {
         )}
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Atualizações do Sistema">
-        <p className="text-sm text-brand-graphite-light">Atualizações futuras</p>
-      </Modal>
+      <AtualizacoesModal isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );
 }

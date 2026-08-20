@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { AtualizacaoInput, AtualizacaoItemInput } from "./types";
+import { getAtualizacoes } from "./queries";
+import type { Atualizacao, AtualizacaoInput, AtualizacaoItemInput } from "./types";
 
 async function requireAdmin(): Promise<{ error: string | null; userId: string | null }> {
   const supabase = await createClient();
@@ -97,4 +98,8 @@ export async function markAtualizacoesAsSeen(): Promise<{ error: string | null }
 
   if (error) return { error: error.message };
   return { error: null };
+}
+
+export async function getAllAtualizacoes(): Promise<Atualizacao[]> {
+  return getAtualizacoes();
 }

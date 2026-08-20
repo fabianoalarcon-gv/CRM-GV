@@ -9,28 +9,8 @@ import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { createAtualizacaoItem } from "../actions";
+import { TIPO_BADGE_VARIANT, TIPO_LABEL, TIPO_OPTIONS } from "../constants";
 import type { Atualizacao, AtualizacaoItemInput, AtualizacaoItemTipo } from "../types";
-
-const TIPO_OPTIONS: { value: AtualizacaoItemTipo; label: string }[] = [
-  { value: "solicitacao", label: "Solicitação" },
-  { value: "correcao", label: "Correção" },
-  { value: "melhoria", label: "Melhoria" },
-  { value: "inclusao", label: "Inclusão" },
-];
-
-const TIPO_LABEL: Record<AtualizacaoItemTipo, string> = {
-  solicitacao: "Solicitação",
-  correcao: "Correção",
-  melhoria: "Melhoria",
-  inclusao: "Inclusão",
-};
-
-const TIPO_BADGE_VARIANT: Record<AtualizacaoItemTipo, "info" | "success" | "warning" | "default"> = {
-  solicitacao: "info",
-  correcao: "warning",
-  melhoria: "success",
-  inclusao: "default",
-};
 
 const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
 
