@@ -18,11 +18,17 @@ export function NotificationBell() {
   }, []);
 
   useEffect(() => {
+    // Pausa o polling enquanto o modal está aberto — senão a próxima rodada
+    // (a cada 30s) busca de novo as notificações não lidas, que já foram
+    // marcadas como lidas na abertura, e zera a lista visível no meio da
+    // leitura do usuário.
+    if (isOpen) return;
+
     // eslint-disable-next-line react-hooks/set-state-in-effect
     refresh();
     const interval = setInterval(refresh, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [refresh]);
+  }, [isOpen, refresh]);
 
   async function handleOpen() {
     setIsOpen(true);
