@@ -71,6 +71,45 @@ export async function createAtualizacaoItem(atualizacaoId: number, input: Atuali
   return { error: null };
 }
 
+export async function updateAtualizacaoItem(itemId: number, input: AtualizacaoItemInput) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  const local = input.local.trim();
+  const descricao = input.descricao.trim();
+  if (!local) return { error: "Informe o local." };
+  if (!descricao) return { error: "Informe a descrição." };
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("atualizacoes_itens")
+    .update({
+      numero_chamado: input.numeroChamado.trim() || null,
+      tipo: input.tipo,
+      local,
+      descricao,
+    })
+    .eq("id", itemId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/atualizacoes");
+  return { error: null };
+}
+
+export async function deleteAtualizacaoItem(itemId: number) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("atualizacoes_itens").delete().eq("id", itemId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/atualizacoes");
+  return { error: null };
+}
+
 export async function getHasUnseenAtualizacoes(): Promise<boolean> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_unseen_atualizacoes_ids");
