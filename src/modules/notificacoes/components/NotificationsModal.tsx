@@ -6,6 +6,7 @@ export interface NotificationsModalProps {
   isOpen: boolean;
   onClose: () => void;
   notifications: Notificacao[];
+  onMarkAsRead: (id: number) => void;
 }
 
 const ICON_BY_TIPO: Record<NotificacaoTipo, { icon: string; color: string }> = {
@@ -30,7 +31,12 @@ const dateFormatter = new Intl.DateTimeFormat("pt-BR", {
   minute: "2-digit",
 });
 
-export function NotificationsModal({ isOpen, onClose, notifications }: NotificationsModalProps) {
+export function NotificationsModal({
+  isOpen,
+  onClose,
+  notifications,
+  onMarkAsRead,
+}: NotificationsModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Notificações" className="max-w-md">
       {notifications.length === 0 ? (
@@ -40,23 +46,35 @@ export function NotificationsModal({ isOpen, onClose, notifications }: Notificat
           {notifications.map((n) => {
             const { icon, color } = ICON_BY_TIPO[n.tipo];
             return (
-              <li key={n.id} className="flex items-start gap-3 rounded-lg border border-border p-3">
-                <span
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-                  style={{
-                    backgroundColor: `color-mix(in srgb, ${color} 14%, transparent)`,
-                    color,
-                  }}
+              <li key={n.id}>
+                <button
+                  type="button"
+                  onClick={() => onMarkAsRead(n.id)}
+                  title="Marcar como lida"
+                  className="group flex w-full items-start gap-3 rounded-lg border border-border p-3 text-left transition-colors hover:border-brand-accent/40 hover:bg-black/[.02]"
                 >
-                  <Icon name={icon} size={18} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm text-foreground">{n.mensagem}</p>
-                  <p className="mt-1 text-xs text-brand-graphite-light">
-                    {dateFormatter.format(new Date(n.createdAt))}
-                    {n.autorNome && ` · ${n.autorNome}`}
-                  </p>
-                </div>
+                  <span
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+                    style={{
+                      backgroundColor: `color-mix(in srgb, ${color} 14%, transparent)`,
+                      color,
+                    }}
+                  >
+                    <Icon name={icon} size={18} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm text-foreground">{n.mensagem}</p>
+                    <p className="mt-1 text-xs text-brand-graphite-light">
+                      {dateFormatter.format(new Date(n.createdAt))}
+                      {n.autorNome && ` · ${n.autorNome}`}
+                    </p>
+                  </div>
+                  <Icon
+                    name="check"
+                    size={16}
+                    className="mt-1 shrink-0 self-start text-brand-graphite-light opacity-0 transition-opacity group-hover:opacity-100"
+                  />
+                </button>
               </li>
             );
           })}
