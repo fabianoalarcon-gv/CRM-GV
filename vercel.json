@@ -1,3 +1,6 @@
 {
-  "crons": [{ "path": "/api/cron/notificacoes-diarias", "schedule": "0 6 * * *" }]
+  "crons": [
+    { "path": "/api/cron/notificacoes-diarias", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/retomada-lead-arquivado", "schedule": "10 6 * * *" }
+  ]
 }

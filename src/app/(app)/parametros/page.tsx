@@ -1,14 +1,18 @@
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { ParametrosNotificacaoForm } from "@/modules/parametros/components/ParametrosNotificacaoForm";
-import { getParametrosNotificacao } from "@/modules/parametros/queries";
+import { ParametrosRetomadaLeadForm } from "@/modules/parametros/components/ParametrosRetomadaLeadForm";
+import { getParametrosNotificacao, getParametrosRetomadaLead } from "@/modules/parametros/queries";
 import { getCurrentUser } from "@/lib/auth/profile";
 
 export default async function ParametrosPage() {
   const currentUser = await getCurrentUser();
   if (currentUser?.role !== "admin") redirect("/");
 
-  const parametros = await getParametrosNotificacao();
+  const [parametrosNotificacao, parametrosRetomadaLead] = await Promise.all([
+    getParametrosNotificacao(),
+    getParametrosRetomadaLead(),
+  ]);
 
   return (
     <div className="flex h-full flex-col gap-6">
@@ -30,7 +34,20 @@ export default async function ParametrosPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ParametrosNotificacaoForm parametros={parametros} />
+          <ParametrosNotificacaoForm parametros={parametrosNotificacao} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Retomada de Leads Arquivados</CardTitle>
+          <CardDescription>
+            Cria automaticamente uma Ação de retomada comercial para Leads que ficam arquivados
+            por tempo demais.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ParametrosRetomadaLeadForm parametros={parametrosRetomadaLead} />
         </CardContent>
       </Card>
     </div>

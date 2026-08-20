@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import type { ParametrosNotificacaoInput } from "./types";
+import { ACAO_TIPO_OPTIONS } from "@/modules/calendario/utils";
+import type { ParametrosNotificacaoInput, ParametrosRetomadaLeadInput } from "./types";
+
+const CATEGORIA_VALIDA = new Set(ACAO_TIPO_OPTIONS.map((o) => o.value));
 
 async function requireAdmin(): Promise<{ error: string | null; userId: string | null }> {
   const supabase = await createClient();
@@ -44,6 +47,33 @@ export async function updateParametrosNotificacao(input: ParametrosNotificacaoIn
       dias_empresa_sem_contato: input.diasEmpresaSemContato,
       dias_lead_sem_acao: input.diasLeadSemAcao,
       dias_proposta_sem_acao: input.diasPropostaSemAcao,
+      updated_by: guard.userId,
+    })
+    .eq("id", 1);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/parametros");
+  return { error: null };
+}
+
+export async function updateParametrosRetomadaLead(input: ParametrosRetomadaLeadInput) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  if (!Number.isInteger(input.dias) || input.dias <= 0) {
+    return { error: "Informe um número inteiro maior que zero para os dias." };
+  }
+  if (!CATEGORIA_VALIDA.has(input.categoria)) {
+    return { error: "Selecione uma categoria de ação válida." };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("parametros_retomada_lead_arquivado")
+    .update({
+      dias: input.dias,
+      categoria: input.categoria,
       updated_by: guard.userId,
     })
     .eq("id", 1);

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import type { ParametrosNotificacao } from "./types";
+import type { CompromissoTipo } from "@/modules/calendario/types";
+import type { ParametrosNotificacao, ParametrosRetomadaLead } from "./types";
 
 export async function getParametrosNotificacao(): Promise<ParametrosNotificacao> {
   const supabase = await createClient();
@@ -19,5 +20,21 @@ export async function getParametrosNotificacao(): Promise<ParametrosNotificacao>
     diasEmpresaSemContato: data.dias_empresa_sem_contato,
     diasLeadSemAcao: data.dias_lead_sem_acao,
     diasPropostaSemAcao: data.dias_proposta_sem_acao,
+  };
+}
+
+export async function getParametrosRetomadaLead(): Promise<ParametrosRetomadaLead> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("parametros_retomada_lead_arquivado")
+    .select("dias, categoria")
+    .eq("id", 1)
+    .single();
+
+  if (error) throw error;
+
+  return {
+    dias: data.dias,
+    categoria: data.categoria as CompromissoTipo,
   };
 }

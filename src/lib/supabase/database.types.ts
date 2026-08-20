@@ -156,7 +156,7 @@ export type Database = {
       compromissos: {
         Row: {
           created_at: string
-          criado_por: string
+          criado_por: string | null
           descricao: string | null
           empresa_id: number | null
           fim: string | null
@@ -169,7 +169,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          criado_por: string
+          criado_por?: string | null
           descricao?: string | null
           empresa_id?: number | null
           fim?: string | null
@@ -182,7 +182,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          criado_por?: string
+          criado_por?: string | null
           descricao?: string | null
           empresa_id?: number | null
           fim?: string | null
@@ -522,6 +522,38 @@ export type Database = {
           },
         ]
       }
+      parametros_retomada_lead_arquivado: {
+        Row: {
+          categoria: string
+          dias: number
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          categoria?: string
+          dias?: number
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          categoria?: string
+          dias?: number
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parametros_retomada_lead_arquivado_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -789,11 +821,35 @@ export type Database = {
           },
         ]
       }
+      retomada_lead_arquivado_gerada: {
+        Row: {
+          created_at: string
+          status_historico_id: number
+        }
+        Insert: {
+          created_at?: string
+          status_historico_id: number
+        }
+        Update: {
+          created_at?: string
+          status_historico_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "retomada_lead_arquivado_gerada_status_historico_id_fkey"
+            columns: ["status_historico_id"]
+            isOneToOne: true
+            referencedRelation: "propostas_status_historico"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      gerar_acoes_retomada_lead_arquivado: { Args: never; Returns: number }
       gerar_notificacoes_diarias: { Args: never; Returns: number }
       gerar_numero_proposta: { Args: never; Returns: string }
       get_unread_notificacoes: {

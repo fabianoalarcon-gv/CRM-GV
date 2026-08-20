@@ -1,3 +1,5 @@
+import type { CompromissoTipo } from "@/modules/calendario/types";
+
 export interface ParametrosNotificacao {
   diasLeadSemMovimentacao: number;
   diasPropostaSemMovimentacao: number;
@@ -7,3 +9,10 @@ export interface ParametrosNotificacao {
 }
 
 export type ParametrosNotificacaoInput = ParametrosNotificacao;
+
+export interface ParametrosRetomadaLead {
+  dias: number;
+  categoria: CompromissoTipo;
+}
+
+export type ParametrosRetomadaLeadInput = ParametrosRetomadaLead;
