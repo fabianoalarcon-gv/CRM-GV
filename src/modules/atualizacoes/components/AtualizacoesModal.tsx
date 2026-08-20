@@ -51,7 +51,7 @@ export function AtualizacoesModal({ isOpen, onClose }: AtualizacoesModalProps) {
         <p className="text-sm text-brand-graphite-light">Nenhuma atualização cadastrada ainda.</p>
       ) : (
         <div className="grid grid-cols-[260px_minmax(0,1fr)] gap-6">
-          <div className="max-h-[60vh] overflow-y-auto border-r border-border pr-3">
+          <div className="h-[60vh] overflow-y-auto border-r border-border pr-3">
             <ul className="flex flex-col gap-1">
               {atualizacoes.map((a) => (
                 <li key={a.id}>
@@ -75,21 +75,25 @@ export function AtualizacoesModal({ isOpen, onClose }: AtualizacoesModalProps) {
             </ul>
           </div>
 
-          <div className="max-h-[60vh] overflow-y-auto pl-1">
+          <div className="h-[60vh] overflow-y-auto pl-1">
             {!selected || selected.itens.length === 0 ? (
               <p className="text-sm text-brand-graphite-light">Nenhum item cadastrado nesta atualização.</p>
             ) : (
               <ul className="flex flex-col gap-3 pr-2">
                 {selected.itens.map((item) => (
                   <li key={item.id} className="rounded-lg border border-border p-4">
-                    <div className="flex items-center justify-between gap-2">
-                      <Badge variant={TIPO_BADGE_VARIANT[item.tipo]}>{TIPO_LABEL[item.tipo]}</Badge>
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                      <div className="flex items-baseline gap-2">
+                        <Badge variant={TIPO_BADGE_VARIANT[item.tipo]}>{TIPO_LABEL[item.tipo]}</Badge>
+                        <span className="text-sm font-medium text-foreground">{item.local}</span>
+                      </div>
                       {item.numeroChamado && (
-                        <span className="text-xs text-brand-graphite-light">Nº {item.numeroChamado}</span>
+                        <span className="text-xs text-brand-graphite-light">
+                          Nº Chamado: {item.numeroChamado}
+                        </span>
                       )}
                     </div>
-                    <p className="mt-2 text-sm font-medium text-foreground">{item.local}</p>
-                    <p className="mt-1 text-sm text-brand-graphite-light">{item.descricao}</p>
+                    <p className="mt-1.5 text-sm text-brand-graphite-light">{item.descricao}</p>
                   </li>
                 ))}
               </ul>
