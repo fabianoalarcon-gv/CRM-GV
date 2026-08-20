@@ -44,13 +44,13 @@ export function AtualizacoesModal({ isOpen, onClose }: AtualizacoesModalProps) {
   const selected = atualizacoes.find((a) => a.id === selectedId) ?? null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Atualizações do Sistema" className="max-w-3xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Atualizações do Sistema" className="!max-w-6xl">
       {isLoading ? (
         <p className="text-sm text-brand-graphite-light">Carregando…</p>
       ) : atualizacoes.length === 0 ? (
         <p className="text-sm text-brand-graphite-light">Nenhuma atualização cadastrada ainda.</p>
       ) : (
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-4">
+        <div className="grid grid-cols-[260px_minmax(0,1fr)] gap-6">
           <div className="max-h-[60vh] overflow-y-auto border-r border-border pr-3">
             <ul className="flex flex-col gap-1">
               {atualizacoes.map((a) => (
@@ -75,21 +75,21 @@ export function AtualizacoesModal({ isOpen, onClose }: AtualizacoesModalProps) {
             </ul>
           </div>
 
-          <div className="max-h-[60vh] overflow-y-auto">
+          <div className="max-h-[60vh] overflow-y-auto pl-1">
             {!selected || selected.itens.length === 0 ? (
               <p className="text-sm text-brand-graphite-light">Nenhum item cadastrado nesta atualização.</p>
             ) : (
-              <ul className="flex flex-col gap-2.5 pr-1">
+              <ul className="flex flex-col gap-3 pr-2">
                 {selected.itens.map((item) => (
-                  <li key={item.id} className="rounded-lg border border-border p-3">
+                  <li key={item.id} className="rounded-lg border border-border p-4">
                     <div className="flex items-center justify-between gap-2">
                       <Badge variant={TIPO_BADGE_VARIANT[item.tipo]}>{TIPO_LABEL[item.tipo]}</Badge>
                       {item.numeroChamado && (
                         <span className="text-xs text-brand-graphite-light">Nº {item.numeroChamado}</span>
                       )}
                     </div>
-                    <p className="mt-1.5 text-sm font-medium text-foreground">{item.local}</p>
-                    <p className="mt-0.5 text-sm text-brand-graphite-light">{item.descricao}</p>
+                    <p className="mt-2 text-sm font-medium text-foreground">{item.local}</p>
+                    <p className="mt-1 text-sm text-brand-graphite-light">{item.descricao}</p>
                   </li>
                 ))}
               </ul>
