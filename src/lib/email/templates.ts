@@ -33,18 +33,11 @@ function rodapeComLogo(corpoHtml: string): string {
   return `${corpoHtml}<br /><img src="${LOGO_URL}" alt="LogiHub CRM" style="max-width:180px;" />`;
 }
 
-function iconDataUri(svg: string): string {
-  return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
-}
-
-// Ícones em SVG embutido (data URI) — sem depender de um arquivo hospedado
-// só pra essas duas marcações pequenas.
-const ICON_APROVADO = iconDataUri(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#16a34a"/><path d="M7 12.5l3 3 7-7" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-);
-const ICON_REPROVADO = iconDataUri(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#dc2626"/><path d="M8 8l8 8M16 8l-8 8" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>',
-);
+// Imagem em data: URI não carrega no Gmail/Outlook (clientes de e-mail
+// bloqueiam por segurança, diferente de uma página web) — precisa ser um
+// arquivo hospedado de verdade, igual ao logotipo.
+const ICON_APROVADO = `${APP_URL}/icon-aprovado.png`;
+const ICON_REPROVADO = `${APP_URL}/icon-reprovado.png`;
 
 export interface LeadPropostaEmailData {
   numeroLead: string | null;
