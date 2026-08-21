@@ -27,15 +27,20 @@ export interface CalendarEventInput {
   inicio: string; // ISO
   fim: string | null; // ISO — quando ausente, o evento dura 1h a partir do início
   tipo: CompromissoTipo | null;
+  empresaNome: string | null;
 }
 
 function toEventBody(input: CalendarEventInput) {
   const inicio = new Date(input.inicio);
   const fim = input.fim ? new Date(input.fim) : new Date(inicio.getTime() + 60 * 60 * 1000);
 
+  const descricaoPartes = [];
+  if (input.empresaNome) descricaoPartes.push(`Empresa: ${input.empresaNome}`);
+  if (input.descricao) descricaoPartes.push(input.descricao);
+
   return {
     summary: input.tipo ? `[${TIPO_LABEL[input.tipo]}] ${input.titulo}` : input.titulo,
-    description: input.descricao ?? undefined,
+    description: descricaoPartes.length > 0 ? descricaoPartes.join("\n\n") : undefined,
     start: { dateTime: inicio.toISOString(), timeZone: "America/Sao_Paulo" },
     end: { dateTime: fim.toISOString(), timeZone: "America/Sao_Paulo" },
   };

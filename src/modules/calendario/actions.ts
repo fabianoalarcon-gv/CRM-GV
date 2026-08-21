@@ -6,6 +6,7 @@ import {
   createCalendarEvent,
   deleteCalendarEvent,
   updateCalendarEvent,
+  type CalendarEventInput,
 } from "@/lib/google-calendar/client";
 import type { CompromissoInput } from "./types";
 import { parseBrasiliaDateTime } from "./utils";
@@ -25,6 +26,15 @@ function toRow(input: CompromissoInput) {
     tipo: input.tipo,
     empresa_id: input.empresa_id,
   };
+}
+
+async function resolveEmpresaNome(
+  supabase: Supabase,
+  empresaId: number | null,
+): Promise<string | null> {
+  if (!empresaId) return null;
+  const { data } = await supabase.from("empresas").select("nome").eq("id", empresaId).maybeSingle();
+  return data?.nome ?? null;
 }
 
 async function isGoogleCalendarAtivo(supabase: Supabase): Promise<boolean> {
@@ -73,11 +83,20 @@ export async function createCompromisso(input: CompromissoInput) {
   if (error) return { error: error.message };
 
   if (await isGoogleCalendarAtivo(supabase)) {
+    const empresaNome = await resolveEmpresaNome(supabase, row.empresa_id);
+    const eventInput: CalendarEventInput = {
+      titulo: row.titulo,
+      descricao: row.descricao,
+      inicio: row.inicio,
+      fim: row.fim,
+      tipo: row.tipo,
+      empresaNome,
+    };
     const emails = await resolveTargetEmails(supabase);
     const created = await Promise.all(
       emails.map(async (email) => {
         try {
-          const googleEventId = await createCalendarEvent(email, row);
+          const googleEventId = await createCalendarEvent(email, eventInput);
           return { compromisso_id: inserted.id, email, google_event_id: googleEventId };
         } catch (err) {
           console.error(`Falha ao criar evento no Google Calendar (${email})`, err);
@@ -115,10 +134,19 @@ export async function updateCompromisso(compromissoId: number, input: Compromiss
       .eq("compromisso_id", compromissoId);
 
     if (existingEvents && existingEvents.length > 0) {
+      const empresaNome = await resolveEmpresaNome(supabase, row.empresa_id);
+      const eventInput: CalendarEventInput = {
+        titulo: row.titulo,
+        descricao: row.descricao,
+        inicio: row.inicio,
+        fim: row.fim,
+        tipo: row.tipo,
+        empresaNome,
+      };
       await Promise.all(
         existingEvents.map(async (e) => {
           try {
-            await updateCalendarEvent(e.email, e.google_event_id, row);
+            await updateCalendarEvent(e.email, e.google_event_id, eventInput);
           } catch (err) {
             console.error(`Falha ao atualizar evento no Google Calendar (${e.email})`, err);
           }
