@@ -153,6 +153,35 @@ export type Database = {
           },
         ]
       }
+      compromisso_google_events: {
+        Row: {
+          compromisso_id: number
+          created_at: string
+          email: string
+          google_event_id: string
+        }
+        Insert: {
+          compromisso_id: number
+          created_at?: string
+          email: string
+          google_event_id: string
+        }
+        Update: {
+          compromisso_id?: number
+          created_at?: string
+          email?: string
+          google_event_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compromisso_google_events_compromisso_id_fkey"
+            columns: ["compromisso_id"]
+            isOneToOne: false
+            referencedRelation: "compromissos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       compromissos: {
         Row: {
           created_at: string
@@ -160,7 +189,6 @@ export type Database = {
           descricao: string | null
           empresa_id: number | null
           fim: string | null
-          google_event_id: string | null
           id: number
           inicio: string
           proposta_id: number | null
@@ -174,7 +202,6 @@ export type Database = {
           descricao?: string | null
           empresa_id?: number | null
           fim?: string | null
-          google_event_id?: string | null
           id?: never
           inicio: string
           proposta_id?: number | null
@@ -188,7 +215,6 @@ export type Database = {
           descricao?: string | null
           empresa_id?: number | null
           fim?: string | null
-          google_event_id?: string | null
           id?: never
           inicio?: string
           proposta_id?: number | null

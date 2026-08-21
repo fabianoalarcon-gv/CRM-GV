@@ -12,8 +12,8 @@ import { parseBrasiliaDateTime } from "./utils";
 
 type Supabase = Awaited<ReturnType<typeof createClient>>;
 
-// E-mail usado quando um compromisso não tem um usuário responsável (ex.
-// Ações geradas automaticamente pelo cron de retomada de Lead arquivado).
+// E-mail padrão de envio do sistema — recebe os eventos do calendário junto
+// com todos os usuários ativos, sempre.
 const EMAIL_SISTEMA_PADRAO = "crm@granvale.com.br";
 
 function toRow(input: CompromissoInput) {
@@ -36,17 +36,15 @@ async function isGoogleCalendarAtivo(supabase: Supabase): Promise<boolean> {
   return data?.ativo ?? false;
 }
 
-async function resolveResponsavelEmail(
-  supabase: Supabase,
-  criadoPor: string | null,
-): Promise<string> {
-  if (!criadoPor) return EMAIL_SISTEMA_PADRAO;
-  const { data } = await supabase
-    .from("profiles")
-    .select("email")
-    .eq("id", criadoPor)
-    .maybeSingle();
-  return data?.email ?? EMAIL_SISTEMA_PADRAO;
+// Toda Ação vai para a agenda de TODOS os usuários ativos do CRM, mais a de
+// crm@granvale.com.br — não só a de quem criou. Cada agenda recebe seu
+// próprio evento (não é um único evento com convidados), então uma falha
+// numa agenda não afeta as demais.
+async function resolveTargetEmails(supabase: Supabase): Promise<string[]> {
+  const { data } = await supabase.from("profiles").select("email").eq("is_active", true);
+  const emails = new Set((data ?? []).map((p) => p.email));
+  emails.add(EMAIL_SISTEMA_PADRAO);
+  return Array.from(emails);
 }
 
 export async function createCompromisso(input: CompromissoInput) {
@@ -69,14 +67,24 @@ export async function createCompromisso(input: CompromissoInput) {
   if (error) return { error: error.message };
 
   if (await isGoogleCalendarAtivo(supabase)) {
-    try {
-      const eventId = await createCalendarEvent(user.email ?? EMAIL_SISTEMA_PADRAO, row);
-      await supabase
-        .from("compromissos")
-        .update({ google_event_id: eventId })
-        .eq("id", inserted.id);
-    } catch (err) {
-      console.error("Falha ao criar evento no Google Calendar", err);
+    const emails = await resolveTargetEmails(supabase);
+    const created = await Promise.all(
+      emails.map(async (email) => {
+        try {
+          const googleEventId = await createCalendarEvent(email, row);
+          return { compromisso_id: inserted.id, email, google_event_id: googleEventId };
+        } catch (err) {
+          console.error(`Falha ao criar evento no Google Calendar (${email})`, err);
+          return null;
+        }
+      }),
+    );
+
+    const rows = created.filter((r): r is NonNullable<typeof r> => r !== null);
+    if (rows.length > 0) {
+      const { error: eventsError } = await supabase.from("compromisso_google_events").insert(rows);
+      if (eventsError)
+        console.error("Falha ao salvar ids de eventos do Google Calendar", eventsError);
     }
   }
 
@@ -90,21 +98,26 @@ export async function updateCompromisso(compromissoId: number, input: Compromiss
 
   const supabase = await createClient();
   const row = toRow(input);
-  const { data: updated, error } = await supabase
-    .from("compromissos")
-    .update(row)
-    .eq("id", compromissoId)
-    .select("google_event_id, criado_por")
-    .single();
+  const { error } = await supabase.from("compromissos").update(row).eq("id", compromissoId);
 
   if (error) return { error: error.message };
 
-  if (updated.google_event_id && (await isGoogleCalendarAtivo(supabase))) {
-    try {
-      const email = await resolveResponsavelEmail(supabase, updated.criado_por);
-      await updateCalendarEvent(email, updated.google_event_id, row);
-    } catch (err) {
-      console.error("Falha ao atualizar evento no Google Calendar", err);
+  if (await isGoogleCalendarAtivo(supabase)) {
+    const { data: existingEvents } = await supabase
+      .from("compromisso_google_events")
+      .select("email, google_event_id")
+      .eq("compromisso_id", compromissoId);
+
+    if (existingEvents && existingEvents.length > 0) {
+      await Promise.all(
+        existingEvents.map(async (e) => {
+          try {
+            await updateCalendarEvent(e.email, e.google_event_id, row);
+          } catch (err) {
+            console.error(`Falha ao atualizar evento no Google Calendar (${e.email})`, err);
+          }
+        }),
+      );
     }
   }
 
@@ -115,22 +128,24 @@ export async function updateCompromisso(compromissoId: number, input: Compromiss
 export async function deleteCompromisso(compromissoId: number) {
   const supabase = await createClient();
 
-  const { data: existing } = await supabase
-    .from("compromissos")
-    .select("google_event_id, criado_por")
-    .eq("id", compromissoId)
-    .maybeSingle();
+  const { data: existingEvents } = await supabase
+    .from("compromisso_google_events")
+    .select("email, google_event_id")
+    .eq("compromisso_id", compromissoId);
 
   const { error } = await supabase.from("compromissos").delete().eq("id", compromissoId);
   if (error) return { error: error.message };
 
-  if (existing?.google_event_id && (await isGoogleCalendarAtivo(supabase))) {
-    try {
-      const email = await resolveResponsavelEmail(supabase, existing.criado_por);
-      await deleteCalendarEvent(email, existing.google_event_id);
-    } catch (err) {
-      console.error("Falha ao excluir evento no Google Calendar", err);
-    }
+  if (existingEvents && existingEvents.length > 0) {
+    await Promise.all(
+      existingEvents.map(async (e) => {
+        try {
+          await deleteCalendarEvent(e.email, e.google_event_id);
+        } catch (err) {
+          console.error(`Falha ao excluir evento no Google Calendar (${e.email})`, err);
+        }
+      }),
+    );
   }
 
   revalidatePath("/calendario");
