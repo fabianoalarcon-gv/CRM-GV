@@ -657,6 +657,7 @@ export type Database = {
         Row: {
           created_at: string
           email: string
+          email_notifications: boolean
           full_name: string
           google_calendar_sync: boolean
           id: string
@@ -668,6 +669,7 @@ export type Database = {
         Insert: {
           created_at?: string
           email: string
+          email_notifications?: boolean
           full_name: string
           google_calendar_sync?: boolean
           id: string
@@ -679,6 +681,7 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string
+          email_notifications?: boolean
           full_name?: string
           google_calendar_sync?: boolean
           id?: string

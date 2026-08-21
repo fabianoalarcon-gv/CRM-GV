@@ -47,7 +47,11 @@ export async function POST(request: Request) {
     }
     recipients = [params.email_teste];
   } else {
-    const { data: profiles } = await admin.from("profiles").select("email").eq("is_active", true);
+    const { data: profiles } = await admin
+      .from("profiles")
+      .select("email")
+      .eq("is_active", true)
+      .eq("email_notifications", true);
     recipients = (profiles ?? []).map((p) => p.email);
   }
 

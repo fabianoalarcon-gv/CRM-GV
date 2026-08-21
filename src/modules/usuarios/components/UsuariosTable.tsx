@@ -39,6 +39,7 @@ function toEditValues(usuario: Usuario): UpdateUsuarioInput {
     role: usuario.role,
     is_active: usuario.is_active,
     google_calendar_sync: usuario.google_calendar_sync,
+    email_notifications: usuario.email_notifications,
     password: "",
   };
 }
@@ -228,6 +229,12 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
               </span>
             </p>
             <p>
+              <span className="font-semibold text-foreground">E-mails de notificação:</span>{" "}
+              <span className="text-brand-graphite-light">
+                {viewing.email_notifications ? "Recebe" : "Não recebe"}
+              </span>
+            </p>
+            <p>
               <span className="font-semibold text-foreground">Desde:</span>{" "}
               <span className="text-brand-graphite-light">
                 {dateFormatter.format(new Date(viewing.created_at))}
@@ -323,6 +330,19 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
                 domínios não recebem a sincronização.
               </p>
             </div>
+            <label className="flex items-center gap-2 text-sm text-foreground">
+              <input
+                type="checkbox"
+                checked={editValues.email_notifications}
+                onChange={(e) =>
+                  setEditValues((prev) =>
+                    prev ? { ...prev, email_notifications: e.target.checked } : prev,
+                  )
+                }
+                className="h-4 w-4 rounded border-border accent-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent"
+              />
+              Receber e-mails de notificação do sistema
+            </label>
 
             {editError && <p className="text-sm text-temp-quente">{editError}</p>}
 

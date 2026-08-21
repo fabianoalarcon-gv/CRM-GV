@@ -20,6 +20,7 @@ const EMPTY_VALUES: InviteUsuarioInput = {
   role: "comercial",
   password: "",
   google_calendar_sync: false,
+  email_notifications: true,
 };
 
 export function InviteUsuarioButton() {
@@ -105,6 +106,17 @@ export function InviteUsuarioButton() {
               domínios não recebem a sincronização.
             </p>
           </div>
+          <label className="flex items-center gap-2 text-sm text-foreground">
+            <input
+              type="checkbox"
+              checked={values.email_notifications}
+              onChange={(e) =>
+                setValues((prev) => ({ ...prev, email_notifications: e.target.checked }))
+              }
+              className="h-4 w-4 rounded border-border accent-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent"
+            />
+            Receber e-mails de notificação do sistema
+          </label>
           {error && <p className="text-sm text-temp-quente">{error}</p>}
           <div className="mt-2 flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={close}>

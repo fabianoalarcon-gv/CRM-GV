@@ -10,7 +10,9 @@ export async function getUsuarios(): Promise<Usuario[]> {
       admin.auth.admin.listUsers(),
       admin
         .from("profiles")
-        .select("id, full_name, role, is_active, google_calendar_sync, created_at"),
+        .select(
+          "id, full_name, role, is_active, google_calendar_sync, email_notifications, created_at",
+        ),
     ]);
 
   if (authError) throw authError;
@@ -26,6 +28,7 @@ export async function getUsuarios(): Promise<Usuario[]> {
       role: p.role as Role,
       is_active: p.is_active,
       google_calendar_sync: p.google_calendar_sync,
+      email_notifications: p.email_notifications,
       created_at: p.created_at,
     }))
     .sort((a, b) => a.full_name.localeCompare(b.full_name));
