@@ -238,7 +238,10 @@ export async function createAcao(leadId: number, empresaId: number, input: AcaoI
     };
   });
 
-  const { data: inserted, error } = await supabase.from("compromissos").insert(rows).select("id");
+  const { data: inserted, error } = await supabase
+    .from("compromissos")
+    .insert(rows)
+    .select("id, created_at");
 
   if (error) return { error: error.message };
 
@@ -255,6 +258,8 @@ export async function createAcao(leadId: number, empresaId: number, input: AcaoI
         tipo: rows[i].tipo,
         empresa_id: rows[i].empresa_id,
         proposta_id: rows[i].proposta_id,
+        criado_por: rows[i].criado_por,
+        created_at: row.created_at,
       }),
     ),
   );

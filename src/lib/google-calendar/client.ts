@@ -32,7 +32,15 @@ export interface CalendarEventInput {
   // partir de um card do Lead/Pipeline, não pelo formulário avulso do
   // Calendário.
   cardLabel: string | null;
+  criadoPorNome: string | null;
+  criadoEm: string; // ISO
 }
+
+const criadoEmFormatter = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: "America/Sao_Paulo",
+  dateStyle: "short",
+  timeStyle: "short",
+});
 
 function toEventBody(input: CalendarEventInput) {
   const inicio = new Date(input.inicio);
@@ -42,6 +50,9 @@ function toEventBody(input: CalendarEventInput) {
   if (input.empresaNome) descricaoPartes.push(`Empresa: ${input.empresaNome}`);
   if (input.cardLabel) descricaoPartes.push(input.cardLabel);
   if (input.descricao) descricaoPartes.push(input.descricao);
+  descricaoPartes.push(
+    `Criado por: ${input.criadoPorNome ?? "Sistema"} em ${criadoEmFormatter.format(new Date(input.criadoEm))}`,
+  );
 
   return {
     summary: input.tipo ? `[${TIPO_LABEL[input.tipo]}] ${input.titulo}` : input.titulo,

@@ -21,6 +21,8 @@ export interface CompromissoSyncData {
   tipo: CompromissoTipo | null;
   empresa_id: number | null;
   proposta_id: number | null;
+  criado_por: string | null;
+  created_at: string;
 }
 
 async function isGoogleCalendarAtivo(supabase: Supabase): Promise<boolean> {
@@ -77,13 +79,27 @@ async function resolveCardLabel(
   return null;
 }
 
+async function resolveCriadoPorNome(
+  supabase: Supabase,
+  criadoPor: string | null,
+): Promise<string | null> {
+  if (!criadoPor) return null;
+  const { data } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", criadoPor)
+    .maybeSingle();
+  return data?.full_name ?? null;
+}
+
 async function buildEventInput(
   supabase: Supabase,
   data: CompromissoSyncData,
 ): Promise<CalendarEventInput> {
-  const [empresaNome, cardLabel] = await Promise.all([
+  const [empresaNome, cardLabel, criadoPorNome] = await Promise.all([
     resolveEmpresaNome(supabase, data.empresa_id),
     resolveCardLabel(supabase, data.proposta_id),
+    resolveCriadoPorNome(supabase, data.criado_por),
   ]);
   return {
     titulo: data.titulo,
@@ -93,6 +109,8 @@ async function buildEventInput(
     tipo: data.tipo,
     empresaNome,
     cardLabel,
+    criadoPorNome,
+    criadoEm: data.created_at,
   };
 }
 
