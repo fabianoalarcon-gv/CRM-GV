@@ -164,28 +164,26 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
                       >
                         <Icon name="visibility" size={18} />
                       </button>
+                      <button
+                        type="button"
+                        title="Editar"
+                        onClick={() => openEdit(usuario)}
+                        className="rounded p-1.5 text-brand-graphite-light hover:bg-black/[.04] hover:text-foreground"
+                      >
+                        <Icon name="edit" size={18} />
+                      </button>
                       {!isSelf && (
-                        <>
-                          <button
-                            type="button"
-                            title="Editar"
-                            onClick={() => openEdit(usuario)}
-                            className="rounded p-1.5 text-brand-graphite-light hover:bg-black/[.04] hover:text-foreground"
-                          >
-                            <Icon name="edit" size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            title="Excluir"
-                            onClick={() => {
-                              setDeleteError(null);
-                              setDeletingId(usuario.id);
-                            }}
-                            className="rounded p-1.5 text-brand-graphite-light hover:bg-temp-quente/10 hover:text-temp-quente"
-                          >
-                            <Icon name="delete" size={18} />
-                          </button>
-                        </>
+                        <button
+                          type="button"
+                          title="Excluir"
+                          onClick={() => {
+                            setDeleteError(null);
+                            setDeletingId(usuario.id);
+                          }}
+                          className="rounded p-1.5 text-brand-graphite-light hover:bg-temp-quente/10 hover:text-temp-quente"
+                        >
+                          <Icon name="delete" size={18} />
+                        </button>
                       )}
                     </div>
                   )}
@@ -321,7 +319,7 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
                 Sincronizar Ações com o Google Calendar
               </label>
               <p className="text-xs text-brand-graphite-light">
-                Só marque se este e-mail for uma conta dentro do Workspace granvale.com.br — outros
+                Só marque se este e-mail for uma conta dentro do Workspace granvale.com.br. Outros
                 domínios não recebem a sincronização.
               </p>
             </div>

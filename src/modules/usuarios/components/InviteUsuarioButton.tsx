@@ -101,7 +101,7 @@ export function InviteUsuarioButton() {
               Sincronizar Ações com o Google Calendar
             </label>
             <p className="text-xs text-brand-graphite-light">
-              Só marque se este e-mail for uma conta dentro do Workspace granvale.com.br — outros
+              Só marque se este e-mail for uma conta dentro do Workspace granvale.com.br. Outros
               domínios não recebem a sincronização.
             </p>
           </div>
