@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import {
   buildLeadPropostaEmailBody,
+  buildMovimentacaoCardEmailBody,
   buildNovaEmpresaEmailBody,
   buildSimpleEmailBody,
 } from "@/lib/email/templates";
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
         proposta_id?: number | null;
         empresa_id?: number | null;
         autor_id?: string | null;
+        status_anterior_label?: string | null;
+        status_novo_label?: string | null;
       }
     | undefined;
   if (!record?.tipo || !record.mensagem) {
@@ -109,6 +112,28 @@ export async function POST(request: Request) {
     html = empresa
       ? buildNovaEmpresaEmailBody({
           empresaNome: empresa.nome,
+          autorNome: autor?.full_name ?? null,
+        })
+      : buildSimpleEmailBody(record.mensagem);
+  } else if (record.tipo === "movimentacao_card" && record.proposta_id) {
+    const [{ data: proposta }, { data: autor }] = await Promise.all([
+      admin
+        .from("propostas")
+        .select("numero_lead, numero_proposta, empresas(nome)")
+        .eq("id", record.proposta_id)
+        .maybeSingle(),
+      record.autor_id
+        ? admin.from("profiles").select("full_name").eq("id", record.autor_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    html = proposta
+      ? buildMovimentacaoCardEmailBody({
+          numeroLead: proposta.numero_lead,
+          numeroProposta: proposta.numero_proposta,
+          empresaNome: proposta.empresas?.nome ?? null,
+          statusAnterior: record.status_anterior_label ?? null,
+          statusNovo: record.status_novo_label ?? null,
           autorNome: autor?.full_name ?? null,
         })
       : buildSimpleEmailBody(record.mensagem);

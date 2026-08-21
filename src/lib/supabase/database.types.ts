@@ -422,6 +422,8 @@ export type Database = {
           id: number
           mensagem: string
           proposta_id: number | null
+          status_anterior_label: string | null
+          status_novo_label: string | null
           tipo: string
         }
         Insert: {
@@ -433,6 +435,8 @@ export type Database = {
           id?: never
           mensagem: string
           proposta_id?: number | null
+          status_anterior_label?: string | null
+          status_novo_label?: string | null
           tipo: string
         }
         Update: {
@@ -444,6 +448,8 @@ export type Database = {
           id?: never
           mensagem?: string
           proposta_id?: number | null
+          status_anterior_label?: string | null
+          status_novo_label?: string | null
           tipo?: string
         }
         Relationships: [
@@ -968,6 +974,8 @@ export type Database = {
           id: number
           mensagem: string
           proposta_id: number | null
+          status_anterior_label: string | null
+          status_novo_label: string | null
           tipo: string
         }[]
         SetofOptions: {

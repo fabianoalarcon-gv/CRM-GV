@@ -88,8 +88,32 @@ export function buildNovaEmpresaEmailBody(data: NovaEmpresaEmailData): string {
   return rodapeComLogo(linhas.join(""));
 }
 
+export interface MovimentacaoCardEmailData {
+  numeroLead: string | null;
+  numeroProposta: string | null;
+  empresaNome: string | null;
+  statusAnterior: string | null;
+  statusNovo: string | null;
+  autorNome: string | null;
+}
+
+// Aqui o negrito vai nos VALORES da frase (número, empresa, status), não nos
+// rótulos — diferente de linha(), que usa o padrão inverso.
+export function buildMovimentacaoCardEmailBody(data: MovimentacaoCardEmailData): string {
+  const ehProposta = Boolean(data.numeroProposta);
+  const rotulo = ehProposta ? "Proposta" : "Lead";
+  const numero = ehProposta ? data.numeroProposta : data.numeroLead;
+
+  const frase =
+    `<p style="margin:2px 0;">${rotulo} Nº <strong>${numero ?? "—"}</strong> da empresa ` +
+    `<strong>${data.empresaNome ?? "Sem empresa"}</strong> foi movido do status ` +
+    `<strong>${data.statusAnterior ?? "—"}</strong> para <strong>${data.statusNovo ?? "—"}</strong>.</p>`;
+
+  return rodapeComLogo(frase + linha("Usuário", data.autorNome ?? "Sistema"));
+}
+
 // Corpo simples (texto único da notificação) usado pelos demais tipos de
-// evento (nova Ação, movimentação de card, aprovação/reprovação, etc.).
+// evento (nova Ação, aprovação/reprovação, etc.).
 export function buildSimpleEmailBody(mensagem: string): string {
   return rodapeComLogo(`<p>${mensagem}</p>`);
 }
