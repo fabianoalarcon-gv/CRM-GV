@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/email/send";
 import {
   buildLeadPropostaEmailBody,
   buildMovimentacaoCardEmailBody,
+  buildNovaAcaoEmailBody,
   buildNovaEmpresaEmailBody,
   buildPropostaResultadoEmailBody,
   buildSimpleEmailBody,
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
         mensagem?: string;
         proposta_id?: number | null;
         empresa_id?: number | null;
+        compromisso_id?: number | null;
         autor_id?: string | null;
         status_anterior_label?: string | null;
         status_novo_label?: string | null;
@@ -159,6 +161,29 @@ export async function POST(request: Request) {
           empresaNome: proposta.empresas?.nome ?? null,
           aprovado: record.tipo === "proposta_aprovada",
           autorNome: autor?.full_name ?? null,
+        })
+      : buildSimpleEmailBody(record.mensagem);
+  } else if (record.tipo === "nova_acao" && record.compromisso_id) {
+    const { data: compromisso } = await admin
+      .from("compromissos")
+      .select(
+        "titulo, descricao, inicio, fim, tipo, created_at, empresas(nome), propostas(numero_lead, numero_proposta), profiles(full_name)",
+      )
+      .eq("id", record.compromisso_id)
+      .maybeSingle();
+
+    html = compromisso
+      ? buildNovaAcaoEmailBody({
+          titulo: compromisso.titulo,
+          inicio: compromisso.inicio,
+          fim: compromisso.fim,
+          tipo: compromisso.tipo,
+          numeroLead: compromisso.propostas?.numero_lead ?? null,
+          numeroProposta: compromisso.propostas?.numero_proposta ?? null,
+          empresaNome: compromisso.empresas?.nome ?? null,
+          descricao: compromisso.descricao,
+          autorNome: compromisso.profiles?.full_name ?? null,
+          createdAt: compromisso.created_at,
         })
       : buildSimpleEmailBody(record.mensagem);
   } else {

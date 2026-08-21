@@ -1,3 +1,5 @@
+import { TIPO_LABEL } from "@/modules/calendario/utils";
+
 // URL pública do app na Vercel — usada só pra referenciar a imagem do
 // logotipo (public/logo_logihub.png) no rodapé do e-mail; e-mail HTML não
 // pode referenciar um arquivo local, precisa de uma URL acessível.
@@ -10,6 +12,18 @@ const dataFormatter = new Intl.DateTimeFormat("pt-BR", {
   month: "2-digit",
   year: "numeric",
 });
+
+const horaFormatter = new Intl.DateTimeFormat("pt-BR", {
+  timeZone: "America/Sao_Paulo",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+function formatDataHora(iso: string): string {
+  const date = new Date(iso);
+  return `${dataFormatter.format(date)} - ${horaFormatter.format(date)}H`;
+}
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
@@ -139,8 +153,49 @@ export function buildPropostaResultadoEmailBody(data: PropostaResultadoEmailData
   return rodapeComLogo(frase + linha("Usuário", data.autorNome ?? "Sistema"));
 }
 
+export interface NovaAcaoEmailData {
+  titulo: string;
+  inicio: string;
+  fim: string | null;
+  tipo: string | null;
+  numeroLead: string | null;
+  numeroProposta: string | null;
+  empresaNome: string | null;
+  descricao: string | null;
+  autorNome: string | null;
+  createdAt: string;
+}
+
+export function buildNovaAcaoEmailBody(data: NovaAcaoEmailData): string {
+  const ehProposta = Boolean(data.numeroProposta);
+  const cardRotulo = ehProposta ? "Proposta" : "Lead";
+  const cardNumero = ehProposta ? data.numeroProposta : data.numeroLead;
+
+  const detalhes = [
+    linha("Título", data.titulo),
+    linha("Data/Hora Início", formatDataHora(data.inicio)),
+    linha("Data/Hora Fim", data.fim ? formatDataHora(data.fim) : "Sem hora de fim"),
+    linha(
+      "Categoria",
+      data.tipo
+        ? ((TIPO_LABEL as Record<string, string>)[data.tipo] ?? data.tipo)
+        : "Sem categoria",
+    ),
+    linha(`${cardRotulo} Nº`, cardNumero ?? "Sem vínculo"),
+    linha("Empresa", data.empresaNome ?? "Sem empresa"),
+    linha("Descrição", data.descricao ?? "Sem descrição"),
+  ].join("");
+
+  const criacao = [
+    linha("Usuário", data.autorNome ?? "Sistema"),
+    linha("Data/Hora da criação da agenda", formatDataHora(data.createdAt)),
+  ].join("");
+
+  return rodapeComLogo(`${detalhes}<br />${criacao}`);
+}
+
 // Corpo simples (texto único da notificação) usado pelos demais tipos de
-// evento (nova Ação, etc.).
+// evento.
 export function buildSimpleEmailBody(mensagem: string): string {
   return rodapeComLogo(`<p>${mensagem}</p>`);
 }
