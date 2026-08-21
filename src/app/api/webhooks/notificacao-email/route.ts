@@ -7,12 +7,17 @@ import {
   buildNovaAcaoEmailBody,
   buildNovaEmpresaEmailBody,
   buildPropostaResultadoEmailBody,
+  buildSemMovimentacaoEmailBody,
   buildSimpleEmailBody,
 } from "@/lib/email/templates";
 import { NOTIFICACAO_TIPO_LABEL } from "@/modules/notificacoes/utils";
 import type { NotificacaoTipo } from "@/modules/notificacoes/types";
 
 const TIPOS_LEAD_PROPOSTA: NotificacaoTipo[] = ["novo_lead", "nova_proposta"];
+const TIPOS_SEM_MOVIMENTACAO: NotificacaoTipo[] = [
+  "lead_sem_movimentacao",
+  "proposta_sem_movimentacao",
+];
 
 // Chamada pelo Supabase Database Webhook (Database > Webhooks) a cada INSERT
 // na tabela notificacoes — mesmo funil de eventos já usado pelo sino de
@@ -42,6 +47,7 @@ export async function POST(request: Request) {
         autor_id?: string | null;
         status_anterior_label?: string | null;
         status_novo_label?: string | null;
+        dias?: number | null;
       }
     | undefined;
   if (!record?.tipo || !record.mensagem) {
@@ -184,6 +190,21 @@ export async function POST(request: Request) {
           descricao: compromisso.descricao,
           autorNome: compromisso.profiles?.full_name ?? null,
           createdAt: compromisso.created_at,
+        })
+      : buildSimpleEmailBody(record.mensagem);
+  } else if (TIPOS_SEM_MOVIMENTACAO.includes(record.tipo) && record.proposta_id) {
+    const { data: proposta } = await admin
+      .from("propostas")
+      .select("numero_lead, numero_proposta, empresas(nome)")
+      .eq("id", record.proposta_id)
+      .maybeSingle();
+
+    html = proposta
+      ? buildSemMovimentacaoEmailBody({
+          numeroLead: proposta.numero_lead,
+          numeroProposta: proposta.numero_proposta,
+          empresaNome: proposta.empresas?.nome ?? null,
+          dias: record.dias ?? null,
         })
       : buildSimpleEmailBody(record.mensagem);
   } else {

@@ -417,6 +417,7 @@ export type Database = {
           autor_id: string | null
           compromisso_id: number | null
           created_at: string
+          dias: number | null
           empresa_id: number | null
           evento_dia: string | null
           id: number
@@ -430,6 +431,7 @@ export type Database = {
           autor_id?: string | null
           compromisso_id?: number | null
           created_at?: string
+          dias?: number | null
           empresa_id?: number | null
           evento_dia?: string | null
           id?: never
@@ -443,6 +445,7 @@ export type Database = {
           autor_id?: string | null
           compromisso_id?: number | null
           created_at?: string
+          dias?: number | null
           empresa_id?: number | null
           evento_dia?: string | null
           id?: never
@@ -969,6 +972,7 @@ export type Database = {
           autor_id: string | null
           compromisso_id: number | null
           created_at: string
+          dias: number | null
           empresa_id: number | null
           evento_dia: string | null
           id: number

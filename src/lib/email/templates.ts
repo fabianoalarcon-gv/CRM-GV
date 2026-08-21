@@ -194,6 +194,29 @@ export function buildNovaAcaoEmailBody(data: NovaAcaoEmailData): string {
   return rodapeComLogo(`${detalhes}<br />${criacao}`);
 }
 
+export interface SemMovimentacaoEmailData {
+  numeroLead: string | null;
+  numeroProposta: string | null;
+  empresaNome: string | null;
+  dias: number | null;
+}
+
+// Mesmo corpo pra lead_sem_movimentacao e proposta_sem_movimentacao — só
+// muda o rótulo (Lead/Proposta) conforme numero_proposta estar preenchido.
+export function buildSemMovimentacaoEmailBody(data: SemMovimentacaoEmailData): string {
+  const ehProposta = Boolean(data.numeroProposta);
+  const rotulo = ehProposta ? "Proposta" : "Lead";
+  const numero = ehProposta ? data.numeroProposta : data.numeroLead;
+  const diasTexto = data.dias !== null ? `${data.dias} dia${data.dias === 1 ? "" : "s"}` : "—";
+
+  const frase =
+    `<p style="margin:2px 0;">${rotulo} Nº <strong>${numero ?? "—"}</strong> da empresa ` +
+    `<strong>${data.empresaNome ?? "Sem empresa"}</strong> parado há <strong>${diasTexto}</strong> ` +
+    `sem movimentação.</p>`;
+
+  return rodapeComLogo(frase);
+}
+
 // Corpo simples (texto único da notificação) usado pelos demais tipos de
 // evento.
 export function buildSimpleEmailBody(mensagem: string): string {
