@@ -481,6 +481,47 @@ export type Database = {
           },
         ]
       }
+      parametros_email: {
+        Row: {
+          ativo: boolean
+          email_teste: string | null
+          id: number
+          modo_teste: boolean
+          nome_remetente: string
+          tipos_habilitados: string[]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          email_teste?: string | null
+          id?: number
+          modo_teste?: boolean
+          nome_remetente?: string
+          tipos_habilitados?: string[]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          email_teste?: string | null
+          id?: number
+          modo_teste?: boolean
+          nome_remetente?: string
+          tipos_habilitados?: string[]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parametros_email_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       parametros_notificacao: {
         Row: {
           dias_empresa_sem_contato: number

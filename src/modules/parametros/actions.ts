@@ -4,9 +4,15 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { ACAO_TIPO_OPTIONS } from "@/modules/calendario/utils";
-import type { ParametrosNotificacaoInput, ParametrosRetomadaLeadInput } from "./types";
+import { NOTIFICACAO_TIPO_OPTIONS } from "@/modules/notificacoes/utils";
+import type {
+  ParametrosEmailInput,
+  ParametrosNotificacaoInput,
+  ParametrosRetomadaLeadInput,
+} from "./types";
 
 const CATEGORIA_VALIDA = new Set(ACAO_TIPO_OPTIONS.map((o) => o.value));
+const NOTIFICACAO_TIPO_VALIDA = new Set(NOTIFICACAO_TIPO_OPTIONS.map((o) => o.value));
 
 async function requireAdmin(): Promise<{ error: string | null; userId: string | null }> {
   const supabase = await createClient();
@@ -47,6 +53,41 @@ export async function updateParametrosNotificacao(input: ParametrosNotificacaoIn
       dias_empresa_sem_contato: input.diasEmpresaSemContato,
       dias_lead_sem_acao: input.diasLeadSemAcao,
       dias_proposta_sem_acao: input.diasPropostaSemAcao,
+      updated_by: guard.userId,
+    })
+    .eq("id", 1);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/parametros");
+  return { error: null };
+}
+
+export async function updateParametrosEmail(input: ParametrosEmailInput) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  if (input.modoTeste && !input.emailTeste?.trim()) {
+    return { error: "Informe o e-mail de teste enquanto o modo teste estiver ativo." };
+  }
+  if (!input.nomeRemetente.trim()) {
+    return { error: "Informe o nome do remetente." };
+  }
+  for (const tipo of input.tiposHabilitados) {
+    if (!NOTIFICACAO_TIPO_VALIDA.has(tipo)) {
+      return { error: `Tipo de notificação inválido: ${tipo}.` };
+    }
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("parametros_email")
+    .update({
+      ativo: input.ativo,
+      nome_remetente: input.nomeRemetente.trim(),
+      modo_teste: input.modoTeste,
+      email_teste: input.emailTeste?.trim() || null,
+      tipos_habilitados: input.tiposHabilitados,
       updated_by: guard.userId,
     })
     .eq("id", 1);

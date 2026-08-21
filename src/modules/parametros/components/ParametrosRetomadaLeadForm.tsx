@@ -74,8 +74,7 @@ export function ParametrosRetomadaLeadForm({ parametros }: ParametrosRetomadaLea
             options={ACAO_TIPO_OPTIONS}
           />
           <p className="text-xs text-brand-graphite-light">
-            Categoria da Ação gerada automaticamente (“Retomada comercial com um Lead
-            arquivado”).
+            Categoria da Ação gerada automaticamente (“Retomada comercial com um Lead arquivado”).
           </p>
         </div>
       </div>

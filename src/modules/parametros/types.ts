@@ -1,4 +1,5 @@
 import type { CompromissoTipo } from "@/modules/calendario/types";
+import type { NotificacaoTipo } from "@/modules/notificacoes/types";
 
 export interface ParametrosNotificacao {
   diasLeadSemMovimentacao: number;
@@ -16,3 +17,13 @@ export interface ParametrosRetomadaLead {
 }
 
 export type ParametrosRetomadaLeadInput = ParametrosRetomadaLead;
+
+export interface ParametrosEmail {
+  ativo: boolean;
+  nomeRemetente: string;
+  modoTeste: boolean;
+  emailTeste: string | null;
+  tiposHabilitados: NotificacaoTipo[];
+}
+
+export type ParametrosEmailInput = ParametrosEmail;

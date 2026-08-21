@@ -1,17 +1,23 @@
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { ParametrosEmailForm } from "@/modules/parametros/components/ParametrosEmailForm";
 import { ParametrosNotificacaoForm } from "@/modules/parametros/components/ParametrosNotificacaoForm";
 import { ParametrosRetomadaLeadForm } from "@/modules/parametros/components/ParametrosRetomadaLeadForm";
-import { getParametrosNotificacao, getParametrosRetomadaLead } from "@/modules/parametros/queries";
+import {
+  getParametrosEmail,
+  getParametrosNotificacao,
+  getParametrosRetomadaLead,
+} from "@/modules/parametros/queries";
 import { getCurrentUser } from "@/lib/auth/profile";
 
 export default async function ParametrosPage() {
   const currentUser = await getCurrentUser();
   if (currentUser?.role !== "admin") redirect("/");
 
-  const [parametrosNotificacao, parametrosRetomadaLead] = await Promise.all([
+  const [parametrosNotificacao, parametrosRetomadaLead, parametrosEmail] = await Promise.all([
     getParametrosNotificacao(),
     getParametrosRetomadaLead(),
+    getParametrosEmail(),
   ]);
 
   return (
@@ -42,12 +48,25 @@ export default async function ParametrosPage() {
         <CardHeader>
           <CardTitle>Retomada de Leads Arquivados</CardTitle>
           <CardDescription>
-            Cria automaticamente uma Ação de retomada comercial para Leads que ficam arquivados
-            por tempo demais.
+            Cria automaticamente uma Ação de retomada comercial para Leads que ficam arquivados por
+            tempo demais.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ParametrosRetomadaLeadForm parametros={parametrosRetomadaLead} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>E-mail</CardTitle>
+          <CardDescription>
+            Envio de e-mails de notificação (novo Lead, nova Proposta, nova Ação, etc.) para os
+            usuários do sistema.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ParametrosEmailForm parametros={parametrosEmail} />
         </CardContent>
       </Card>
     </div>
