@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
+import { buildLeadPropostaEmailBody, buildSimpleEmailBody } from "@/lib/email/templates";
 import { NOTIFICACAO_TIPO_LABEL } from "@/modules/notificacoes/utils";
 import type { NotificacaoTipo } from "@/modules/notificacoes/types";
+
+const TIPOS_LEAD_PROPOSTA: NotificacaoTipo[] = ["novo_lead", "nova_proposta"];
 
 // Chamada pelo Supabase Database Webhook (Database > Webhooks) a cada INSERT
 // na tabela notificacoes — mesmo funil de eventos já usado pelo sino de
@@ -22,7 +25,8 @@ export async function POST(request: Request) {
   }
 
   const payload = await request.json();
-  const record = payload?.record as { tipo?: NotificacaoTipo; mensagem?: string } | undefined;
+  const record = payload?.record as
+    { tipo?: NotificacaoTipo; mensagem?: string; proposta_id?: number | null } | undefined;
   if (!record?.tipo || !record.mensagem) {
     return NextResponse.json({ ok: true, skipped: "payload sem notificação" });
   }
@@ -59,11 +63,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, skipped: "sem destinatários" });
   }
 
+  let html: string;
+  if (TIPOS_LEAD_PROPOSTA.includes(record.tipo) && record.proposta_id) {
+    const { data: proposta } = await admin
+      .from("propostas")
+      .select(
+        "numero_lead, numero_proposta, created_at, descricao, termometro, segmento, valor, empresas(nome), proposal_statuses!status_id(label), responsavel:profiles!responsavel_id(full_name)",
+      )
+      .eq("id", record.proposta_id)
+      .maybeSingle();
+
+    html = proposta
+      ? buildLeadPropostaEmailBody({
+          numeroLead: proposta.numero_lead,
+          numeroProposta: proposta.numero_proposta,
+          createdAt: proposta.created_at,
+          empresaNome: proposta.empresas?.nome ?? null,
+          descricao: proposta.descricao,
+          termometro: proposta.termometro,
+          segmento: proposta.segmento,
+          valor: proposta.valor,
+          statusLabel: proposta.proposal_statuses?.label ?? null,
+          responsavelNome: proposta.responsavel?.full_name ?? null,
+        })
+      : buildSimpleEmailBody(record.mensagem);
+  } else {
+    html = buildSimpleEmailBody(record.mensagem);
+  }
+
   try {
     await sendEmail({
       to: recipients,
       subject: NOTIFICACAO_TIPO_LABEL[record.tipo] ?? "Notificação CRM",
-      html: `<p>${record.mensagem}</p>`,
+      html,
       fromName: params.nome_remetente,
     });
   } catch (err) {
