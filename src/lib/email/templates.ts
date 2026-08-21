@@ -217,6 +217,29 @@ export function buildSemMovimentacaoEmailBody(data: SemMovimentacaoEmailData): s
   return rodapeComLogo(frase);
 }
 
+export interface SemAcaoEmailData {
+  numeroLead: string | null;
+  numeroProposta: string | null;
+  empresaNome: string | null;
+  dias: number | null;
+}
+
+// Mesmo corpo pra lead_sem_acao e proposta_sem_acao — só muda o rótulo
+// (Lead/Proposta) conforme numero_proposta estar preenchido.
+export function buildSemAcaoEmailBody(data: SemAcaoEmailData): string {
+  const ehProposta = Boolean(data.numeroProposta);
+  const rotulo = ehProposta ? "Proposta" : "Lead";
+  const numero = ehProposta ? data.numeroProposta : data.numeroLead;
+  const diasTexto = data.dias !== null ? `${data.dias} dia${data.dias === 1 ? "" : "s"}` : "—";
+
+  const frase =
+    `<p style="margin:2px 0;">${rotulo} Nº <strong>${numero ?? "—"}</strong> da empresa ` +
+    `<strong>${data.empresaNome ?? "Sem empresa"}</strong> sem nenhuma ação registrada há ` +
+    `<strong>${diasTexto}</strong>.</p>`;
+
+  return rodapeComLogo(frase);
+}
+
 // Corpo simples (texto único da notificação) usado pelos demais tipos de
 // evento.
 export function buildSimpleEmailBody(mensagem: string): string {
