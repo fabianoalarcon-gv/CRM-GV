@@ -240,6 +240,21 @@ export function buildSemAcaoEmailBody(data: SemAcaoEmailData): string {
   return rodapeComLogo(frase);
 }
 
+export interface EmpresaSemContatoEmailData {
+  empresaNome: string;
+  dias: number | null;
+}
+
+export function buildEmpresaSemContatoEmailBody(data: EmpresaSemContatoEmailData): string {
+  const diasTexto = data.dias !== null ? `${data.dias} dia${data.dias === 1 ? "" : "s"}` : "—";
+
+  const frase =
+    `<p style="margin:2px 0;">A empresa <strong>${data.empresaNome}</strong> continua sem ` +
+    `nenhum contato cadastrado há <strong>${diasTexto}</strong>.</p>`;
+
+  return rodapeComLogo(frase);
+}
+
 // Corpo simples (texto único da notificação) usado pelos demais tipos de
 // evento.
 export function buildSimpleEmailBody(mensagem: string): string {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
 import {
+  buildEmpresaSemContatoEmailBody,
   buildLeadPropostaEmailBody,
   buildMovimentacaoCardEmailBody,
   buildNovaAcaoEmailBody,
@@ -223,6 +224,16 @@ export async function POST(request: Request) {
           empresaNome: proposta.empresas?.nome ?? null,
           dias: record.dias ?? null,
         })
+      : buildSimpleEmailBody(record.mensagem);
+  } else if (record.tipo === "empresa_sem_contato" && record.empresa_id) {
+    const { data: empresa } = await admin
+      .from("empresas")
+      .select("nome")
+      .eq("id", record.empresa_id)
+      .maybeSingle();
+
+    html = empresa
+      ? buildEmpresaSemContatoEmailBody({ empresaNome: empresa.nome, dias: record.dias ?? null })
       : buildSimpleEmailBody(record.mensagem);
   } else {
     html = buildSimpleEmailBody(record.mensagem);
