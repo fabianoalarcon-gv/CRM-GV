@@ -1,7 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import type { CompromissoTipo } from "@/modules/calendario/types";
 import type { NotificacaoTipo } from "@/modules/notificacoes/types";
-import type { ParametrosEmail, ParametrosNotificacao, ParametrosRetomadaLead } from "./types";
+import type {
+  ParametrosEmail,
+  ParametrosGoogleCalendar,
+  ParametrosNotificacao,
+  ParametrosRetomadaLead,
+} from "./types";
 
 export async function getParametrosNotificacao(): Promise<ParametrosNotificacao> {
   const supabase = await createClient();
@@ -57,4 +62,17 @@ export async function getParametrosEmail(): Promise<ParametrosEmail> {
     emailTeste: data.email_teste,
     tiposHabilitados: data.tipos_habilitados as NotificacaoTipo[],
   };
+}
+
+export async function getParametrosGoogleCalendar(): Promise<ParametrosGoogleCalendar> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("parametros_google_calendar")
+    .select("ativo")
+    .eq("id", 1)
+    .single();
+
+  if (error) throw error;
+
+  return { ativo: data.ativo };
 }

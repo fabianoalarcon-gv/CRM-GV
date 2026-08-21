@@ -27,3 +27,9 @@ export interface ParametrosEmail {
 }
 
 export type ParametrosEmailInput = ParametrosEmail;
+
+export interface ParametrosGoogleCalendar {
+  ativo: boolean;
+}
+
+export type ParametrosGoogleCalendarInput = ParametrosGoogleCalendar;

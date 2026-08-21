@@ -160,6 +160,7 @@ export type Database = {
           descricao: string | null
           empresa_id: number | null
           fim: string | null
+          google_event_id: string | null
           id: number
           inicio: string
           proposta_id: number | null
@@ -173,6 +174,7 @@ export type Database = {
           descricao?: string | null
           empresa_id?: number | null
           fim?: string | null
+          google_event_id?: string | null
           id?: never
           inicio: string
           proposta_id?: number | null
@@ -186,6 +188,7 @@ export type Database = {
           descricao?: string | null
           empresa_id?: number | null
           fim?: string | null
+          google_event_id?: string | null
           id?: never
           inicio?: string
           proposta_id?: number | null
@@ -515,6 +518,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "parametros_email_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parametros_google_calendar: {
+        Row: {
+          ativo: boolean
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ativo?: boolean
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ativo?: boolean
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parametros_google_calendar_updated_by_fkey"
             columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"

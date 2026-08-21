@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
 import { ParametrosEmailForm } from "@/modules/parametros/components/ParametrosEmailForm";
+import { ParametrosGoogleCalendarForm } from "@/modules/parametros/components/ParametrosGoogleCalendarForm";
 import { ParametrosNotificacaoForm } from "@/modules/parametros/components/ParametrosNotificacaoForm";
 import { ParametrosRetomadaLeadForm } from "@/modules/parametros/components/ParametrosRetomadaLeadForm";
 import {
   getParametrosEmail,
+  getParametrosGoogleCalendar,
   getParametrosNotificacao,
   getParametrosRetomadaLead,
 } from "@/modules/parametros/queries";
@@ -14,11 +16,13 @@ export default async function ParametrosPage() {
   const currentUser = await getCurrentUser();
   if (currentUser?.role !== "admin") redirect("/");
 
-  const [parametrosNotificacao, parametrosRetomadaLead, parametrosEmail] = await Promise.all([
-    getParametrosNotificacao(),
-    getParametrosRetomadaLead(),
-    getParametrosEmail(),
-  ]);
+  const [parametrosNotificacao, parametrosRetomadaLead, parametrosEmail, parametrosGoogleCalendar] =
+    await Promise.all([
+      getParametrosNotificacao(),
+      getParametrosRetomadaLead(),
+      getParametrosEmail(),
+      getParametrosGoogleCalendar(),
+    ]);
 
   return (
     <div className="flex h-full flex-col gap-6">
@@ -67,6 +71,18 @@ export default async function ParametrosPage() {
         </CardHeader>
         <CardContent>
           <ParametrosEmailForm parametros={parametrosEmail} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Google Calendar</CardTitle>
+          <CardDescription>
+            Sincronização das Ações do calendário com a agenda do Google de cada usuário.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ParametrosGoogleCalendarForm parametros={parametrosGoogleCalendar} />
         </CardContent>
       </Card>
     </div>

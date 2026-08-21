@@ -7,6 +7,7 @@ import { ACAO_TIPO_OPTIONS } from "@/modules/calendario/utils";
 import { NOTIFICACAO_TIPO_OPTIONS } from "@/modules/notificacoes/utils";
 import type {
   ParametrosEmailInput,
+  ParametrosGoogleCalendarInput,
   ParametrosNotificacaoInput,
   ParametrosRetomadaLeadInput,
 } from "./types";
@@ -90,6 +91,22 @@ export async function updateParametrosEmail(input: ParametrosEmailInput) {
       tipos_habilitados: input.tiposHabilitados,
       updated_by: guard.userId,
     })
+    .eq("id", 1);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/parametros");
+  return { error: null };
+}
+
+export async function updateParametrosGoogleCalendar(input: ParametrosGoogleCalendarInput) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("parametros_google_calendar")
+    .update({ ativo: input.ativo, updated_by: guard.userId })
     .eq("id", 1);
 
   if (error) return { error: error.message };
