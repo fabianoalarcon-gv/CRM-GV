@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
-import { buildLeadPropostaEmailBody, buildSimpleEmailBody } from "@/lib/email/templates";
+import {
+  buildLeadPropostaEmailBody,
+  buildNovaEmpresaEmailBody,
+  buildSimpleEmailBody,
+} from "@/lib/email/templates";
 import { NOTIFICACAO_TIPO_LABEL } from "@/modules/notificacoes/utils";
 import type { NotificacaoTipo } from "@/modules/notificacoes/types";
 
@@ -26,7 +30,14 @@ export async function POST(request: Request) {
 
   const payload = await request.json();
   const record = payload?.record as
-    { tipo?: NotificacaoTipo; mensagem?: string; proposta_id?: number | null } | undefined;
+    | {
+        tipo?: NotificacaoTipo;
+        mensagem?: string;
+        proposta_id?: number | null;
+        empresa_id?: number | null;
+        autor_id?: string | null;
+      }
+    | undefined;
   if (!record?.tipo || !record.mensagem) {
     return NextResponse.json({ ok: true, skipped: "payload sem notificação" });
   }
@@ -85,6 +96,20 @@ export async function POST(request: Request) {
           valor: proposta.valor,
           statusLabel: proposta.proposal_statuses?.label ?? null,
           responsavelNome: proposta.responsavel?.full_name ?? null,
+        })
+      : buildSimpleEmailBody(record.mensagem);
+  } else if (record.tipo === "nova_empresa" && record.empresa_id) {
+    const [{ data: empresa }, { data: autor }] = await Promise.all([
+      admin.from("empresas").select("nome").eq("id", record.empresa_id).maybeSingle(),
+      record.autor_id
+        ? admin.from("profiles").select("full_name").eq("id", record.autor_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    html = empresa
+      ? buildNovaEmpresaEmailBody({
+          empresaNome: empresa.nome,
+          autorNome: autor?.full_name ?? null,
         })
       : buildSimpleEmailBody(record.mensagem);
   } else {

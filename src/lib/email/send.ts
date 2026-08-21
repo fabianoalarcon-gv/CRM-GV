@@ -35,10 +35,15 @@ export interface SendEmailInput {
 
 export async function sendEmail({ to, subject, html, fromName }: SendEmailInput): Promise<void> {
   const fromAddress = process.env.SMTP_USER!;
+  // Alguns clientes de e-mail (Gmail incluso) ignoram o charset do header
+  // MIME quando o HTML não declara o próprio charset — sem isso, acentos e
+  // cedilha (ex: "ç") viram "?" na renderização. <meta charset> resolve.
+  const fullHtml = `<!doctype html><html><head><meta charset="utf-8" /></head><body>${html}</body></html>`;
   await getTransporter().sendMail({
     from: fromName ? `"${fromName}" <${fromAddress}>` : fromAddress,
     to,
     subject,
-    html,
+    html: fullHtml,
+    encoding: "utf-8",
   });
 }

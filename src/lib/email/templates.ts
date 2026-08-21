@@ -75,6 +75,19 @@ export function buildLeadPropostaEmailBody(data: LeadPropostaEmailData): string 
   return rodapeComLogo(linhas.join(""));
 }
 
+export interface NovaEmpresaEmailData {
+  empresaNome: string;
+  autorNome: string | null;
+}
+
+export function buildNovaEmpresaEmailBody(data: NovaEmpresaEmailData): string {
+  const linhas = [
+    linha("Nova empresa cadastrada", data.empresaNome),
+    linha("Cadastrado por", data.autorNome ?? "Sistema"),
+  ];
+  return rodapeComLogo(linhas.join(""));
+}
+
 // Corpo simples (texto único da notificação) usado pelos demais tipos de
 // evento (nova Ação, movimentação de card, aprovação/reprovação, etc.).
 export function buildSimpleEmailBody(mensagem: string): string {
