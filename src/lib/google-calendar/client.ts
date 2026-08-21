@@ -53,10 +53,13 @@ function toEventBody(input: CalendarEventInput) {
   descricaoPartes.push(
     `Criado por: ${input.criadoPorNome ?? "Sistema"} em ${criadoEmFormatter.format(new Date(input.criadoEm))}`,
   );
+  descricaoPartes.push("LogiHub CRM");
+
+  const tag = input.tipo ? `[${TIPO_LABEL[input.tipo]}] ` : "";
 
   return {
-    summary: input.tipo ? `[${TIPO_LABEL[input.tipo]}] ${input.titulo}` : input.titulo,
-    description: descricaoPartes.length > 0 ? descricaoPartes.join("\n\n") : undefined,
+    summary: `CRM ${tag}${input.titulo}`,
+    description: descricaoPartes.join("\n\n"),
     start: { dateTime: inicio.toISOString(), timeZone: "America/Sao_Paulo" },
     end: { dateTime: fim.toISOString(), timeZone: "America/Sao_Paulo" },
   };
