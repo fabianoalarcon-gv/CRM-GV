@@ -26,7 +26,7 @@ const SEGMENTO_LABEL: Record<string, string> = {
 };
 
 function linha(rotulo: string, valor: string): string {
-  return `<p style="margin:2px 0;">${rotulo}: ${valor}</p>`;
+  return `<p style="margin:2px 0;"><strong>${rotulo}:</strong> ${valor}</p>`;
 }
 
 function rodapeComLogo(corpoHtml: string): string {
