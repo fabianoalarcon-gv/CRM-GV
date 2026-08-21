@@ -5,6 +5,7 @@ import {
   buildLeadPropostaEmailBody,
   buildMovimentacaoCardEmailBody,
   buildNovaEmpresaEmailBody,
+  buildPropostaResultadoEmailBody,
   buildSimpleEmailBody,
 } from "@/lib/email/templates";
 import { NOTIFICACAO_TIPO_LABEL } from "@/modules/notificacoes/utils";
@@ -134,6 +135,29 @@ export async function POST(request: Request) {
           empresaNome: proposta.empresas?.nome ?? null,
           statusAnterior: record.status_anterior_label ?? null,
           statusNovo: record.status_novo_label ?? null,
+          autorNome: autor?.full_name ?? null,
+        })
+      : buildSimpleEmailBody(record.mensagem);
+  } else if (
+    (record.tipo === "proposta_aprovada" || record.tipo === "proposta_reprovada") &&
+    record.proposta_id
+  ) {
+    const [{ data: proposta }, { data: autor }] = await Promise.all([
+      admin
+        .from("propostas")
+        .select("numero_proposta, empresas(nome)")
+        .eq("id", record.proposta_id)
+        .maybeSingle(),
+      record.autor_id
+        ? admin.from("profiles").select("full_name").eq("id", record.autor_id).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+
+    html = proposta?.numero_proposta
+      ? buildPropostaResultadoEmailBody({
+          numeroProposta: proposta.numero_proposta,
+          empresaNome: proposta.empresas?.nome ?? null,
+          aprovado: record.tipo === "proposta_aprovada",
           autorNome: autor?.full_name ?? null,
         })
       : buildSimpleEmailBody(record.mensagem);
