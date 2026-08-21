@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { isBeforeToday, parseBrasiliaDateTime } from "@/modules/calendario/utils";
+import { syncCompromissoCreated, syncCompromissoDeleted } from "@/modules/calendario/google-sync";
 import type { AcaoInput, LeadInput, Repeticao } from "./types";
 
 const MAX_REPETICOES = 100;
@@ -237,9 +238,26 @@ export async function createAcao(leadId: number, empresaId: number, input: AcaoI
     };
   });
 
-  const { error } = await supabase.from("compromissos").insert(rows);
+  const { data: inserted, error } = await supabase.from("compromissos").insert(rows).select("id");
 
   if (error) return { error: error.message };
+
+  // Uma ocorrência por linha inserida (repetição gera várias) — cada uma vira
+  // um evento próprio no Google Calendar, todas com o número do Lead/Proposta
+  // que originou a Ação.
+  await Promise.all(
+    inserted.map((row, i) =>
+      syncCompromissoCreated(supabase, row.id, {
+        titulo: rows[i].titulo,
+        descricao: rows[i].descricao,
+        inicio: rows[i].inicio,
+        fim: rows[i].fim,
+        tipo: rows[i].tipo,
+        empresa_id: rows[i].empresa_id,
+        proposta_id: rows[i].proposta_id,
+      }),
+    ),
+  );
 
   revalidateLeadPaths();
   revalidatePath("/calendario");
@@ -267,6 +285,22 @@ export async function deleteAcao(
 
   if (isBeforeToday(acao.inicio)) {
     return { error: "Ações que já passaram não podem ser excluídas." };
+  }
+
+  // Precisa saber QUAIS linhas serão apagadas antes de apagar, pra limpar o
+  // evento correspondente de cada uma no Google Calendar.
+  const idsQuery =
+    escopo === "somente_esta"
+      ? supabase.from("compromissos").select("id").eq("id", compromissoId)
+      : supabase
+          .from("compromissos")
+          .select("id")
+          .eq("proposta_id", propostaId)
+          .gte("inicio", acao.inicio);
+  const { data: idsParaExcluir } = await idsQuery;
+
+  if (idsParaExcluir && idsParaExcluir.length > 0) {
+    await Promise.all(idsParaExcluir.map((row) => syncCompromissoDeleted(supabase, row.id)));
   }
 
   const { error } =

@@ -28,6 +28,10 @@ export interface CalendarEventInput {
   fim: string | null; // ISO — quando ausente, o evento dura 1h a partir do início
   tipo: CompromissoTipo | null;
   empresaNome: string | null;
+  // "Lead Nº L001/26" ou "Proposta Nº P001/26" — quando a Ação foi criada a
+  // partir de um card do Lead/Pipeline, não pelo formulário avulso do
+  // Calendário.
+  cardLabel: string | null;
 }
 
 function toEventBody(input: CalendarEventInput) {
@@ -36,6 +40,7 @@ function toEventBody(input: CalendarEventInput) {
 
   const descricaoPartes = [];
   if (input.empresaNome) descricaoPartes.push(`Empresa: ${input.empresaNome}`);
+  if (input.cardLabel) descricaoPartes.push(input.cardLabel);
   if (input.descricao) descricaoPartes.push(input.descricao);
 
   return {
