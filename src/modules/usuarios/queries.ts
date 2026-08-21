@@ -8,7 +8,9 @@ export async function getUsuarios(): Promise<Usuario[]> {
   const [{ data: authData, error: authError }, { data: profiles, error: profilesError }] =
     await Promise.all([
       admin.auth.admin.listUsers(),
-      admin.from("profiles").select("id, full_name, role, is_active, created_at"),
+      admin
+        .from("profiles")
+        .select("id, full_name, role, is_active, google_calendar_sync, created_at"),
     ]);
 
   if (authError) throw authError;
@@ -23,6 +25,7 @@ export async function getUsuarios(): Promise<Usuario[]> {
       full_name: p.full_name,
       role: p.role as Role,
       is_active: p.is_active,
+      google_calendar_sync: p.google_calendar_sync,
       created_at: p.created_at,
     }))
     .sort((a, b) => a.full_name.localeCompare(b.full_name));

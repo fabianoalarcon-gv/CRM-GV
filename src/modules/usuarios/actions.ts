@@ -53,6 +53,7 @@ export async function inviteUsuario(input: InviteUsuarioInput) {
     .from("profiles")
     .update({
       must_change_password: true,
+      google_calendar_sync: input.google_calendar_sync,
       ...(input.role !== "comercial" ? { role: input.role } : {}),
     })
     .eq("id", data.user.id);
@@ -92,6 +93,7 @@ export async function updateUsuario(id: string, input: UpdateUsuarioInput) {
       full_name: fullName,
       role: input.role,
       is_active: input.is_active,
+      google_calendar_sync: input.google_calendar_sync,
       ...(password ? { must_change_password: true } : {}),
     })
     .eq("id", id);

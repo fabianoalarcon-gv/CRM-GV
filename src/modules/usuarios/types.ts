@@ -6,6 +6,7 @@ export interface Usuario {
   full_name: string;
   role: Role;
   is_active: boolean;
+  google_calendar_sync: boolean;
   created_at: string;
 }
 
@@ -14,6 +15,7 @@ export interface InviteUsuarioInput {
   full_name: string;
   role: Role;
   password: string;
+  google_calendar_sync: boolean;
 }
 
 export interface UpdateUsuarioInput {
@@ -22,4 +24,5 @@ export interface UpdateUsuarioInput {
   role: Role;
   is_active: boolean;
   password: string;
+  google_calendar_sync: boolean;
 }

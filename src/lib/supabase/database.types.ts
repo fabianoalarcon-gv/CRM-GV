@@ -658,6 +658,7 @@ export type Database = {
           created_at: string
           email: string
           full_name: string
+          google_calendar_sync: boolean
           id: string
           is_active: boolean
           must_change_password: boolean
@@ -668,6 +669,7 @@ export type Database = {
           created_at?: string
           email: string
           full_name: string
+          google_calendar_sync?: boolean
           id: string
           is_active?: boolean
           must_change_password?: boolean
@@ -678,6 +680,7 @@ export type Database = {
           created_at?: string
           email?: string
           full_name?: string
+          google_calendar_sync?: boolean
           id?: string
           is_active?: boolean
           must_change_password?: boolean

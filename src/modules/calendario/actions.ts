@@ -36,12 +36,18 @@ async function isGoogleCalendarAtivo(supabase: Supabase): Promise<boolean> {
   return data?.ativo ?? false;
 }
 
-// Toda Ação vai para a agenda de TODOS os usuários ativos do CRM, mais a de
-// crm@granvale.com.br — não só a de quem criou. Cada agenda recebe seu
-// próprio evento (não é um único evento com convidados), então uma falha
-// numa agenda não afeta as demais.
+// Toda Ação vai para a agenda de todo usuário ativo que tenha marcado
+// "Sincronizar com Google Calendar" no cadastro (nem todo usuário tem e-mail
+// dentro do Workspace granvale.com.br — só quem tem deve ser incluído), mais
+// a de crm@granvale.com.br. Cada agenda recebe seu próprio evento (não é um
+// único evento com convidados), então uma falha numa agenda não afeta as
+// demais.
 async function resolveTargetEmails(supabase: Supabase): Promise<string[]> {
-  const { data } = await supabase.from("profiles").select("email").eq("is_active", true);
+  const { data } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("is_active", true)
+    .eq("google_calendar_sync", true);
   const emails = new Set((data ?? []).map((p) => p.email));
   emails.add(EMAIL_SISTEMA_PADRAO);
   return Array.from(emails);

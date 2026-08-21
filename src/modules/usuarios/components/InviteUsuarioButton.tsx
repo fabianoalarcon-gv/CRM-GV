@@ -14,7 +14,13 @@ const ROLE_OPTIONS = [
   { value: "admin", label: "Admin" },
 ];
 
-const EMPTY_VALUES: InviteUsuarioInput = { email: "", full_name: "", role: "comercial", password: "" };
+const EMPTY_VALUES: InviteUsuarioInput = {
+  email: "",
+  full_name: "",
+  role: "comercial",
+  password: "",
+  google_calendar_sync: false,
+};
 
 export function InviteUsuarioButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -79,9 +85,26 @@ export function InviteUsuarioButton() {
             onChange={(e) => setValues((prev) => ({ ...prev, password: e.target.value }))}
           />
           <p className="text-xs text-brand-graphite-light">
-            Essa é uma senha provisória. No primeiro login, o usuário será solicitado a
-            definir uma nova senha antes de acessar o sistema.
+            Essa é uma senha provisória. No primeiro login, o usuário será solicitado a definir uma
+            nova senha antes de acessar o sistema.
           </p>
+          <div className="flex flex-col gap-1">
+            <label className="flex items-center gap-2 text-sm text-foreground">
+              <input
+                type="checkbox"
+                checked={values.google_calendar_sync}
+                onChange={(e) =>
+                  setValues((prev) => ({ ...prev, google_calendar_sync: e.target.checked }))
+                }
+                className="h-4 w-4 rounded border-border accent-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent"
+              />
+              Sincronizar Ações com o Google Calendar
+            </label>
+            <p className="text-xs text-brand-graphite-light">
+              Só marque se este e-mail for uma conta dentro do Workspace granvale.com.br — outros
+              domínios não recebem a sincronização.
+            </p>
+          </div>
           {error && <p className="text-sm text-temp-quente">{error}</p>}
           <div className="mt-2 flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={close}>

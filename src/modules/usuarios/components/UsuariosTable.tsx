@@ -7,7 +7,14 @@ import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 import { useCurrentUser } from "@/lib/auth/context";
 import type { Role } from "@/lib/auth/types";
 import { deleteUsuario, updateUsuario } from "../actions";
@@ -31,6 +38,7 @@ function toEditValues(usuario: Usuario): UpdateUsuarioInput {
     full_name: usuario.full_name,
     role: usuario.role,
     is_active: usuario.is_active,
+    google_calendar_sync: usuario.google_calendar_sync,
     password: "",
   };
 }
@@ -216,6 +224,12 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
               </span>
             </p>
             <p>
+              <span className="font-semibold text-foreground">Google Calendar:</span>{" "}
+              <span className="text-brand-graphite-light">
+                {viewing.google_calendar_sync ? "Sincronizando" : "Não sincroniza"}
+              </span>
+            </p>
+            <p>
               <span className="font-semibold text-foreground">Desde:</span>{" "}
               <span className="text-brand-graphite-light">
                 {dateFormatter.format(new Date(viewing.created_at))}
@@ -243,14 +257,18 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
               label="Nome"
               required
               value={editValues.full_name}
-              onChange={(e) => setEditValues((prev) => (prev ? { ...prev, full_name: e.target.value } : prev))}
+              onChange={(e) =>
+                setEditValues((prev) => (prev ? { ...prev, full_name: e.target.value } : prev))
+              }
             />
             <Input
               label="E-mail"
               type="email"
               required
               value={editValues.email}
-              onChange={(e) => setEditValues((prev) => (prev ? { ...prev, email: e.target.value } : prev))}
+              onChange={(e) =>
+                setEditValues((prev) => (prev ? { ...prev, email: e.target.value } : prev))
+              }
             />
             <Select
               label="Perfil"
@@ -288,6 +306,25 @@ export function UsuariosTable({ usuarios }: UsuariosTableProps) {
               />
               Usuário ativo
             </label>
+            <div className="flex flex-col gap-1">
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={editValues.google_calendar_sync}
+                  onChange={(e) =>
+                    setEditValues((prev) =>
+                      prev ? { ...prev, google_calendar_sync: e.target.checked } : prev,
+                    )
+                  }
+                  className="h-4 w-4 rounded border-border accent-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent"
+                />
+                Sincronizar Ações com o Google Calendar
+              </label>
+              <p className="text-xs text-brand-graphite-light">
+                Só marque se este e-mail for uma conta dentro do Workspace granvale.com.br — outros
+                domínios não recebem a sincronização.
+              </p>
+            </div>
 
             {editError && <p className="text-sm text-temp-quente">{editError}</p>}
 
