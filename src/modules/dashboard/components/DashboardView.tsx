@@ -8,6 +8,8 @@ import { SEGMENTO_OPTIONS } from "@/modules/pipeline/types";
 import {
   applyFilters,
   computeAcaoIntervalBreakdown,
+  computeCaptacaoMonthlyAggregates,
+  computeCaptacaoOrigemBreakdown,
   computeConversionRates,
   computeForecast,
   computeFunnelStages,
@@ -43,6 +45,7 @@ import type {
   DashboardStatusHistoricoEntry,
   StatusKey,
 } from "../types";
+import type { Captacao } from "@/modules/captacao/types";
 
 const TODOS_OPTION = { value: "", label: "Todos" };
 
@@ -75,6 +78,7 @@ export interface DashboardViewProps {
   statusLabels: Partial<Record<StatusKey, string>>;
   acoes: DashboardAcao[];
   statusHistorico: DashboardStatusHistoricoEntry[];
+  captacoes: Captacao[];
 }
 
 export function DashboardView({
@@ -82,6 +86,7 @@ export function DashboardView({
   statusLabels,
   acoes,
   statusHistorico,
+  captacoes,
 }: DashboardViewProps) {
   const [filters, setFilters] = useState<DashboardFilters>(EMPTY_FILTERS);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -157,6 +162,15 @@ export function DashboardView({
   const stageDurations = useMemo(
     () => computeStageDurations(statusHistorico, filteredIds, statusLabels),
     [statusHistorico, filteredIds, statusLabels],
+  );
+
+  // Indicadores de Captação: captacoes não compartilha os campos dos filtros
+  // de Propostas/Leads (sem data_envio, segmento, etc.), então mostra sempre
+  // o conjunto completo, sem aplicar os filtros da página.
+  const captacaoMonthly = useMemo(() => computeCaptacaoMonthlyAggregates(captacoes), [captacoes]);
+  const captacaoOrigemBreakdown = useMemo(
+    () => computeCaptacaoOrigemBreakdown(captacoes),
+    [captacoes],
   );
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);
@@ -410,6 +424,30 @@ export function DashboardView({
           iconColor="var(--color-chart-cat-3)"
           emptyMessage="Nenhum Lead no menu Leads no período selecionado."
         />
+
+        <SectionHeading eyebrow="Captação" title="Indicadores de Captação" />
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <MonthlyBarChart
+            monthly={captacaoMonthly}
+            title="Captações por mês"
+            subtitle="Volume de empresas captadas ao longo do tempo"
+            icon="travel_explore"
+            iconColor="var(--color-chart-cat-2)"
+            emptyMessage="Nenhuma Captação registrada."
+            metric="count"
+          />
+          <PieChartCard
+            title="Origem"
+            subtitle="Origem das Captações"
+            icon="share"
+            iconColor="var(--color-chart-cat-4)"
+            emptyMessage="Nenhuma Captação registrada."
+            data={captacaoOrigemBreakdown}
+            legendFormatter={(item) => formatEmpresaLegend(item.count)}
+            centered
+          />
+        </div>
       </div>
     </div>
   );

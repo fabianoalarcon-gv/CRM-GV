@@ -1,5 +1,6 @@
 import { ORIGEM_LEAD_OPTIONS } from "@/modules/empresas/constants";
 import { TIPO_LABEL } from "@/modules/calendario/utils";
+import type { Captacao } from "@/modules/captacao/types";
 import {
   LEADS_STATUS_KEYS,
   PIPELINE_STATUS_KEYS,
@@ -478,6 +479,63 @@ export function computeAcaoIntervalBreakdown(acoes: DashboardAcao[]): CategoryBr
       valor: e.amostras,
       pct: totalAvgDays > 0 ? e.avgDays / totalAvgDays : 0,
     }));
+}
+
+// --- Indicadores de Captação ---
+
+// Mesmo agrupamento por mês dos gráficos de Propostas/Leads, usando a data de
+// criação do registro de Captação (não há campo de valor em Captação, então
+// só "count" faz sentido aqui).
+export function computeCaptacaoMonthlyAggregates(captacoes: Captacao[]): MonthlyAggregate[] {
+  const map = new Map<string, MonthlyAggregate>();
+
+  for (const c of captacoes) {
+    const date = new Date(c.createdAt);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const existing = map.get(monthKey);
+    if (existing) {
+      existing.count += 1;
+    } else {
+      map.set(monthKey, { monthKey, label: monthLabelFormatter.format(date), count: 1, valor: 0 });
+    }
+  }
+
+  return Array.from(map.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+}
+
+// Uma linha por empresa captada (a tabela captacoes já garante isso — quando
+// vira Lead, a linha some daqui), então conta direto por registro, sem
+// precisar deduplicar por empresa como em computeOrigemBreakdown.
+export function computeCaptacaoOrigemBreakdown(captacoes: Captacao[]): CategoryBreakdown[] {
+  const total = captacoes.length;
+  const map = new Map<string, { label: string; count: number }>();
+  for (const o of ORIGEM_LEAD_OPTIONS) map.set(o.value, { label: o.label, count: 0 });
+
+  let semOrigem = 0;
+  for (const c of captacoes) {
+    if (c.origemLead && map.has(c.origemLead)) {
+      map.get(c.origemLead)!.count += 1;
+    } else {
+      semOrigem += 1;
+    }
+  }
+
+  const result: CategoryBreakdown[] = [];
+  for (const [key, v] of map) {
+    if (v.count > 0) {
+      result.push({ key, label: v.label, count: v.count, valor: 0, pct: total > 0 ? v.count / total : 0 });
+    }
+  }
+  if (semOrigem > 0) {
+    result.push({
+      key: "sem_origem",
+      label: "Sem origem",
+      count: semOrigem,
+      valor: 0,
+      pct: total > 0 ? semOrigem / total : 0,
+    });
+  }
+  return result;
 }
 
 export interface StageDuration {

@@ -5,13 +5,15 @@ import {
   getDashboardStatusHistorico,
   getStatusLabels,
 } from "@/modules/dashboard/queries";
+import { getCaptacoes } from "@/modules/captacao/queries";
 
 export default async function Home() {
-  const [propostas, statusLabels, acoes, statusHistorico] = await Promise.all([
+  const [propostas, statusLabels, acoes, statusHistorico, captacoes] = await Promise.all([
     getDashboardPropostas(),
     getStatusLabels(),
     getDashboardAcoes(),
     getDashboardStatusHistorico(),
+    getCaptacoes(),
   ]);
 
   return (
@@ -20,6 +22,7 @@ export default async function Home() {
       statusLabels={statusLabels}
       acoes={acoes}
       statusHistorico={statusHistorico}
+      captacoes={captacoes}
     />
   );
 }
