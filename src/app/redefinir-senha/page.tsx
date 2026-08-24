@@ -4,8 +4,11 @@ import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
+import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Logo } from "@/components/brand/Logo";
+import { PASSWORD_RULES, passwordMeetsAllRules } from "@/lib/auth/passwordRules";
+import { cn } from "@/lib/cn";
 import { createClient } from "@/lib/supabase/client";
 
 export default function RedefinirSenhaPage() {
@@ -59,8 +62,8 @@ export default function RedefinirSenhaPage() {
     event.preventDefault();
     setError(null);
 
-    if (password.length < 6) {
-      setError("A senha precisa ter pelo menos 6 caracteres.");
+    if (!passwordMeetsAllRules(password)) {
+      setError("A senha não atende a todas as regras exigidas.");
       return;
     }
     if (password !== confirmPassword) {
@@ -126,6 +129,25 @@ export default function RedefinirSenhaPage() {
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
             />
+
+            <ul className="flex flex-col gap-1">
+              {PASSWORD_RULES.map((rule) => {
+                const met = rule.test(password);
+                return (
+                  <li
+                    key={rule.id}
+                    className={cn(
+                      "flex items-center gap-1.5 text-sm transition-colors",
+                      met ? "text-status-aprovado" : "text-brand-graphite-light",
+                    )}
+                  >
+                    <Icon name={met ? "check_circle" : "radio_button_unchecked"} size={16} />
+                    {rule.label}
+                  </li>
+                );
+              })}
+            </ul>
+
             {error && <p className="text-sm text-temp-quente">{error}</p>}
             <Button type="submit" disabled={isSubmitting} className="mt-2">
               {isSubmitting ? "Salvando…" : "Redefinir senha"}
