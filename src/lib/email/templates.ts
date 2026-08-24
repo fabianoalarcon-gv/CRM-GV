@@ -260,3 +260,44 @@ export function buildEmpresaSemContatoEmailBody(data: EmpresaSemContatoEmailData
 export function buildSimpleEmailBody(mensagem: string): string {
   return rodapeComLogo(`<p>${mensagem}</p>`);
 }
+
+export interface NovoUsuarioEmailData {
+  nome: string;
+  email: string;
+  senha: string;
+}
+
+// Disparado uma vez, no momento do cadastro (fora do funil de notificacoes
+// recorrentes) — por isso mostra a senha provisória em texto puro: é a única
+// vez que ela existe fora do hash do Supabase, o Admin não tem como consultar
+// depois.
+export function buildNovoUsuarioEmailBody(data: NovoUsuarioEmailData): string {
+  const loginUrl = `${APP_URL}/login`;
+
+  const corpo =
+    `<p style="margin:0 0 16px;">Olá, ${data.nome},</p>` +
+    `<p style="margin:0 0 16px;">Você foi cadastrado no <strong>LogiHub CRM</strong>. Use os dados abaixo para acessar o sistema pela primeira vez:</p>` +
+    linha("E-mail de acesso", data.email) +
+    linha(
+      "Senha provisória",
+      `<span style="font-family:monospace; font-size:14px;">${data.senha}</span>`,
+    ) +
+    `<p style="margin:24px 0; text-align:center;">
+      <a href="${loginUrl}"
+         style="background-color:#d95f00; color:#ffffff; text-decoration:none; padding:12px 28px; border-radius:6px; font-weight:bold; display:inline-block;">
+        Acessar o sistema
+      </a>
+    </p>` +
+    `<p style="margin:0 0 8px; font-size:13px; color:#6b6d76;">
+      Se o botão não funcionar, copie e cole o link abaixo no navegador:
+    </p>
+    <p style="margin:0 0 24px; font-size:13px; word-break:break-all;">
+      <a href="${loginUrl}" style="color:#d95f00;">${loginUrl}</a>
+    </p>` +
+    `<p style="margin:0; font-size:13px; color:#6b6d76;">
+      No primeiro login, utilize a senha provisória acima. Em seguida, o sistema vai pedir que você
+      cadastre uma nova senha de acesso.
+    </p>`;
+
+  return rodapeComLogo(corpo);
+}

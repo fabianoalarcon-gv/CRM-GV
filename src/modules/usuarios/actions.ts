@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/email/send";
+import { buildNovoUsuarioEmailBody } from "@/lib/email/templates";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { InviteUsuarioInput, UpdateUsuarioInput } from "./types";
@@ -36,10 +38,11 @@ export async function inviteUsuario(input: InviteUsuarioInput) {
   if (input.password.length < 6) return { error: "A senha precisa ter pelo menos 6 caracteres." };
 
   const admin = createAdminClient();
-  // Cadastro direto com senha provisória — sem envio de e-mail de convite,
-  // já que o sistema não tem um serviço de e-mail configurado hoje. O
-  // usuário é forçado a trocar essa senha no primeiro login (ver
-  // must_change_password e src/app/login/page.tsx).
+  // Cadastro direto com senha provisória — o usuário é forçado a trocá-la no
+  // primeiro login (ver must_change_password e src/app/login/page.tsx). O
+  // e-mail de boas-vindas abaixo é a única vez que essa senha existe fora do
+  // hash do Supabase, então precisa ser enviado agora, antes de sair de
+  // escopo.
   const { data, error } = await admin.auth.admin.createUser({
     email,
     password: input.password,
@@ -59,6 +62,19 @@ export async function inviteUsuario(input: InviteUsuarioInput) {
     })
     .eq("id", data.user.id);
   if (profileError) return { error: profileError.message };
+
+  try {
+    await sendEmail({
+      to: [email],
+      subject: "Bem-vindo ao LogiHub CRM",
+      html: buildNovoUsuarioEmailBody({ nome: fullName, email, senha: input.password }),
+      fromName: "LogiHub CRM",
+    });
+  } catch (err) {
+    // Cadastro já foi concluído com sucesso — uma falha de SMTP não deve
+    // desfazer o usuário criado, só fica registrada pra investigação manual.
+    console.error("Falha ao enviar e-mail de boas-vindas", err);
+  }
 
   revalidatePath("/usuarios");
   return { error: null };
