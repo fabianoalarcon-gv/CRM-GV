@@ -11,6 +11,10 @@ export interface KpiCardProps {
   color: string;
   valueClassName?: string;
   borderClassName?: string;
+  // Por padrão a legenda trunca em 1 linha (com tooltip pro texto completo) —
+  // pra legendas mais longas e importantes de ler de cara (ex: fórmula da
+  // Previsão de receita), quebra em várias linhas em vez de cortar.
+  wrapCaption?: boolean;
 }
 
 export function KpiCard({
@@ -22,6 +26,7 @@ export function KpiCard({
   color,
   valueClassName,
   borderClassName,
+  wrapCaption,
 }: KpiCardProps) {
   return (
     <Card className={cn("h-full", borderClassName)}>
@@ -39,7 +44,13 @@ export function KpiCard({
             {value}
           </CardTitle>
           {caption && (
-            <p className="mt-1 truncate text-xs text-brand-graphite-light" title={caption}>
+            <p
+              className={cn(
+                "mt-1 text-xs text-brand-graphite-light",
+                wrapCaption ? "text-balance" : "truncate",
+              )}
+              title={wrapCaption ? undefined : caption}
+            >
               {caption}
             </p>
           )}

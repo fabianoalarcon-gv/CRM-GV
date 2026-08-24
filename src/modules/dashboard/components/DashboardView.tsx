@@ -373,6 +373,7 @@ export function DashboardView({
             }
             icon="insights"
             color="var(--color-cal-embarque)"
+            wrapCaption
           />
         </div>
 
