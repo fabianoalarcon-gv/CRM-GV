@@ -1,3 +1,4 @@
+import { last90DaysRange } from "@/lib/date";
 import type { Proposta, Segmento, Termometro } from "./types";
 
 export interface PropostaFilters {
@@ -13,6 +14,13 @@ export const EMPTY_PROPOSTA_FILTERS: PropostaFilters = {
   termometro: "",
   segmento: "",
 };
+
+// Período padrão ao abrir Leads/Pipeline: últimos 90 dias (mesmo critério do
+// Dashboard) em vez do histórico inteiro. Compartilhado pelas duas telas, que
+// já reaproveitam o mesmo PropostaFilters/applyPropostaFilters.
+export function defaultPropostaFilters(): PropostaFilters {
+  return { termometro: "", segmento: "", ...last90DaysRange() };
+}
 
 export function applyPropostaFilters(propostas: Proposta[], filters: PropostaFilters): Proposta[] {
   // created_at é timestamptz — compara por limites do dia local (mesmo padrão

@@ -1,3 +1,4 @@
+import { last90DaysRange } from "@/lib/date";
 import type { Captacao } from "./types";
 
 export interface CaptacaoFilters {
@@ -15,6 +16,12 @@ export const EMPTY_CAPTACAO_FILTERS: CaptacaoFilters = {
   origem: "",
   contato: "",
 };
+
+// Período padrão ao abrir a página de Captação: últimos 90 dias (mesmo
+// critério do Dashboard) em vez do histórico inteiro.
+export function defaultCaptacaoFilters(): CaptacaoFilters {
+  return { busca: "", origem: "", contato: "", ...last90DaysRange() };
+}
 
 export function applyCaptacaoFilters(captacoes: Captacao[], filters: CaptacaoFilters): Captacao[] {
   const query = filters.busca.trim().toLowerCase();

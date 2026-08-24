@@ -1,3 +1,4 @@
+import { last90DaysRange } from "@/lib/date";
 import { ORIGEM_LEAD_OPTIONS } from "@/modules/empresas/constants";
 import { TIPO_LABEL } from "@/modules/calendario/utils";
 import type { Captacao } from "@/modules/captacao/types";
@@ -69,22 +70,9 @@ export function applyFilters(
   });
 }
 
-function formatDateInput(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-// Período padrão ao abrir o Dashboard: últimos 90 dias (em vez do histórico
-// inteiro) — o usuário ainda pode limpar/ajustar "De"/"Até" livremente.
 export function defaultDashboardFilters(): DashboardFilters {
-  const hoje = new Date();
-  const inicio = new Date(hoje);
-  inicio.setDate(inicio.getDate() - 90);
   return {
-    dataInicio: formatDateInput(inicio),
-    dataFim: formatDateInput(hoje),
+    ...last90DaysRange(),
     tipoServico: "",
     segmento: "",
     servico: "",

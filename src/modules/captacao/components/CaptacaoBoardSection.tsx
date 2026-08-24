@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { EmpresaOption } from "@/modules/pipeline/types";
-import { applyCaptacaoFilters, EMPTY_CAPTACAO_FILTERS } from "../utils";
+import { applyCaptacaoFilters, defaultCaptacaoFilters } from "../utils";
 import type { Captacao } from "../types";
 import { CaptacaoFiltersBar } from "./CaptacaoFiltersBar";
 import { CaptacaoListView } from "./CaptacaoListView";
@@ -14,7 +14,7 @@ export interface CaptacaoBoardSectionProps {
 }
 
 export function CaptacaoBoardSection({ captacoes, empresas }: CaptacaoBoardSectionProps) {
-  const [filters, setFilters] = useState(EMPTY_CAPTACAO_FILTERS);
+  const [filters, setFilters] = useState(defaultCaptacaoFilters);
   const filtered = useMemo(() => applyCaptacaoFilters(captacoes, filters), [captacoes, filters]);
 
   return (
