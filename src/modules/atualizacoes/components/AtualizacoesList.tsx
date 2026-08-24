@@ -8,14 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/Table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { createAtualizacaoItem, deleteAtualizacaoItem, updateAtualizacaoItem } from "../actions";
 import { TIPO_BADGE_VARIANT, TIPO_LABEL, TIPO_OPTIONS } from "../constants";
 import type {
@@ -178,8 +171,18 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
                 Nenhum item cadastrado nesta atualização.
               </p>
             ) : (
-              <div className="max-h-96 overflow-y-auto">
-                <Table>
+              // Não usa o wrapper <Table> aqui: aquele componente separa o
+              // scroll horizontal (overflow-x-auto) num div à parte do
+              // scroll vertical — como overflow-x:auto força overflow-y a
+              // virar "auto" também (regra do CSS), aquele div vira o
+              // "ancestral com scroll" que o sticky do cabeçalho gruda nele
+              // em vez do container de altura máxima abaixo, e a "trava" no
+              // topo nunca acontece. Um único div com os dois eixos de
+              // scroll resolve. border-separate é necessário porque
+              // border-collapse (padrão do preflight) quebra sticky em <th>
+              // no Chrome/Firefox.
+              <div className="max-h-96 overflow-auto rounded-lg border border-border">
+                <table className="w-full border-separate border-spacing-0 text-left text-sm">
                   <TableHeader>
                     <TableRow>
                       <TableHead className="sticky top-0 z-10 bg-surface">Nº Chamado</TableHead>
@@ -256,7 +259,7 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
                       </TableRow>
                     ))}
                   </TableBody>
-                </Table>
+                </table>
               </div>
             )}
           </CardContent>
