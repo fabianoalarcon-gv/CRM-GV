@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -223,8 +224,9 @@ export function DashboardView({
             </h1>
             <ExportDashboardButton targetRef={exportRef} />
           </div>
-          <p className="mt-2 text-sm text-brand-graphite-light">
-            Dashboard com indicadores comercias.
+          <p className="mt-2 flex items-center gap-1.5 text-sm text-brand-graphite-light">
+            {"Indicadores e KPI's comercias."}
+            <HelpTooltip text="Registros dos últimos 90 dias carregados na tela. Caso queira trazer todos os registros de uma só vez, basta selecionar o X nos filtros, ou utilizar o filtro de data conforme a necessidade." />
           </p>
         </div>
 
