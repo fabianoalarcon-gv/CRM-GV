@@ -212,7 +212,9 @@ export function DashboardView({
   const qtdReprovado = propostasReprovadas.length;
 
   return (
-    <div className="flex flex-col gap-8">
+    // Ref de exportação agora começa aqui em cima — título e filtros
+    // selecionados precisam sair no PNG/PDF junto com os indicadores.
+    <div ref={exportRef} className="flex flex-col gap-8">
       <div className="flex flex-col gap-6">
         <div>
           <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">
@@ -307,184 +309,185 @@ export function DashboardView({
         </div>
       </div>
 
-      <div ref={exportRef} className="flex flex-col gap-8">
-        <SectionHeading eyebrow="Propostas" title="Indicadores de Propostas" />
+      {/* Sem wrapper próprio aqui de propósito: as seções abaixo ficam como
+          filhos diretos do container com ref={exportRef} lá em cima (mesmo
+          className "flex flex-col gap-8", então o espaçamento não muda) —
+          isso deixa a exportação em PDF enxergar cada card/tabela como um
+          bloco separado, em vez de um único bloco gigante com tudo dentro. */}
+      <SectionHeading eyebrow="Propostas" title="Indicadores de Propostas" />
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <KpiCard
-            label="Valor total em propostas"
-            value={formatCurrency(valorTotal)}
-            caption={`${qtdTotal} proposta${qtdTotal === 1 ? "" : "s"}`}
-            icon="payments"
-            color="var(--color-brand-accent)"
-            borderClassName="border-brand-accent/30 bg-brand-accent/5"
-            accent
-          />
-          <KpiCard
-            label="Em andamento"
-            value={formatCurrency(valorAndamento)}
-            caption={`${qtdAndamento} proposta${qtdAndamento === 1 ? "" : "s"}`}
-            icon="hourglass_top"
-            color="var(--color-temp-frio)"
-            borderClassName="border-temp-frio/30 bg-temp-frio/5"
-          />
-          <KpiCard
-            label="Aprovado"
-            value={formatCurrency(valorAprovado)}
-            caption={`${qtdAprovado} proposta${qtdAprovado === 1 ? "" : "s"}`}
-            icon="check_circle"
-            color="var(--color-status-aprovado)"
-            borderClassName="border-status-aprovado/30 bg-status-aprovado/5"
-          />
-          <KpiCard
-            label="Reprovado"
-            value={formatCurrency(valorReprovado)}
-            caption={`${qtdReprovado} proposta${qtdReprovado === 1 ? "" : "s"}`}
-            icon="cancel"
-            color="var(--color-temp-quente)"
-            borderClassName="border-temp-quente/30 bg-temp-quente/5"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <KpiCard
-            label="Taxa de conversão"
-            value={
-              rates.taxaConversao !== null ? `${(rates.taxaConversao * 100).toFixed(0)}%` : "—"
-            }
-            caption="Aprovadas ÷ (aprovadas + reprovadas)"
-            icon="trending_up"
-            color="var(--color-status-aprovado)"
-          />
-          <KpiCard
-            label="Taxa de reprovação"
-            value={
-              rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"
-            }
-            caption="Reprovadas ÷ (aprovadas + reprovadas)"
-            icon="trending_down"
-            color="var(--color-temp-quente)"
-          />
-          <KpiCard
-            label="Previsão de receita"
-            value={formatCurrency(forecast.valor)}
-            caption={
-              forecast.temHistorico
-                ? `Aprovado + (em andamento × ${(forecast.taxaUsada * 100).toFixed(0)}% de conversão histórica)`
-                : "Aprovado + 50% do valor em andamento (ainda sem propostas decididas para calcular a taxa real)"
-            }
-            icon="insights"
-            color="var(--color-cal-embarque)"
-            wrapCaption
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <MonthlyBarChart monthly={monthly} />
-          <SalesFunnel stages={funnelStages} />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <PieChartCard
-            title="Segmento"
-            subtitle="Propostas por segmento"
-            icon="donut_large"
-            iconColor="var(--color-chart-cat-1)"
-            data={segmentoBreakdown}
-          />
-          <PieChartCard
-            title="Serviço"
-            subtitle="Propostas por serviço"
-            icon="category"
-            iconColor="var(--color-chart-cat-2)"
-            data={servicoBreakdown}
-          />
-          <ThermometerChart data={termometroBreakdown} />
-        </div>
-
-        <RankingTable propostas={ranking} />
-
-        <SectionHeading eyebrow="Leads" title="Indicadores de Leads" />
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <MonthlyBarChart
-            monthly={leadsMonthly}
-            title="Leads por mês"
-            subtitle="Volume de Leads criados ao longo do tempo"
-            icon="person_add"
-            iconColor="var(--color-chart-cat-3)"
-            emptyMessage="Nenhum Lead no período selecionado."
-            metric="count"
-          />
-          <PieChartCard
-            title="Origem"
-            subtitle="Origem dos Leads"
-            icon="share"
-            iconColor="var(--color-chart-cat-4)"
-            emptyMessage="Nenhuma empresa no período selecionado."
-            data={origemBreakdown}
-            legendFormatter={(item) => formatEmpresaLegend(item.count)}
-            centered
-          />
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <PieChartCard
-            title="Cadência"
-            subtitle="Tempo médio entre ações por categoria"
-            icon="event_repeat"
-            iconColor="var(--color-chart-cat-5)"
-            emptyMessage="Sem ações repetidas na mesma categoria no período selecionado."
-            data={acaoIntervalBreakdown}
-            legendFormatter={(item) => formatDaysLegend(item.count, item.valor)}
-            centered
-          />
-          <StageDurationCard stages={stageDurations} />
-        </div>
-
-        <RankingTable
-          propostas={leadsRanking}
-          subtitle="Leads de maior valor"
-          icon="person_search"
-          iconColor="var(--color-chart-cat-3)"
-          emptyMessage="Nenhum Lead no menu Leads no período selecionado."
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          label="Valor total em propostas"
+          value={formatCurrency(valorTotal)}
+          caption={`${qtdTotal} proposta${qtdTotal === 1 ? "" : "s"}`}
+          icon="payments"
+          color="var(--color-brand-accent)"
+          borderClassName="border-brand-accent/30 bg-brand-accent/5"
+          accent
         />
+        <KpiCard
+          label="Em andamento"
+          value={formatCurrency(valorAndamento)}
+          caption={`${qtdAndamento} proposta${qtdAndamento === 1 ? "" : "s"}`}
+          icon="hourglass_top"
+          color="var(--color-temp-frio)"
+          borderClassName="border-temp-frio/30 bg-temp-frio/5"
+        />
+        <KpiCard
+          label="Aprovado"
+          value={formatCurrency(valorAprovado)}
+          caption={`${qtdAprovado} proposta${qtdAprovado === 1 ? "" : "s"}`}
+          icon="check_circle"
+          color="var(--color-status-aprovado)"
+          borderClassName="border-status-aprovado/30 bg-status-aprovado/5"
+        />
+        <KpiCard
+          label="Reprovado"
+          value={formatCurrency(valorReprovado)}
+          caption={`${qtdReprovado} proposta${qtdReprovado === 1 ? "" : "s"}`}
+          icon="cancel"
+          color="var(--color-temp-quente)"
+          borderClassName="border-temp-quente/30 bg-temp-quente/5"
+        />
+      </div>
 
-        <SectionHeading eyebrow="Captação" title="Indicadores de Captação" />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <KpiCard
+          label="Taxa de conversão"
+          value={rates.taxaConversao !== null ? `${(rates.taxaConversao * 100).toFixed(0)}%` : "—"}
+          caption="Aprovadas ÷ (aprovadas + reprovadas)"
+          icon="trending_up"
+          color="var(--color-status-aprovado)"
+        />
+        <KpiCard
+          label="Taxa de reprovação"
+          value={
+            rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"
+          }
+          caption="Reprovadas ÷ (aprovadas + reprovadas)"
+          icon="trending_down"
+          color="var(--color-temp-quente)"
+        />
+        <KpiCard
+          label="Previsão de receita"
+          value={formatCurrency(forecast.valor)}
+          caption={
+            forecast.temHistorico
+              ? `Aprovado + (em andamento × ${(forecast.taxaUsada * 100).toFixed(0)}% de conversão histórica)`
+              : "Aprovado + 50% do valor em andamento (ainda sem propostas decididas para calcular a taxa real)"
+          }
+          icon="insights"
+          color="var(--color-cal-embarque)"
+          wrapCaption
+        />
+      </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <MonthlyBarChart
-            monthly={captacaoMonthly}
-            title="Captações por mês"
-            subtitle="Volume de empresas captadas ao longo do tempo"
-            icon="travel_explore"
-            iconColor="var(--color-chart-cat-2)"
-            emptyMessage="Nenhuma Captação registrada."
-            metric="count"
-          />
-          <LineChartCard
-            title="Conversão"
-            subtitle="Empresas cadastradas x Sem Lead ainda"
-            icon="insights"
-            iconColor="var(--color-chart-cat-4)"
-            emptyMessage="Nenhuma Empresa cadastrada."
-            data={empresaLeadMonthly}
-            series={[
-              {
-                key: "cadastradas",
-                label: "Cadastradas",
-                color: "var(--color-chart-cat-1)",
-                value: (d) => d.cadastradas,
-              },
-              {
-                key: "semLead",
-                label: "Sem Lead ainda",
-                color: "var(--color-temp-quente)",
-                value: (d) => d.semLead,
-              },
-            ]}
-          />
-        </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MonthlyBarChart monthly={monthly} />
+        <SalesFunnel stages={funnelStages} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <PieChartCard
+          title="Segmento"
+          subtitle="Propostas por segmento"
+          icon="donut_large"
+          iconColor="var(--color-chart-cat-1)"
+          data={segmentoBreakdown}
+        />
+        <PieChartCard
+          title="Serviço"
+          subtitle="Propostas por serviço"
+          icon="category"
+          iconColor="var(--color-chart-cat-2)"
+          data={servicoBreakdown}
+        />
+        <ThermometerChart data={termometroBreakdown} />
+      </div>
+
+      <RankingTable propostas={ranking} />
+
+      <SectionHeading eyebrow="Leads" title="Indicadores de Leads" />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MonthlyBarChart
+          monthly={leadsMonthly}
+          title="Leads por mês"
+          subtitle="Volume de Leads criados ao longo do tempo"
+          icon="person_add"
+          iconColor="var(--color-chart-cat-3)"
+          emptyMessage="Nenhum Lead no período selecionado."
+          metric="count"
+        />
+        <PieChartCard
+          title="Origem"
+          subtitle="Origem dos Leads"
+          icon="share"
+          iconColor="var(--color-chart-cat-4)"
+          emptyMessage="Nenhuma empresa no período selecionado."
+          data={origemBreakdown}
+          legendFormatter={(item) => formatEmpresaLegend(item.count)}
+          centered
+        />
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <PieChartCard
+          title="Cadência"
+          subtitle="Tempo médio entre ações por categoria"
+          icon="event_repeat"
+          iconColor="var(--color-chart-cat-5)"
+          emptyMessage="Sem ações repetidas na mesma categoria no período selecionado."
+          data={acaoIntervalBreakdown}
+          legendFormatter={(item) => formatDaysLegend(item.count, item.valor)}
+          centered
+        />
+        <StageDurationCard stages={stageDurations} />
+      </div>
+
+      <RankingTable
+        propostas={leadsRanking}
+        subtitle="Leads de maior valor"
+        icon="person_search"
+        iconColor="var(--color-chart-cat-3)"
+        emptyMessage="Nenhum Lead no menu Leads no período selecionado."
+      />
+
+      <SectionHeading eyebrow="Captação" title="Indicadores de Captação" />
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <MonthlyBarChart
+          monthly={captacaoMonthly}
+          title="Captações por mês"
+          subtitle="Volume de empresas captadas ao longo do tempo"
+          icon="travel_explore"
+          iconColor="var(--color-chart-cat-2)"
+          emptyMessage="Nenhuma Captação registrada."
+          metric="count"
+        />
+        <LineChartCard
+          title="Conversão"
+          subtitle="Empresas cadastradas x Sem Lead ainda"
+          icon="insights"
+          iconColor="var(--color-chart-cat-4)"
+          emptyMessage="Nenhuma Empresa cadastrada."
+          data={empresaLeadMonthly}
+          series={[
+            {
+              key: "cadastradas",
+              label: "Cadastradas",
+              color: "var(--color-chart-cat-1)",
+              value: (d) => d.cadastradas,
+            },
+            {
+              key: "semLead",
+              label: "Sem Lead ainda",
+              color: "var(--color-temp-quente)",
+              value: (d) => d.semLead,
+            },
+          ]}
+        />
       </div>
     </div>
   );
