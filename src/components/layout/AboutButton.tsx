@@ -43,9 +43,9 @@ export function AboutButton() {
         <Icon name="info" />
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Sobre o App" className="!max-w-6xl">
-        <div className="mx-auto flex max-w-sm flex-col items-center gap-6 py-4 text-center">
-          <Logo height={40} />
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Sobre o App">
+        <div className="flex flex-col items-center gap-6 py-4 text-center">
+          <Logo height={64} />
 
           <div>
             <p className="text-xs font-semibold tracking-[0.2em] text-brand-accent uppercase">
@@ -57,8 +57,8 @@ export function AboutButton() {
           </div>
 
           <p className="text-sm text-brand-graphite-light">
-            O LogiHub CRM é a plataforma de gestão comercial da Gran Vale Logística e Transportes —
-            reúne captação, leads, propostas e todo o pipeline comercial em um só lugar.
+            O LogiHub CRM é uma plataforma de gestão comercial que reúne captações, leads, propostas
+            e todo o pipeline comercial necessário em um só lugar.
           </p>
 
           <div className="w-full border-t border-border pt-4">
