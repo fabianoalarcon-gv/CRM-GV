@@ -20,7 +20,7 @@ export default function NotFound() {
         </h1>
         <p className="max-w-sm text-sm text-brand-graphite-light">
           O link que você tentou acessar não existe (ou não existe mais). Deve ter sido um desvio
-          de rota — vamos te trazer de volta pro trajeto certo.
+          de rota, vamos te trazer de volta pro trajeto certo.
         </p>
       </div>
 
