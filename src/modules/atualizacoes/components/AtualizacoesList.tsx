@@ -153,7 +153,10 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
             <div>
               <CardTitle>Patch {atualizacao.numeroPatch}</CardTitle>
               <p className="mt-1 text-sm text-brand-graphite-light">
-                {dateTimeFormatter.format(new Date(atualizacao.dataHora))}
+                {dateTimeFormatter.format(new Date(atualizacao.dataHora))}{" "}
+                <span className="font-semibold">
+                  · {atualizacao.itens.length} {atualizacao.itens.length === 1 ? "item" : "itens"}
+                </span>
               </p>
             </div>
             <Button
