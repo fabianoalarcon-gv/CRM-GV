@@ -31,6 +31,12 @@ function initials(nome: string): string {
   return (first + second).toUpperCase() || "?";
 }
 
+const PAGE_SIZE_OPTIONS = [
+  { value: "20", label: "20 registros" },
+  { value: "40", label: "40 registros" },
+  { value: "80", label: "80 registros" },
+];
+
 export interface EmpresasTableProps {
   empresas: EmpresaListItem[];
 }
@@ -41,6 +47,8 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
   const [search, setSearch] = useState("");
   const [setor, setSetor] = useState("");
   const [segmento, setSegmento] = useState("");
+  const [pageSize, setPageSize] = useState(20);
+  const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<EmpresaListItem | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -60,6 +68,41 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
       return matchesSearch && matchesSetor && matchesSegmento;
     });
   }, [empresas, search, setor, segmento]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = useMemo(
+    () => filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize),
+    [filtered, currentPage, pageSize],
+  );
+
+  // Trocar busca/setor/segmento/pageSize muda o conjunto (ou o tamanho) da
+  // página, então volta pra página 1 direto no handler — evitar de ficar "no
+  // vazio" (ex: estava na página 3 e o novo filtro só tem 1 página).
+  function updateSearch(v: string) {
+    setSearch(v);
+    setPage(1);
+  }
+  function updateSetor(v: string) {
+    setSetor(v);
+    setPage(1);
+  }
+  function updateSegmento(v: string) {
+    setSegmento(v);
+    setPage(1);
+  }
+  function updatePageSize(v: number) {
+    setPageSize(v);
+    setPage(1);
+  }
+
+  const hasActiveFilters = Boolean(search || setor || segmento);
+  function limparFiltros() {
+    setSearch("");
+    setSetor("");
+    setSegmento("");
+    setPage(1);
+  }
 
   async function handleDelete(id: number) {
     setIsDeleting(true);
@@ -81,13 +124,13 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
           <Input
             placeholder="Buscar por nome..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => updateSearch(e.target.value)}
             icon={<Icon name="search" size={18} />}
             className="lg:flex-1"
           />
           <Select
             value={setor}
-            onChange={(e) => setSetor(e.target.value)}
+            onChange={(e) => updateSetor(e.target.value)}
             options={setores.map((s) => ({ value: s, label: s }))}
             placeholder="Todos os setores"
             placeholderSelectable
@@ -95,12 +138,29 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
           />
           <Select
             value={segmento}
-            onChange={(e) => setSegmento(e.target.value)}
+            onChange={(e) => updateSegmento(e.target.value)}
             options={SEGMENTO_OPTIONS}
             placeholder="Todos os segmentos"
             placeholderSelectable
             className="lg:w-56"
           />
+          <Select
+            value={String(pageSize)}
+            onChange={(e) => updatePageSize(Number(e.target.value))}
+            options={PAGE_SIZE_OPTIONS}
+            className="lg:w-40"
+          />
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={limparFiltros}
+              title="Limpar filtros"
+              aria-label="Limpar filtros"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-brand-graphite-light hover:text-brand-accent"
+            >
+              <Icon name="close" size={20} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -139,7 +199,7 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
                 </TableCell>
               </TableRow>
             )}
-            {filtered.map((empresa, index) => (
+            {paginated.map((empresa, index) => (
               <TableRow key={empresa.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -227,6 +287,38 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-brand-graphite-light">
+            Mostrando {(currentPage - 1) * pageSize + 1}–
+            {Math.min(currentPage * pageSize, filtered.length)} de {filtered.length}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              aria-label="Página anterior"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-brand-graphite-light hover:bg-black/[.03] disabled:pointer-events-none disabled:opacity-40"
+            >
+              <Icon name="chevron_left" />
+            </button>
+            <span className="text-sm text-foreground">
+              Página {currentPage} de {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              aria-label="Próxima página"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-brand-graphite-light hover:bg-black/[.03] disabled:pointer-events-none disabled:opacity-40"
+            >
+              <Icon name="chevron_right" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <Modal
         isOpen={editing !== null}
