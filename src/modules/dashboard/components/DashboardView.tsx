@@ -21,9 +21,11 @@ import {
   computeStageDurations,
   computeStatusAggregates,
   computeTermometroBreakdown,
+  defaultDashboardFilters,
   formatCurrency,
   formatDaysLegend,
   formatEmpresaLegend,
+  inDateRange,
   isLeadRecord,
   isPipelineRecord,
   PIPELINE_STATUS_ORDER,
@@ -92,7 +94,7 @@ export function DashboardView({
   captacoes,
   empresas,
 }: DashboardViewProps) {
-  const [filters, setFilters] = useState<DashboardFilters>(EMPTY_FILTERS);
+  const [filters, setFilters] = useState<DashboardFilters>(defaultDashboardFilters);
   const exportRef = useRef<HTMLDivElement>(null);
 
   const servicoOptions = useMemo(() => {
@@ -168,13 +170,29 @@ export function DashboardView({
     [statusHistorico, filteredIds, statusLabels],
   );
 
-  // Indicadores de Captação: captacoes não compartilha os campos dos filtros
-  // de Propostas/Leads (sem data_envio, segmento, etc.), então mostra sempre
-  // o conjunto completo, sem aplicar os filtros da página.
-  const captacaoMonthly = useMemo(() => computeCaptacaoMonthlyAggregates(captacoes), [captacoes]);
+  // Indicadores de Captação: `captacoes`/`empresas` não têm os campos de
+  // tipo/segmento/serviço/termômetro dos filtros (esses são de `propostas`),
+  // só o período "De"/"Até" se aplica aqui.
+  const captacoesFiltradas = useMemo(
+    () => captacoes.filter((c) => inDateRange(c.createdAt, filters.dataInicio, filters.dataFim)),
+    [captacoes, filters.dataInicio, filters.dataFim],
+  );
+  const empresasFiltradas = useMemo(
+    () => empresas.filter((e) => inDateRange(e.created_at, filters.dataInicio, filters.dataFim)),
+    [empresas, filters.dataInicio, filters.dataFim],
+  );
+  const captacaoMonthly = useMemo(
+    () => computeCaptacaoMonthlyAggregates(captacoesFiltradas),
+    [captacoesFiltradas],
+  );
+  // O 2º parâmetro fica com TODAS as propostas (não só `filtered`) de
+  // propósito: "tem Lead ou não" é uma pergunta binária sobre a Empresa, que
+  // não deve depender dos filtros de tipo/segmento/serviço/termômetro de
+  // Propostas — só quem entra no cálculo (`empresasFiltradas`) respeita o
+  // período selecionado.
   const empresaLeadMonthly = useMemo(
-    () => computeEmpresaLeadMonthlyEvolution(empresas, propostas),
-    [empresas, propostas],
+    () => computeEmpresaLeadMonthlyEvolution(empresasFiltradas, propostas),
+    [empresasFiltradas, propostas],
   );
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);

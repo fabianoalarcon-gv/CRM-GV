@@ -44,19 +44,52 @@ export function formatCompactCurrency(value: number): string {
   return currencyFormatter.format(value);
 }
 
+// `dateStr` aceita tanto uma data pura (YYYY-MM-DD, ex: data_envio) quanto um
+// timestamp completo (ex: created_at de Captação/Empresa) — só a parte de
+// data é comparada, senão um registro no último dia do período ficaria de
+// fora só por ter hora/minuto depois de "YYYY-MM-DD" na comparação de string.
+export function inDateRange(dateStr: string, dataInicio: string, dataFim: string): boolean {
+  const day = dateStr.slice(0, 10);
+  if (dataInicio && day < dataInicio) return false;
+  if (dataFim && day > dataFim) return false;
+  return true;
+}
+
 export function applyFilters(
   propostas: DashboardProposta[],
   filters: DashboardFilters,
 ): DashboardProposta[] {
   return propostas.filter((p) => {
-    if (filters.dataInicio && p.data_envio < filters.dataInicio) return false;
-    if (filters.dataFim && p.data_envio > filters.dataFim) return false;
+    if (!inDateRange(p.data_envio, filters.dataInicio, filters.dataFim)) return false;
     if (filters.tipoServico && p.tipo_servico !== filters.tipoServico) return false;
     if (filters.segmento && p.segmento !== filters.segmento) return false;
     if (filters.servico && p.servico !== filters.servico) return false;
     if (filters.termometro && p.termometro !== filters.termometro) return false;
     return true;
   });
+}
+
+function formatDateInput(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+// Período padrão ao abrir o Dashboard: últimos 90 dias (em vez do histórico
+// inteiro) — o usuário ainda pode limpar/ajustar "De"/"Até" livremente.
+export function defaultDashboardFilters(): DashboardFilters {
+  const hoje = new Date();
+  const inicio = new Date(hoje);
+  inicio.setDate(inicio.getDate() - 90);
+  return {
+    dataInicio: formatDateInput(inicio),
+    dataFim: formatDateInput(hoje),
+    tipoServico: "",
+    segmento: "",
+    servico: "",
+    termometro: "",
+  };
 }
 
 export interface StatusAggregate {
