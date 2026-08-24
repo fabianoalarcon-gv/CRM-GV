@@ -1,6 +1,20 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Atualizacao, AtualizacaoItem } from "./types";
 
+// Usado pelo modal "Sobre o App" no header — só o número do patch marcado
+// como Versão Atual, sem precisar buscar a lista inteira com itens.
+export async function getVersaoAtualPatch(): Promise<string | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("atualizacoes")
+    .select("numero_patch")
+    .eq("versao_atual", true)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.numero_patch ?? null;
+}
+
 export async function getAtualizacoes(): Promise<Atualizacao[]> {
   const supabase = await createClient();
 

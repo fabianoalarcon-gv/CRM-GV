@@ -6,6 +6,7 @@ import { Logo } from "@/components/brand/Logo";
 import { useCurrentUser } from "@/lib/auth/context";
 import type { Role } from "@/lib/auth/types";
 import { NotificationBell } from "@/modules/notificacoes/components/NotificationBell";
+import { AboutButton } from "./AboutButton";
 import { UpdatesButton } from "./UpdatesButton";
 
 export interface HeaderProps {
@@ -47,6 +48,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
       {currentUser && (
         <div className="ml-auto flex items-center gap-2.5">
+          <AboutButton />
           <UpdatesButton />
           <NotificationBell />
           <span className="hidden text-right sm:block">

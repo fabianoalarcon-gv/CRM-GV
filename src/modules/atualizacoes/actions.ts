@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { getAtualizacoes } from "./queries";
+import { getAtualizacoes, getVersaoAtualPatch } from "./queries";
 import type { Atualizacao, AtualizacaoInput, AtualizacaoItemInput } from "./types";
 
 async function requireAdmin(): Promise<{ error: string | null; userId: string | null }> {
@@ -170,4 +170,8 @@ export async function markAtualizacoesAsSeen(): Promise<{ error: string | null }
 
 export async function getAllAtualizacoes(): Promise<Atualizacao[]> {
   return getAtualizacoes();
+}
+
+export async function getVersaoAtualNumero(): Promise<string | null> {
+  return getVersaoAtualPatch();
 }
