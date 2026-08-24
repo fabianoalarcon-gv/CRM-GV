@@ -9,7 +9,12 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
-import { createAtualizacaoItem, deleteAtualizacaoItem, updateAtualizacaoItem } from "../actions";
+import {
+  createAtualizacaoItem,
+  deleteAtualizacaoItem,
+  setVersaoAtual,
+  updateAtualizacaoItem,
+} from "../actions";
 import { TIPO_BADGE_VARIANT, TIPO_LABEL, TIPO_OPTIONS } from "../constants";
 import type {
   Atualizacao,
@@ -69,6 +74,53 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
   const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [togglingVersaoId, setTogglingVersaoId] = useState<number | null>(null);
+  const [versaoError, setVersaoError] = useState<string | null>(null);
+  // undefined = confia no valor vindo do servidor; number = otimisticamente
+  // só esse id está marcado; null = otimisticamente nenhum está marcado.
+  // Sem isso, o checkbox (controlado 100% pelo dado do servidor) voltaria
+  // pra "desmarcado" assim que o React re-renderiza logo após o clique,
+  // antes da Server Action responder e revalidar a página.
+  const [optimisticVersaoId, setOptimisticVersaoId] = useState<number | null | undefined>(
+    undefined,
+  );
+  const serverVersaoAtualId = atualizacoes.find((a) => a.versaoAtual)?.id ?? null;
+
+  // Ajusta o otimismo durante o render (padrão recomendado pelo React pra
+  // "reagir" a uma prop nova, em vez de useEffect) assim que o prop
+  // `atualizacoes` (revalidado pela Server Action) já reflete de verdade o
+  // novo estado — sem isso, resetar o otimismo assim que o "await" da action
+  // resolve, sem esperar o Next.js re-buscar os dados, causava um "flash" de
+  // volta pro valor antigo por uma fração de segundo.
+  const [confirmedVersaoId, setConfirmedVersaoId] = useState(serverVersaoAtualId);
+  if (serverVersaoAtualId !== confirmedVersaoId) {
+    setConfirmedVersaoId(serverVersaoAtualId);
+    if (optimisticVersaoId === serverVersaoAtualId) setOptimisticVersaoId(undefined);
+  }
+
+  const effectiveVersaoAtualId =
+    optimisticVersaoId !== undefined ? optimisticVersaoId : serverVersaoAtualId;
+
+  // Decide "marcar ou desmarcar" a partir do que a UI mostra AGORA
+  // (effectiveVersaoAtualId, já com o otimismo de cliques anteriores), nunca
+  // a partir de `atualizacao.versaoAtual` (que vem do prop e pode estar
+  // desatualizado se o usuário clicar em duas atualizações em sequência
+  // rápida, antes do Next.js revalidar a página do primeiro clique).
+  async function handleToggleVersaoAtual(atualizacaoId: number) {
+    setVersaoError(null);
+    const marcar = effectiveVersaoAtualId !== atualizacaoId;
+    setOptimisticVersaoId(marcar ? atualizacaoId : null);
+    setTogglingVersaoId(atualizacaoId);
+    const result = await setVersaoAtual(atualizacaoId, marcar);
+    setTogglingVersaoId(null);
+    if (result.error) {
+      // Deu erro: não há revalidação vindo por aí pra confirmar o otimismo,
+      // então reverte na hora.
+      setOptimisticVersaoId(undefined);
+      setVersaoError(result.error);
+    }
+  }
 
   function openAddItem(atualizacaoId: number) {
     setAddingItemTo(atualizacaoId);
@@ -147,11 +199,18 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
 
   return (
     <div className="flex flex-col gap-4">
+      {versaoError && <p className="text-sm text-temp-quente">{versaoError}</p>}
+
       {paginated.map((atualizacao) => (
         <Card key={atualizacao.id}>
           <CardHeader className="flex flex-row items-center justify-between gap-4">
             <div>
-              <CardTitle>Patch {atualizacao.numeroPatch}</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle>Patch {atualizacao.numeroPatch}</CardTitle>
+                {effectiveVersaoAtualId === atualizacao.id && (
+                  <Badge variant="success">Versão Atual</Badge>
+                )}
+              </div>
               <p className="mt-1 text-sm text-brand-graphite-light">
                 {dateTimeFormatter.format(new Date(atualizacao.dataHora))}{" "}
                 <span className="font-semibold">
@@ -159,14 +218,26 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
                 </span>
               </p>
             </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onClick={() => openAddItem(atualizacao.id)}
-            >
-              + Incluir item
-            </Button>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm text-foreground">
+                <input
+                  type="checkbox"
+                  checked={effectiveVersaoAtualId === atualizacao.id}
+                  disabled={togglingVersaoId === atualizacao.id}
+                  onChange={() => handleToggleVersaoAtual(atualizacao.id)}
+                  className="h-4 w-4 rounded border-border accent-brand-accent focus-visible:ring-2 focus-visible:ring-brand-accent"
+                />
+                Versão Atual
+              </label>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => openAddItem(atualizacao.id)}
+              >
+                + Incluir item
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {atualizacao.itens.length === 0 ? (

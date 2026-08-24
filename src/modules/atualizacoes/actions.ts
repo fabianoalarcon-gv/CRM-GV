@@ -47,6 +47,35 @@ export async function createAtualizacao(input: AtualizacaoInput) {
   return { error: null };
 }
 
+// Marca (ou desmarca) uma atualização como "Versão Atual". Ao marcar, primeiro
+// desmarca qualquer outra que já estivesse marcada e só depois marca a nova —
+// nessa ordem, nunca existem duas marcadas ao mesmo tempo (reforçado por
+// índice único parcial em atualizacoes_versao_atual_unica_idx).
+export async function setVersaoAtual(atualizacaoId: number, marcar: boolean) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  const admin = createAdminClient();
+
+  if (marcar) {
+    const { error: unsetError } = await admin
+      .from("atualizacoes")
+      .update({ versao_atual: false })
+      .eq("versao_atual", true)
+      .neq("id", atualizacaoId);
+    if (unsetError) return { error: unsetError.message };
+  }
+
+  const { error } = await admin
+    .from("atualizacoes")
+    .update({ versao_atual: marcar })
+    .eq("id", atualizacaoId);
+  if (error) return { error: error.message };
+
+  revalidatePath("/atualizacoes");
+  return { error: null };
+}
+
 export async function createAtualizacaoItem(atualizacaoId: number, input: AtualizacaoItemInput) {
   const guard = await requireAdmin();
   if (guard.error) return { error: guard.error };

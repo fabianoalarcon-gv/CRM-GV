@@ -6,7 +6,7 @@ export async function getAtualizacoes(): Promise<Atualizacao[]> {
 
   const { data: atualizacoes, error } = await supabase
     .from("atualizacoes")
-    .select("id, numero_patch, data_hora, created_at")
+    .select("id, numero_patch, data_hora, created_at, versao_atual")
     .order("data_hora", { ascending: false });
 
   if (error) throw error;
@@ -42,6 +42,7 @@ export async function getAtualizacoes(): Promise<Atualizacao[]> {
     numeroPatch: a.numero_patch,
     dataHora: a.data_hora,
     createdAt: a.created_at,
+    versaoAtual: a.versao_atual,
     itens: itensByAtualizacaoId.get(a.id) ?? [],
   }));
 }

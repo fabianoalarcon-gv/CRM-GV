@@ -21,6 +21,7 @@ export type Database = {
           data_hora: string
           id: number
           numero_patch: string
+          versao_atual: boolean
         }
         Insert: {
           created_at?: string
@@ -28,6 +29,7 @@ export type Database = {
           data_hora: string
           id?: never
           numero_patch: string
+          versao_atual?: boolean
         }
         Update: {
           created_at?: string
@@ -35,6 +37,7 @@ export type Database = {
           data_hora?: string
           id?: never
           numero_patch?: string
+          versao_atual?: boolean
         }
         Relationships: [
           {

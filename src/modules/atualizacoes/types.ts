@@ -14,6 +14,7 @@ export interface Atualizacao {
   numeroPatch: string;
   dataHora: string;
   createdAt: string;
+  versaoAtual: boolean;
   itens: AtualizacaoItem[];
 }
 
