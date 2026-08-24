@@ -29,14 +29,14 @@ export function PropostaFiltersBar({ value, onChange }: PropostaFiltersBarProps)
   return (
     <div className="flex flex-wrap items-end gap-3">
       <Input
-        label="Criado de"
+        label="Data Inicial"
         type="date"
         value={value.dataInicio}
         onChange={(e) => onChange({ ...value, dataInicio: e.target.value })}
         className="w-32"
       />
       <Input
-        label="Criado até"
+        label="Data Final"
         type="date"
         value={value.dataFim}
         onChange={(e) => onChange({ ...value, dataFim: e.target.value })}

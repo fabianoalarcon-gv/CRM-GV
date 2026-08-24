@@ -232,14 +232,14 @@ export function DashboardView({
 
         <div className="flex flex-wrap items-end gap-3">
           <Input
-            label="De"
+            label="Data Inicial"
             type="date"
             value={filters.dataInicio}
             onChange={(e) => setFilters((prev) => ({ ...prev, dataInicio: e.target.value }))}
             className="w-40"
           />
           <Input
-            label="Até"
+            label="Data Final"
             type="date"
             value={filters.dataFim}
             onChange={(e) => setFilters((prev) => ({ ...prev, dataFim: e.target.value }))}
