@@ -8,12 +8,34 @@ import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/Table";
 import { createAtualizacaoItem, deleteAtualizacaoItem, updateAtualizacaoItem } from "../actions";
 import { TIPO_BADGE_VARIANT, TIPO_LABEL, TIPO_OPTIONS } from "../constants";
-import type { Atualizacao, AtualizacaoItem, AtualizacaoItemInput, AtualizacaoItemTipo } from "../types";
+import type {
+  Atualizacao,
+  AtualizacaoItem,
+  AtualizacaoItemInput,
+  AtualizacaoItemTipo,
+} from "../types";
 
-const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
+const dateTimeFormatter = new Intl.DateTimeFormat("pt-BR", {
+  dateStyle: "short",
+  timeStyle: "short",
+});
+
+// Paginação é por atualização (card inteiro), nunca por linha de item dentro
+// dela — título e tabela de itens de uma mesma atualização sempre ficam
+// juntos na mesma página. Uma atualização com muitos itens ganha scroll
+// interno na própria tabela (ver maxHeight abaixo) em vez de estourar a
+// altura da página.
+const PAGE_SIZE = 5;
 
 const EMPTY_ITEM_VALUES: AtualizacaoItemInput = {
   numeroChamado: "",
@@ -36,6 +58,11 @@ export interface AtualizacoesListProps {
 }
 
 export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(atualizacoes.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paginated = atualizacoes.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   const [addingItemTo, setAddingItemTo] = useState<number | null>(null);
   const [itemValues, setItemValues] = useState<AtualizacaoItemInput>(EMPTY_ITEM_VALUES);
   const [error, setError] = useState<string | null>(null);
@@ -127,7 +154,7 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      {atualizacoes.map((atualizacao) => (
+      {paginated.map((atualizacao) => (
         <Card key={atualizacao.id}>
           <CardHeader className="flex flex-row items-center justify-between gap-4">
             <div>
@@ -136,88 +163,137 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
                 {dateTimeFormatter.format(new Date(atualizacao.dataHora))}
               </p>
             </div>
-            <Button type="button" size="sm" variant="outline" onClick={() => openAddItem(atualizacao.id)}>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => openAddItem(atualizacao.id)}
+            >
               + Incluir item
             </Button>
           </CardHeader>
           <CardContent>
             {atualizacao.itens.length === 0 ? (
-              <p className="text-sm text-brand-graphite-light">Nenhum item cadastrado nesta atualização.</p>
+              <p className="text-sm text-brand-graphite-light">
+                Nenhum item cadastrado nesta atualização.
+              </p>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nº Chamado</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Local</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {atualizacao.itens.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.numeroChamado ?? "—"}</TableCell>
-                      <TableCell>
-                        <Badge variant={TIPO_BADGE_VARIANT[item.tipo]}>{TIPO_LABEL[item.tipo]}</Badge>
-                      </TableCell>
-                      <TableCell>{item.local}</TableCell>
-                      <TableCell className="text-brand-graphite-light">{item.descricao}</TableCell>
-                      <TableCell>
-                        {deletingItemId === item.id ? (
-                          <div className="flex items-center justify-end gap-2 whitespace-nowrap">
-                            <span className="text-xs text-brand-graphite-light">Excluir?</span>
-                            <button
-                              type="button"
-                              disabled={isDeleting}
-                              onClick={() => handleDeleteItem(item.id)}
-                              className="text-xs font-medium text-temp-quente hover:underline"
-                            >
-                              {isDeleting ? "Excluindo…" : "Confirmar"}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setDeletingItemId(null)}
-                              className="text-xs font-medium text-brand-graphite-light hover:underline"
-                            >
-                              Cancelar
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center justify-end gap-1">
-                            <button
-                              type="button"
-                              title="Editar"
-                              onClick={() => openEditItem(item)}
-                              className="rounded p-1.5 text-brand-graphite-light hover:bg-black/[.04] hover:text-foreground"
-                            >
-                              <Icon name="edit" size={18} />
-                            </button>
-                            <button
-                              type="button"
-                              title="Excluir"
-                              onClick={() => {
-                                setDeleteError(null);
-                                setDeletingItemId(item.id);
-                              }}
-                              className="rounded p-1.5 text-brand-graphite-light hover:bg-temp-quente/10 hover:text-temp-quente"
-                            >
-                              <Icon name="delete" size={18} />
-                            </button>
-                          </div>
-                        )}
-                        {deletingItemId === item.id && deleteError && (
-                          <p className="mt-1 text-right text-xs text-temp-quente">{deleteError}</p>
-                        )}
-                      </TableCell>
+              <div className="max-h-96 overflow-y-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="sticky top-0 z-10 bg-surface">Nº Chamado</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-surface">Tipo</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-surface">Local</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-surface">Descrição</TableHead>
+                      <TableHead className="sticky top-0 z-10 bg-surface text-right">
+                        Ações
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {atualizacao.itens.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.numeroChamado ?? "—"}</TableCell>
+                        <TableCell>
+                          <Badge variant={TIPO_BADGE_VARIANT[item.tipo]}>
+                            {TIPO_LABEL[item.tipo]}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>{item.local}</TableCell>
+                        <TableCell className="text-brand-graphite-light">
+                          {item.descricao}
+                        </TableCell>
+                        <TableCell>
+                          {deletingItemId === item.id ? (
+                            <div className="flex items-center justify-end gap-2 whitespace-nowrap">
+                              <span className="text-xs text-brand-graphite-light">Excluir?</span>
+                              <button
+                                type="button"
+                                disabled={isDeleting}
+                                onClick={() => handleDeleteItem(item.id)}
+                                className="text-xs font-medium text-temp-quente hover:underline"
+                              >
+                                {isDeleting ? "Excluindo…" : "Confirmar"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setDeletingItemId(null)}
+                                className="text-xs font-medium text-brand-graphite-light hover:underline"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-end gap-1">
+                              <button
+                                type="button"
+                                title="Editar"
+                                onClick={() => openEditItem(item)}
+                                className="rounded p-1.5 text-brand-graphite-light hover:bg-black/[.04] hover:text-foreground"
+                              >
+                                <Icon name="edit" size={18} />
+                              </button>
+                              <button
+                                type="button"
+                                title="Excluir"
+                                onClick={() => {
+                                  setDeleteError(null);
+                                  setDeletingItemId(item.id);
+                                }}
+                                className="rounded p-1.5 text-brand-graphite-light hover:bg-temp-quente/10 hover:text-temp-quente"
+                              >
+                                <Icon name="delete" size={18} />
+                              </button>
+                            </div>
+                          )}
+                          {deletingItemId === item.id && deleteError && (
+                            <p className="mt-1 text-right text-xs text-temp-quente">
+                              {deleteError}
+                            </p>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             )}
           </CardContent>
         </Card>
       ))}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-brand-graphite-light">
+            Mostrando {(currentPage - 1) * PAGE_SIZE + 1}–
+            {Math.min(currentPage * PAGE_SIZE, atualizacoes.length)} de {atualizacoes.length}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              aria-label="Página anterior"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-brand-graphite-light hover:bg-black/[.03] disabled:pointer-events-none disabled:opacity-40"
+            >
+              <Icon name="chevron_left" />
+            </button>
+            <span className="text-sm text-foreground">
+              Página {currentPage} de {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              aria-label="Próxima página"
+              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-brand-graphite-light hover:bg-black/[.03] disabled:pointer-events-none disabled:opacity-40"
+            >
+              <Icon name="chevron_right" />
+            </button>
+          </div>
+        </div>
+      )}
 
       <Modal
         isOpen={addingItemTo !== null}
