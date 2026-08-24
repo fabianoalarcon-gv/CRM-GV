@@ -1,3 +1,4 @@
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import { CaptacaoBoardSection } from "@/modules/captacao/components/CaptacaoBoardSection";
 import { getCaptacoes } from "@/modules/captacao/queries";
 import { getEmpresasOptions } from "@/modules/pipeline/queries";
@@ -14,12 +15,15 @@ export default async function CaptacaoPage() {
         <h1 className="mt-1 font-display text-2xl font-semibold text-foreground sm:text-3xl">
           Captação
         </h1>
-        <p className="mt-1 text-sm text-brand-graphite-light">
-          Empresas cadastradas aguardando virar Lead{" "}
-          <span className="font-semibold">
-            · {captacoes.length}{" "}
-            {captacoes.length === 1 ? "captação registrada" : "captações registradas"}
+        <p className="mt-1 flex items-center gap-1.5 text-sm text-brand-graphite-light">
+          <span>
+            Empresas cadastradas aguardando virar Lead{" "}
+            <span className="font-semibold">
+              · {captacoes.length}{" "}
+              {captacoes.length === 1 ? "captação registrada" : "captações registradas"}
+            </span>
           </span>
+          <HelpTooltip text="Registros dos últimos 90 dias carregados na tela. Caso queira trazer todos os registros de uma só vez, basta selecionar o X nos filtros, ou utilizar o filtro de data conforme a necessidade." />
         </p>
       </div>
 

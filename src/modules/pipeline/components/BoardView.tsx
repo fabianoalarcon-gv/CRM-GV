@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ComponentType, type ReactNode } from "react";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import { BoardClient } from "./BoardClient";
 import type { ColumnItemLabel } from "./Column";
 import { ViewToggle, type BoardViewMode } from "./ViewToggle";
@@ -54,7 +55,10 @@ export function BoardView({
             </div>
           </div>
         </div>
-        <p className="text-sm text-brand-graphite-light">{subtitle}</p>
+        <p className="flex items-center gap-1.5 text-sm text-brand-graphite-light">
+          {subtitle}
+          <HelpTooltip text="Registros dos últimos 90 dias carregados na tela. Caso queira trazer todos os registros de uma só vez, basta selecionar o X nos filtros, ou utilizar o filtro de data conforme a necessidade." />
+        </p>
       </div>
 
       {viewMode === "kanban" ? (
