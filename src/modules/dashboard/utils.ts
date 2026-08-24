@@ -9,6 +9,7 @@ import {
 } from "@/modules/pipeline/types";
 import type {
   DashboardAcao,
+  DashboardEmpresaCadastro,
   DashboardFilters,
   DashboardProposta,
   DashboardStatusHistoricoEntry,
@@ -503,39 +504,39 @@ export function computeCaptacaoMonthlyAggregates(captacoes: Captacao[]): Monthly
   return Array.from(map.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
 }
 
-// Uma linha por empresa captada (a tabela captacoes já garante isso — quando
-// vira Lead, a linha some daqui), então conta direto por registro, sem
-// precisar deduplicar por empresa como em computeOrigemBreakdown.
-export function computeCaptacaoOrigemBreakdown(captacoes: Captacao[]): CategoryBreakdown[] {
-  const total = captacoes.length;
-  const map = new Map<string, { label: string; count: number }>();
-  for (const o of ORIGEM_LEAD_OPTIONS) map.set(o.value, { label: o.label, count: 0 });
+export interface EmpresaLeadMonthly {
+  monthKey: string;
+  label: string;
+  cadastradas: number;
+  semLead: number;
+}
 
-  let semOrigem = 0;
-  for (const c of captacoes) {
-    if (c.origemLead && map.has(c.origemLead)) {
-      map.get(c.origemLead)!.count += 1;
-    } else {
-      semOrigem += 1;
-    }
+// Cruza TODA Empresa já cadastrada (não só quem ainda está em `captacoes` —
+// essa tabela perde a linha assim que a Empresa vira Lead) com o conjunto de
+// Empresas que já têm ao menos um registro em `propostas`, pra mostrar, mês a
+// mês, quantas ainda ficaram só no cadastro, sem nenhum Lead criado.
+export function computeEmpresaLeadMonthlyEvolution(
+  empresas: DashboardEmpresaCadastro[],
+  propostas: DashboardProposta[],
+): EmpresaLeadMonthly[] {
+  const empresasComLead = new Set(propostas.map((p) => p.empresa_id));
+  const map = new Map<string, EmpresaLeadMonthly>();
+
+  for (const e of empresas) {
+    const date = new Date(e.created_at);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+    const existing = map.get(monthKey) ?? {
+      monthKey,
+      label: monthLabelFormatter.format(date),
+      cadastradas: 0,
+      semLead: 0,
+    };
+    existing.cadastradas += 1;
+    if (!empresasComLead.has(e.id)) existing.semLead += 1;
+    map.set(monthKey, existing);
   }
 
-  const result: CategoryBreakdown[] = [];
-  for (const [key, v] of map) {
-    if (v.count > 0) {
-      result.push({ key, label: v.label, count: v.count, valor: 0, pct: total > 0 ? v.count / total : 0 });
-    }
-  }
-  if (semOrigem > 0) {
-    result.push({
-      key: "sem_origem",
-      label: "Sem origem",
-      count: semOrigem,
-      valor: 0,
-      pct: total > 0 ? semOrigem / total : 0,
-    });
-  }
-  return result;
+  return Array.from(map.values()).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
 }
 
 export interface StageDuration {

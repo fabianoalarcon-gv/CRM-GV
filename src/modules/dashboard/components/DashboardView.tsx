@@ -9,8 +9,8 @@ import {
   applyFilters,
   computeAcaoIntervalBreakdown,
   computeCaptacaoMonthlyAggregates,
-  computeCaptacaoOrigemBreakdown,
   computeConversionRates,
+  computeEmpresaLeadMonthlyEvolution,
   computeForecast,
   computeFunnelStages,
   computeLeadMonthlyAggregates,
@@ -31,6 +31,7 @@ import {
 } from "../utils";
 import { ExportDashboardButton } from "./ExportDashboardButton";
 import { KpiCard } from "./KpiCard";
+import { LineChartCard } from "./LineChartCard";
 import { MonthlyBarChart } from "./MonthlyBarChart";
 import { PieChartCard } from "./PieChartCard";
 import { RankingTable } from "./RankingTable";
@@ -40,6 +41,7 @@ import { StageDurationCard } from "./StageDurationCard";
 import { ThermometerChart } from "./ThermometerChart";
 import type {
   DashboardAcao,
+  DashboardEmpresaCadastro,
   DashboardFilters,
   DashboardProposta,
   DashboardStatusHistoricoEntry,
@@ -79,6 +81,7 @@ export interface DashboardViewProps {
   acoes: DashboardAcao[];
   statusHistorico: DashboardStatusHistoricoEntry[];
   captacoes: Captacao[];
+  empresas: DashboardEmpresaCadastro[];
 }
 
 export function DashboardView({
@@ -87,6 +90,7 @@ export function DashboardView({
   acoes,
   statusHistorico,
   captacoes,
+  empresas,
 }: DashboardViewProps) {
   const [filters, setFilters] = useState<DashboardFilters>(EMPTY_FILTERS);
   const exportRef = useRef<HTMLDivElement>(null);
@@ -168,9 +172,9 @@ export function DashboardView({
   // de Propostas/Leads (sem data_envio, segmento, etc.), então mostra sempre
   // o conjunto completo, sem aplicar os filtros da página.
   const captacaoMonthly = useMemo(() => computeCaptacaoMonthlyAggregates(captacoes), [captacoes]);
-  const captacaoOrigemBreakdown = useMemo(
-    () => computeCaptacaoOrigemBreakdown(captacoes),
-    [captacoes],
+  const empresaLeadMonthly = useMemo(
+    () => computeEmpresaLeadMonthlyEvolution(empresas, propostas),
+    [empresas, propostas],
   );
 
   const valorTotal = statusAggregates.reduce((acc, a) => acc + a.valor, 0);
@@ -437,15 +441,27 @@ export function DashboardView({
             emptyMessage="Nenhuma Captação registrada."
             metric="count"
           />
-          <PieChartCard
-            title="Origem"
-            subtitle="Origem das Captações"
-            icon="share"
+          <LineChartCard
+            title="Conversão"
+            subtitle="Empresas cadastradas x Sem Lead ainda"
+            icon="insights"
             iconColor="var(--color-chart-cat-4)"
-            emptyMessage="Nenhuma Captação registrada."
-            data={captacaoOrigemBreakdown}
-            legendFormatter={(item) => formatEmpresaLegend(item.count)}
-            centered
+            emptyMessage="Nenhuma Empresa cadastrada."
+            data={empresaLeadMonthly}
+            series={[
+              {
+                key: "cadastradas",
+                label: "Cadastradas",
+                color: "var(--color-chart-cat-1)",
+                value: (d) => d.cadastradas,
+              },
+              {
+                key: "semLead",
+                label: "Sem Lead ainda",
+                color: "var(--color-temp-quente)",
+                value: (d) => d.semLead,
+              },
+            ]}
           />
         </div>
       </div>

@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Segmento, Termometro } from "@/modules/pipeline/types";
 import type {
   DashboardAcao,
+  DashboardEmpresaCadastro,
   DashboardProposta,
   DashboardStatusHistoricoEntry,
   Resultado,
@@ -84,6 +85,22 @@ export async function getDashboardStatusHistorico(): Promise<DashboardStatusHist
     entrou_em: h.entrou_em,
     status_key: (h.proposal_statuses?.key ?? "prospeccao") as StatusKey,
   }));
+}
+
+// Data de cadastro de toda Empresa já criada (independente de já ter virado
+// Lead ou não) — alimenta o indicador "Empresas cadastradas x Sem Lead ainda"
+// de Captação, que precisa do histórico completo (a tabela `captacoes` só
+// guarda quem ainda não virou Lead).
+export async function getDashboardEmpresas(): Promise<DashboardEmpresaCadastro[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("empresas")
+    .select("id, created_at")
+    .order("created_at");
+
+  if (error) throw error;
+
+  return data ?? [];
 }
 
 // Rótulos direto da tabela — não dá pra confiar só nas propostas existentes

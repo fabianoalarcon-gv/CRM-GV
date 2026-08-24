@@ -1,6 +1,7 @@
 import { DashboardView } from "@/modules/dashboard/components/DashboardView";
 import {
   getDashboardAcoes,
+  getDashboardEmpresas,
   getDashboardPropostas,
   getDashboardStatusHistorico,
   getStatusLabels,
@@ -8,12 +9,13 @@ import {
 import { getCaptacoes } from "@/modules/captacao/queries";
 
 export default async function Home() {
-  const [propostas, statusLabels, acoes, statusHistorico, captacoes] = await Promise.all([
+  const [propostas, statusLabels, acoes, statusHistorico, captacoes, empresas] = await Promise.all([
     getDashboardPropostas(),
     getStatusLabels(),
     getDashboardAcoes(),
     getDashboardStatusHistorico(),
     getCaptacoes(),
+    getDashboardEmpresas(),
   ]);
 
   return (
@@ -23,6 +25,7 @@ export default async function Home() {
       acoes={acoes}
       statusHistorico={statusHistorico}
       captacoes={captacoes}
+      empresas={empresas}
     />
   );
 }

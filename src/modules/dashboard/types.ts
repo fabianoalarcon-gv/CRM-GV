@@ -36,6 +36,11 @@ export interface DashboardStatusHistoricoEntry {
   entrou_em: string;
 }
 
+export interface DashboardEmpresaCadastro {
+  id: number;
+  created_at: string;
+}
+
 export interface DashboardFilters {
   dataInicio: string;
   dataFim: string;
