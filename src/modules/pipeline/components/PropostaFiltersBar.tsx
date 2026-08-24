@@ -2,8 +2,9 @@
 
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 import { Select } from "@/components/ui/Select";
-import { SEGMENTO_OPTIONS, type Termometro } from "../types";
+import { SEGMENTO_OPTIONS, type Segmento, type Termometro } from "../types";
 import { EMPTY_PROPOSTA_FILTERS, type PropostaFilters } from "../utils";
 
 // "Todos" entra como opção normal (não placeholder) pra continuar
@@ -15,8 +16,6 @@ const TERMOMETRO_FILTER_OPTIONS: { value: Termometro | ""; label: string }[] = [
   { value: "quente", label: "Quente" },
 ];
 
-const SEGMENTO_FILTER_OPTIONS = [{ value: "", label: "Todos" }, ...SEGMENTO_OPTIONS];
-
 export interface PropostaFiltersBarProps {
   value: PropostaFilters;
   onChange: (value: PropostaFilters) => void;
@@ -24,7 +23,7 @@ export interface PropostaFiltersBarProps {
 
 export function PropostaFiltersBar({ value, onChange }: PropostaFiltersBarProps) {
   const hasActiveFilters =
-    value.dataInicio || value.dataFim || value.termometro || value.segmento;
+    value.dataInicio || value.dataFim || value.termometro || value.segmento.length > 0;
 
   return (
     <div className="flex flex-wrap items-end gap-3">
@@ -49,11 +48,11 @@ export function PropostaFiltersBar({ value, onChange }: PropostaFiltersBarProps)
         options={TERMOMETRO_FILTER_OPTIONS}
         className="w-32"
       />
-      <Select
+      <MultiSelect
         label="Segmento"
         value={value.segmento}
-        onChange={(e) => onChange({ ...value, segmento: e.target.value as PropostaFilters["segmento"] })}
-        options={SEGMENTO_FILTER_OPTIONS}
+        onChange={(v) => onChange({ ...value, segmento: v as Segmento[] })}
+        options={SEGMENTO_OPTIONS}
         className="w-36"
       />
       {hasActiveFilters && (

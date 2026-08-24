@@ -12,7 +12,7 @@ import { Select } from "@/components/ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { useIsAdmin } from "@/lib/auth/context";
 import { TIPO_COLOR, TIPO_LABEL } from "@/modules/calendario/utils";
-import { SEGMENTO_LABEL, type Segmento, type Termometro } from "@/modules/pipeline/types";
+import { SEGMENTO_LABEL, type Termometro } from "@/modules/pipeline/types";
 import { addContato, deleteContato, deleteEmpresa, updateContato, updateEmpresa } from "../actions";
 import { ORIGEM_LEAD_LABEL, TELEFONE_TIPO_LABEL, TELEFONE_TIPO_OPTIONS } from "../constants";
 import { EmpresaForm } from "./EmpresaForm";
@@ -454,8 +454,8 @@ export function EmpresaDetailView({
                         {proposta.numero_proposta ?? proposta.numero_lead ?? "—"}
                       </TableCell>
                       <TableCell className="text-brand-graphite-light">
-                        {proposta.segmento
-                          ? (SEGMENTO_LABEL[proposta.segmento as Segmento] ?? proposta.segmento)
+                        {proposta.segmentos.length > 0
+                          ? proposta.segmentos.map((s) => SEGMENTO_LABEL[s] ?? s).join(", ")
                           : "—"}
                       </TableCell>
                       <TableCell className="text-brand-graphite-light">{proposta.status_label}</TableCell>

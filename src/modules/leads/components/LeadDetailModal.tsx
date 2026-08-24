@@ -172,7 +172,7 @@ export function LeadDetailModal({ proposta, isOpen, onClose }: LeadDetailModalPr
     data_inicio_lead: proposta.data_inicio_lead,
     termometro: proposta.termometro,
     descricao: proposta.descricao ?? "",
-    segmento: proposta.segmento,
+    segmentos: proposta.segmentos,
     valor_estimado: proposta.valor,
     status_id: proposta.status_id,
     responsavel_id: proposta.responsavel_id,

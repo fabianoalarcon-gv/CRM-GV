@@ -765,7 +765,7 @@ export type Database = {
           numero_proposta: string | null
           responsavel_id: string | null
           resultado: string | null
-          segmento: string | null
+          segmentos: string[]
           servico: string | null
           status_anterior_id: number | null
           status_id: number
@@ -789,7 +789,7 @@ export type Database = {
           numero_proposta?: string | null
           responsavel_id?: string | null
           resultado?: string | null
-          segmento?: string | null
+          segmentos?: string[]
           servico?: string | null
           status_anterior_id?: number | null
           status_id: number
@@ -813,7 +813,7 @@ export type Database = {
           numero_proposta?: string | null
           responsavel_id?: string | null
           resultado?: string | null
-          segmento?: string | null
+          segmentos?: string[]
           servico?: string | null
           status_anterior_id?: number | null
           status_id?: number

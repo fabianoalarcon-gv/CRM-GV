@@ -61,7 +61,11 @@ export function ProposalListView({ propostas }: { propostas: Proposta[] }) {
                   "—"
                 )}
               </TableCell>
-              <TableCell>{proposta.segmento ? SEGMENTO_LABEL[proposta.segmento] : "—"}</TableCell>
+              <TableCell>
+                {proposta.segmentos.length > 0
+                  ? proposta.segmentos.map((s) => SEGMENTO_LABEL[s]).join(", ")
+                  : "—"}
+              </TableCell>
               <TableCell>
                 {proposta.resultado ? (
                   <span

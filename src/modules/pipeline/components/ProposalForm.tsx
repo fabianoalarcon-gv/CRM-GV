@@ -13,11 +13,11 @@ import {
   MOTIVO_REPROVACAO_DETALHE_MAX_LENGTH,
   MOTIVO_REPROVACAO_OPTIONS,
   PIPELINE_STATUS_KEYS,
-  SEGMENTO_OPTIONS,
   type ProposalInput,
   type Termometro,
   type TipoServico,
 } from "../types";
+import { SegmentoField } from "./SegmentoField";
 
 const TERMOMETRO_OPTIONS = [
   { value: "frio", label: "Frio" },
@@ -200,15 +200,7 @@ export function ProposalForm({
           onChange={(e) => update("responsavel_id", e.target.value || null)}
           options={profiles.map((p) => ({ value: p.id, label: p.full_name }))}
         />
-        <Select
-          label="Segmento"
-          placeholder="Sem segmento"
-          value={values.segmento ?? ""}
-          onChange={(e) =>
-            update("segmento", (e.target.value || null) as ProposalInput["segmento"])
-          }
-          options={SEGMENTO_OPTIONS}
-        />
+        <SegmentoField value={values.segmentos} onChange={(v) => update("segmentos", v)} />
       </div>
 
       {isFechado && (

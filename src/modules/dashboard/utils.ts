@@ -63,7 +63,9 @@ export function applyFilters(
   return propostas.filter((p) => {
     if (!inDateRange(p.data_envio, filters.dataInicio, filters.dataFim)) return false;
     if (filters.tipoServico && p.tipo_servico !== filters.tipoServico) return false;
-    if (filters.segmento && p.segmento !== filters.segmento) return false;
+    if (filters.segmento.length > 0 && !p.segmentos.some((s) => filters.segmento.includes(s))) {
+      return false;
+    }
     if (filters.servico && p.servico !== filters.servico) return false;
     if (filters.termometro && p.termometro !== filters.termometro) return false;
     return true;
@@ -74,7 +76,7 @@ export function defaultDashboardFilters(): DashboardFilters {
   return {
     ...last90DaysRange(),
     tipoServico: "",
-    segmento: "",
+    segmento: [],
     servico: "",
     termometro: "",
   };
@@ -224,6 +226,10 @@ export function formatBreakdownLegend(count: number, valor: number): string {
   return `${formatCount(count)} - ${formatCurrency(valor)}`;
 }
 
+// Uma proposta com mais de um segmento conta em CADA fatia a que pertence —
+// diferente dos outros breakdowns do dashboard, os percentuais aqui não somam
+// mais 100% quando há propostas com múltiplos segmentos (comportamento
+// esperado: cada fatia representa "quantas propostas tocam esse segmento").
 export function computeSegmentoBreakdown(propostas: DashboardProposta[]): CategoryBreakdown[] {
   const total = propostas.length;
   const map = new Map<string, { label: string; count: number; valor: number }>();
@@ -231,10 +237,12 @@ export function computeSegmentoBreakdown(propostas: DashboardProposta[]): Catego
 
   let semSegmento = { count: 0, valor: 0 };
   for (const p of propostas) {
-    if (p.segmento) {
-      const entry = map.get(p.segmento)!;
-      entry.count += 1;
-      entry.valor += p.valor;
+    if (p.segmentos.length > 0) {
+      for (const segmento of p.segmentos) {
+        const entry = map.get(segmento)!;
+        entry.count += 1;
+        entry.valor += p.valor;
+      }
     } else {
       semSegmento = { count: semSegmento.count + 1, valor: semSegmento.valor + p.valor };
     }

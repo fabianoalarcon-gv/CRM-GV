@@ -15,7 +15,7 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, numero_lead, empresa_id, valor, data_envio, data_inicio_lead, tipo_servico, servico, segmento, termometro, resultado, empresas(nome, origem_lead), proposal_statuses!status_id(key, label, sort_order)",
+      "id, numero_proposta, numero_lead, empresa_id, valor, data_envio, data_inicio_lead, tipo_servico, servico, segmentos, termometro, resultado, empresas(nome, origem_lead), proposal_statuses!status_id(key, label, sort_order)",
     )
     .order("data_envio");
 
@@ -35,7 +35,7 @@ export async function getDashboardPropostas(): Promise<DashboardProposta[]> {
     data_inicio_lead: p.data_inicio_lead,
     tipo_servico: p.tipo_servico as TipoServico,
     servico: p.servico,
-    segmento: p.segmento as Segmento | null,
+    segmentos: (p.segmentos ?? []) as Segmento[],
     termometro: p.termometro as Termometro | null,
     status_key: (p.proposal_statuses?.key ?? "prospeccao") as StatusKey,
     status_label: p.proposal_statuses?.label ?? "—",

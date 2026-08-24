@@ -68,9 +68,13 @@ export function LeadCard({ proposta }: { proposta: Proposta }) {
             {proposta.termometro && <TermometroBadge value={proposta.termometro} />}
           </div>
 
-          {proposta.segmento && (
+          {proposta.segmentos.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <Badge variant="default">{SEGMENTO_LABEL[proposta.segmento]}</Badge>
+              {proposta.segmentos.map((s) => (
+                <Badge key={s} variant="default">
+                  {SEGMENTO_LABEL[s]}
+                </Badge>
+              ))}
             </div>
           )}
 

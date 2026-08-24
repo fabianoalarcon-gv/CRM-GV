@@ -6,7 +6,7 @@ export interface LeadInput {
   data_inicio_lead: string;
   termometro: Termometro | null;
   descricao: string;
-  segmento: Segmento | null;
+  segmentos: Segmento[];
   valor_estimado: number | null;
   status_id: number;
   responsavel_id: string | null;

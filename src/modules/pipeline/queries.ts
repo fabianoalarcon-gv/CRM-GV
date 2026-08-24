@@ -27,7 +27,7 @@ export async function getPropostas(): Promise<Proposta[]> {
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, numero_lead, data_envio, data_inicio_lead, empresa_id, servico, descricao, segmento, valor, status_id, status_anterior_id, termometro, tipo_servico, responsavel_id, resultado, motivo_reprovacao, motivo_reprovacao_detalhe, gerado_de_lead, created_at, updated_at, empresas(nome, setor)",
+      "id, numero_proposta, numero_lead, data_envio, data_inicio_lead, empresa_id, servico, descricao, segmentos, valor, status_id, status_anterior_id, termometro, tipo_servico, responsavel_id, resultado, motivo_reprovacao, motivo_reprovacao_detalhe, gerado_de_lead, created_at, updated_at, empresas(nome, setor)",
     )
     .order("created_at", { ascending: false });
 
@@ -44,7 +44,7 @@ export async function getPropostas(): Promise<Proposta[]> {
     empresa_setor: p.empresas?.setor ?? null,
     servico: p.servico,
     descricao: p.descricao,
-    segmento: p.segmento as Proposta["segmento"],
+    segmentos: (p.segmentos ?? []) as Proposta["segmentos"],
     valor: p.valor == null ? null : Number(p.valor),
     status_id: p.status_id,
     status_anterior_id: p.status_anterior_id,

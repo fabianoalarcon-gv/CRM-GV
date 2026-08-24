@@ -16,7 +16,7 @@ export interface DashboardProposta {
   data_inicio_lead: string;
   tipo_servico: TipoServico;
   servico: string | null;
-  segmento: Segmento | null;
+  segmentos: Segmento[];
   termometro: Termometro | null;
   status_key: StatusKey;
   status_label: string;
@@ -45,7 +45,7 @@ export interface DashboardFilters {
   dataInicio: string;
   dataFim: string;
   tipoServico: TipoServico | "";
-  segmento: Segmento | "";
+  segmento: Segmento[];
   servico: string;
   termometro: Termometro | "";
 }

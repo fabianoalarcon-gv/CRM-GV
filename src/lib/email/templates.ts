@@ -60,7 +60,7 @@ export interface LeadPropostaEmailData {
   empresaNome: string | null;
   descricao: string | null;
   termometro: string | null;
-  segmento: string | null;
+  segmentos: string[];
   valor: number | null;
   statusLabel: string | null;
   responsavelNome: string | null;
@@ -85,7 +85,9 @@ export function buildLeadPropostaEmailBody(data: LeadPropostaEmailData): string 
     ),
     linha(
       "Segmento",
-      data.segmento ? (SEGMENTO_LABEL[data.segmento] ?? data.segmento) : "Sem segmento",
+      data.segmentos.length > 0
+        ? data.segmentos.map((s) => SEGMENTO_LABEL[s] ?? s).join(", ")
+        : "Sem segmento",
     ),
     linha("Valor estimado", data.valor ? currencyFormatter.format(data.valor) : "Sem valor"),
     linha("Status", data.statusLabel ?? "—"),

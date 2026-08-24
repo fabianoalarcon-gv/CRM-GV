@@ -19,7 +19,7 @@ export function NewLeadButton() {
     data_inicio_lead: new Date().toISOString().slice(0, 10),
     termometro: null,
     descricao: "",
-    segmento: null,
+    segmentos: [],
     valor_estimado: null,
     status_id: defaultStatusId,
     responsavel_id: null,

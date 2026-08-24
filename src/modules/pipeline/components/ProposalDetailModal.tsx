@@ -147,7 +147,7 @@ export function ProposalDetailModal({ proposta, isOpen, onClose }: ProposalDetai
     empresa_id: proposta.empresa_id,
     servico: proposta.servico ?? "",
     descricao: proposta.descricao ?? "",
-    segmento: proposta.segmento,
+    segmentos: proposta.segmentos,
     valor: proposta.valor ?? 0,
     status_id: proposta.status_id,
     // ProposalInput.termometro continua obrigatório (não relaxamos a

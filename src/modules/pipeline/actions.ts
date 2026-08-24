@@ -28,7 +28,7 @@ function toRow(input: ProposalInput) {
     empresa_id: input.empresa_id,
     servico: input.servico.trim() || null,
     descricao: input.descricao.trim() || null,
-    segmento: input.segmento,
+    segmentos: input.segmentos,
     valor: input.valor,
     status_id: input.status_id,
     termometro: input.termometro,

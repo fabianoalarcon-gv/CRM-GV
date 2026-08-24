@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     const { data: proposta } = await admin
       .from("propostas")
       .select(
-        "numero_lead, numero_proposta, created_at, descricao, termometro, segmento, valor, empresas(nome), proposal_statuses!status_id(label), responsavel:profiles!responsavel_id(full_name)",
+        "numero_lead, numero_proposta, created_at, descricao, termometro, segmentos, valor, empresas(nome), proposal_statuses!status_id(label), responsavel:profiles!responsavel_id(full_name)",
       )
       .eq("id", record.proposta_id)
       .maybeSingle();
@@ -107,7 +107,7 @@ export async function POST(request: Request) {
           empresaNome: proposta.empresas?.nome ?? null,
           descricao: proposta.descricao,
           termometro: proposta.termometro,
-          segmento: proposta.segmento,
+          segmentos: proposta.segmentos ?? [],
           valor: proposta.valor,
           statusLabel: proposta.proposal_statuses?.label ?? null,
           responsavelNome: proposta.responsavel?.full_name ?? null,

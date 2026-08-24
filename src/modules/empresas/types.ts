@@ -20,7 +20,7 @@ export interface Empresa {
 
 export interface EmpresaListItem extends Empresa {
   ultima_proposta: string | null;
-  segmento_recente: Segmento | null;
+  segmento_recente: Segmento[];
 }
 
 export interface EmpresaInput {
@@ -62,7 +62,7 @@ export interface PropostaResumo {
   id: number;
   numero_proposta: string | null;
   numero_lead: string | null;
-  segmento: string | null;
+  segmentos: Segmento[];
   valor: number | null;
   termometro: "frio" | "morno" | "quente" | null;
   status_label: string;

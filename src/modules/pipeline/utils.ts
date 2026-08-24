@@ -5,21 +5,21 @@ export interface PropostaFilters {
   dataInicio: string;
   dataFim: string;
   termometro: Termometro | "";
-  segmento: Segmento | "";
+  segmento: Segmento[];
 }
 
 export const EMPTY_PROPOSTA_FILTERS: PropostaFilters = {
   dataInicio: "",
   dataFim: "",
   termometro: "",
-  segmento: "",
+  segmento: [],
 };
 
 // Período padrão ao abrir Leads/Pipeline: últimos 90 dias (mesmo critério do
 // Dashboard) em vez do histórico inteiro. Compartilhado pelas duas telas, que
 // já reaproveitam o mesmo PropostaFilters/applyPropostaFilters.
 export function defaultPropostaFilters(): PropostaFilters {
-  return { termometro: "", segmento: "", ...last90DaysRange() };
+  return { termometro: "", segmento: [], ...last90DaysRange() };
 }
 
 export function applyPropostaFilters(propostas: Proposta[], filters: PropostaFilters): Proposta[] {
@@ -33,7 +33,9 @@ export function applyPropostaFilters(propostas: Proposta[], filters: PropostaFil
     if (start && createdAt < start) return false;
     if (end && createdAt > end) return false;
     if (filters.termometro && p.termometro !== filters.termometro) return false;
-    if (filters.segmento && p.segmento !== filters.segmento) return false;
+    if (filters.segmento.length > 0 && !p.segmentos.some((s) => filters.segmento.includes(s))) {
+      return false;
+    }
     return true;
   });
 }

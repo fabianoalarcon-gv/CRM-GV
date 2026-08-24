@@ -4,8 +4,9 @@ import { useMemo, useRef, useState } from "react";
 import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 import { Select } from "@/components/ui/Select";
-import { SEGMENTO_OPTIONS } from "@/modules/pipeline/types";
+import { SEGMENTO_OPTIONS, type Segmento } from "@/modules/pipeline/types";
 import {
   applyFilters,
   computeAcaoIntervalBreakdown,
@@ -60,8 +61,6 @@ const TIPO_FILTER_OPTIONS = [
   { value: "spot", label: "Spot" },
 ];
 
-const SEGMENTO_FILTER_OPTIONS = [TODOS_OPTION, ...SEGMENTO_OPTIONS];
-
 const TERMOMETRO_FILTER_OPTIONS = [
   TODOS_OPTION,
   { value: "frio", label: "Frio" },
@@ -73,7 +72,7 @@ const EMPTY_FILTERS: DashboardFilters = {
   dataInicio: "",
   dataFim: "",
   tipoServico: "",
-  segmento: "",
+  segmento: [],
   servico: "",
   termometro: "",
 };
@@ -259,16 +258,11 @@ export function DashboardView({
             options={TIPO_FILTER_OPTIONS}
             className="w-32"
           />
-          <Select
+          <MultiSelect
             label="Segmento"
             value={filters.segmento}
-            onChange={(e) =>
-              setFilters((prev) => ({
-                ...prev,
-                segmento: e.target.value as DashboardFilters["segmento"],
-              }))
-            }
-            options={SEGMENTO_FILTER_OPTIONS}
+            onChange={(v) => setFilters((prev) => ({ ...prev, segmento: v as Segmento[] }))}
+            options={SEGMENTO_OPTIONS}
             className="w-36"
           />
           <Select
@@ -293,7 +287,7 @@ export function DashboardView({
           {(filters.dataInicio ||
             filters.dataFim ||
             filters.tipoServico ||
-            filters.segmento ||
+            filters.segmento.length > 0 ||
             filters.servico ||
             filters.termometro) && (
             <button

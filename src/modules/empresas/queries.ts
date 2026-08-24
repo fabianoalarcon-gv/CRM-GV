@@ -8,7 +8,7 @@ export async function getEmpresas(): Promise<EmpresaListItem[]> {
   const { data, error } = await supabase
     .from("empresas")
     .select(
-      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at, criador:profiles!created_by(email), propostas(data_envio, segmento)",
+      "id, nome, cnpj, setor, endereco, numero, cidade, uf, cep, origem_lead, site, observacoes, created_at, criador:profiles!created_by(email), propostas(data_envio, segmentos)",
     )
     .order("nome");
 
@@ -36,7 +36,7 @@ export async function getEmpresas(): Promise<EmpresaListItem[]> {
       created_at: c.created_at,
       criador_email: c.criador?.email ?? null,
       ultima_proposta: ultimaProposta?.data_envio ?? null,
-      segmento_recente: (ultimaProposta?.segmento as Segmento | null) ?? null,
+      segmento_recente: (ultimaProposta?.segmentos as Segmento[] | undefined) ?? [],
     };
   });
 }
@@ -89,7 +89,7 @@ export async function getPropostasByEmpresa(empresaId: number): Promise<Proposta
   const { data, error } = await supabase
     .from("propostas")
     .select(
-      "id, numero_proposta, numero_lead, segmento, valor, termometro, created_at, updated_at, proposal_statuses!status_id(label)",
+      "id, numero_proposta, numero_lead, segmentos, valor, termometro, created_at, updated_at, proposal_statuses!status_id(label)",
     )
     .eq("empresa_id", empresaId)
     .order("created_at", { ascending: false });
@@ -100,7 +100,7 @@ export async function getPropostasByEmpresa(empresaId: number): Promise<Proposta
     id: p.id,
     numero_proposta: p.numero_proposta,
     numero_lead: p.numero_lead,
-    segmento: p.segmento,
+    segmentos: (p.segmentos ?? []) as Segmento[],
     valor: p.valor == null ? null : Number(p.valor),
     termometro: p.termometro as PropostaResumo["termometro"],
     status_label: p.proposal_statuses?.label ?? "—",

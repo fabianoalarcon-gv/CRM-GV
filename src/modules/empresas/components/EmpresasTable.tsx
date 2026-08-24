@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { MultiSelect } from "@/components/ui/MultiSelect";
 import { Select } from "@/components/ui/Select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { useIsAdmin } from "@/lib/auth/context";
-import { SEGMENTO_LABEL, SEGMENTO_OPTIONS } from "@/modules/pipeline/types";
+import { SEGMENTO_LABEL, SEGMENTO_OPTIONS, type Segmento } from "@/modules/pipeline/types";
 import { deleteEmpresa, updateEmpresa } from "../actions";
 import { EmpresaForm } from "./EmpresaForm";
 import type { EmpresaListItem } from "../types";
@@ -46,7 +47,7 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
   const isAdmin = useIsAdmin();
   const [search, setSearch] = useState("");
   const [setor, setSetor] = useState("");
-  const [segmento, setSegmento] = useState("");
+  const [segmento, setSegmento] = useState<Segmento[]>([]);
   const [pageSize, setPageSize] = useState(20);
   const [page, setPage] = useState(1);
   const [editing, setEditing] = useState<EmpresaListItem | null>(null);
@@ -64,7 +65,8 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
     return empresas.filter((c) => {
       const matchesSearch = !query || c.nome.toLowerCase().includes(query);
       const matchesSetor = !setor || c.setor === setor;
-      const matchesSegmento = !segmento || c.segmento_recente === segmento;
+      const matchesSegmento =
+        segmento.length === 0 || c.segmento_recente.some((s) => segmento.includes(s));
       return matchesSearch && matchesSetor && matchesSegmento;
     });
   }, [empresas, search, setor, segmento]);
@@ -87,7 +89,7 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
     setSetor(v);
     setPage(1);
   }
-  function updateSegmento(v: string) {
+  function updateSegmento(v: Segmento[]) {
     setSegmento(v);
     setPage(1);
   }
@@ -96,11 +98,11 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
     setPage(1);
   }
 
-  const hasActiveFilters = Boolean(search || setor || segmento);
+  const hasActiveFilters = Boolean(search || setor) || segmento.length > 0;
   function limparFiltros() {
     setSearch("");
     setSetor("");
-    setSegmento("");
+    setSegmento([]);
     setPage(1);
   }
 
@@ -136,12 +138,11 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
             placeholderSelectable
             className="lg:w-56"
           />
-          <Select
+          <MultiSelect
             value={segmento}
-            onChange={(e) => updateSegmento(e.target.value)}
+            onChange={(v) => updateSegmento(v as Segmento[])}
             options={SEGMENTO_OPTIONS}
             placeholder="Todos os segmentos"
-            placeholderSelectable
             className="lg:w-56"
           />
           <Select
@@ -213,7 +214,9 @@ export function EmpresasTable({ empresas }: EmpresasTableProps) {
                   </div>
                 </TableCell>
                 <TableCell className="text-brand-graphite-light">
-                  {empresa.segmento_recente ? SEGMENTO_LABEL[empresa.segmento_recente] : "—"}
+                  {empresa.segmento_recente.length > 0
+                    ? empresa.segmento_recente.map((s) => SEGMENTO_LABEL[s]).join(", ")
+                    : "—"}
                 </TableCell>
                 <TableCell className="text-brand-graphite-light">{empresa.setor ?? "—"}</TableCell>
                 <TableCell className="text-brand-graphite-light">{empresa.endereco ?? "—"}</TableCell>

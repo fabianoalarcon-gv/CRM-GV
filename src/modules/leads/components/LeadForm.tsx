@@ -7,7 +7,8 @@ import { CurrencyInput } from "@/components/ui/CurrencyInput";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { SEGMENTO_OPTIONS, type Termometro } from "@/modules/pipeline/types";
+import { SegmentoField } from "@/modules/pipeline/components/SegmentoField";
+import type { Termometro } from "@/modules/pipeline/types";
 import { useLeadsData } from "../context";
 import type { LeadInput } from "../types";
 
@@ -105,13 +106,7 @@ export function LeadForm({ numeroLead, initialValues, submitLabel, onSubmit, onS
           onChange={(e) => update("termometro", (e.target.value || null) as LeadInput["termometro"])}
           options={TERMOMETRO_OPTIONS}
         />
-        <Select
-          label="Segmento"
-          placeholder="Sem segmento"
-          value={values.segmento ?? ""}
-          onChange={(e) => update("segmento", (e.target.value || null) as LeadInput["segmento"])}
-          options={SEGMENTO_OPTIONS}
-        />
+        <SegmentoField value={values.segmentos} onChange={(v) => update("segmentos", v)} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -85,7 +85,7 @@ export interface Proposta {
   empresa_setor: string | null;
   servico: string | null;
   descricao: string | null;
-  segmento: Segmento | null;
+  segmentos: Segmento[];
   valor: number | null;
   status_id: number;
   status_anterior_id: number | null;
@@ -139,7 +139,7 @@ export interface ProposalInput {
   empresa_id: number;
   servico: string;
   descricao: string;
-  segmento: Segmento | null;
+  segmentos: Segmento[];
   valor: number;
   status_id: number;
   termometro: Termometro;
