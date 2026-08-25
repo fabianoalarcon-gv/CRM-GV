@@ -126,6 +126,75 @@
 
 ---
 
+> **Nota (2026-08-25)**: os módulos CAPT/LEAD/NOTIF/ATUAL/PARAM abaixo foram construídos em sessões sem registro formal — documentados retroativamente. Ver nota equivalente em `cronograma.md`.
+
+## MÓDULO 5 — Captação (CAPT)
+
+- [x] CAPT-01 | Modelar tabela `captacoes` — RLS aberta a qualquer autenticado (select/insert/delete, sem policy de update — captação é imutável uma vez criada)
+- [x] CAPT-02 | Criar página `/captacao` com listagem (empresa, setor, cidade/UF, origem do lead, tem/não tem contato)
+- [x] CAPT-03 | Filtros: busca por empresa, período (padrão últimos 90 dias), origem do lead, tem/não tem contato
+- [x] CAPT-04 | Criação manual + prompt de criação automática (opcional) direto do cadastro de nova Empresa (`NewEmpresaButton`)
+- [x] CAPT-05 | Exclusão de captação — sem restrição de perfil, sem log de auditoria (diferente da exclusão de Proposta/Empresa)
+- [x] CAPT-06 | "Transformar em Lead" — cria proposta nova em `prospeccao` e remove a captação
+- [x] CAPT-07 | Indicadores de Captação no Dashboard — captações por mês; empresas cadastradas sem Lead ainda / taxa de conversão (reconstrói o histórico a partir de `empresas` × `propostas`, já que a captação some do banco ao virar Lead)
+
+---
+
+## MÓDULO 6 — Leads (LEAD)
+
+> Lead e Proposta são a mesma linha de `propostas` — só o estágio (`status_id`) muda. `/leads` reaproveita o board/lista do Pipeline.
+
+- [x] LEAD-01 | `propostas` estendida: nº/valor/tipo de serviço opcionais, `numero_lead` (numeração própria por ano, ex. `L001/26`, trigger com contador atômico), `data_inicio_lead`
+- [x] LEAD-02 | Página `/leads`, reaproveitando board/lista do Pipeline filtrados pros estágios Prospecção/Qualificação/Arquivado
+- [x] LEAD-03 | Formulário de criar/editar Lead (empresa, descrição, termômetro opcional, segmentos, valor estimado, responsável)
+- [x] LEAD-04 | Timelines de Andamento e Observações (`propostas_historico`, mesmo do Pipeline, separado por `tipo`)
+- [x] LEAD-05 | Ações (compromissos) vinculadas ao Lead, com recorrência (diária/semanal/mensal/anual/dias úteis) e sync individual com Google Calendar
+- [x] LEAD-06 | Arquivar/Reativar Lead — estágio reversível, guarda `status_anterior_id`; drag desabilitado em Lead arquivado (só reativa pelo botão, pra manter o bookkeeping correto)
+- [x] LEAD-07 | "Gerar Proposta" (promove Lead qualificado, gera `numero_proposta`) e "Reverter para Qualificação" (a partir do Pipeline)
+- [x] LEAD-08 | Cron de retomada de Lead arquivado — idempotente por evento de arquivamento (não por dia), configurável em Parâmetros
+- [x] LEAD-09 | Testes funcionais cobertos ao longo da implementação (sem sessão de teste dedicada registrada)
+  - **Observação de RBAC encontrada nesta auditoria**: Arquivar/Reativar/Gerar Proposta são restritos a Admin só na UI (`isAdmin` no JSX) — não há checagem server-side nessas Server Actions nem policy de RLS restringindo, diferente da Exclusão (essa sim admin-only por RLS). Não é uma falha explorável de dado (mesmo perfil Comercial já pode editar/criar propostas livremente), mas vale registrar como possível item de hardening futuro.
+
+---
+
+## MÓDULO 7 — Notificações (NOTIF)
+
+- [x] NOTIF-01 | `notificacoes` (evento central, só gravável por trigger `security definer` — sem policy de insert pra client nenhum) + `notificacoes_lidas` (leitura por usuário)
+- [x] NOTIF-02 | Sino no header (todos os usuários), polling a cada 30s, indicador de não lidas, marcar como lida (individual ou "todas")
+- [x] NOTIF-03 | Triggers automáticos: nova empresa, novo lead, nova proposta, movimentação de card, proposta aprovada/reprovada, nova Ação (esse último como trigger *de statement*, não de linha — agrupa Ações recorrentes numa notificação só)
+- [x] NOTIF-04 | Scan diário (`gerar_notificacoes_diarias`, cron 06h UTC) de Lead/Proposta sem movimentação, sem ação, e Empresa sem contato — thresholds configuráveis em Parâmetros, idempotente por dia via índice único
+- [x] NOTIF-05 | E-mail via SMTP/nodemailer — liga/desliga geral, remetente configurável, **modo teste** (default ligado — redireciona tudo pra um e-mail só, proteção contra disparo real sem querer) e liga/desliga por tipo de evento
+- [x] NOTIF-06 | Webhook de e-mail — trigger do Postgres via `pg_net` (não usa a feature de Database Webhooks do dashboard, que não funciona neste projeto — ver nota abaixo), secret guardado no Supabase Vault, comparado com `timingSafeEqual`
+- [x] NOTIF-07 | Opt-out por usuário (`profiles.email_notifications`) + e-mail de boas-vindas (com senha provisória) no convite de novo usuário — enviado fora do funil de notificações, síncrono, falha não bloqueia a criação da conta
+  - **Achado desta auditoria**: o comentário em `.env.example` sobre `SUPABASE_WEBHOOK_SECRET` menciona "Database Webhook" configurado no dashboard do Supabase — desatualizado; na prática é um trigger direto com `pg_net`, não a feature do dashboard (o projeto nunca teve o schema `supabase_functions` provisionado). Não é um bug funcional, só uma imprecisão de comentário.
+
+---
+
+## MÓDULO 8 — Atualizações (ATUAL)
+
+Changelog interno do sistema (não é feature de negócio do CRM).
+
+- [x] ATUAL-01 | `atualizacoes` (patch/versão) + `atualizacoes_itens` (solicitação/correção/melhoria/inclusão) + `atualizacoes_vistas` (leitura por usuário, mesmo padrão de NOTIF)
+- [x] ATUAL-02 | Tela admin `/atualizacoes` — criar patch, add/editar/excluir item, marcar "versão atual" (único de verdade — índice único parcial no banco, não só checagem em código)
+- [x] ATUAL-03 | Ícone de novidades no header (todos os usuários) + modal "Sobre o app" com a versão atual
+
+---
+
+## MÓDULO 9 — Parâmetros / Administração (PARAM)
+
+- [x] PARAM-01 | Tela admin `/parametros` — RBAC 100% em código (`requireAdmin()` na Server Action + guarda na página); tabelas de configuração sem policy de escrita na RLS (convenção deliberada e documentada nas migrations, repetida em várias tabelas `parametros_*`)
+- [x] PARAM-02 | Thresholds de notificação (dias sem movimentação/contato/ação)
+- [x] PARAM-03 | Retomada de Lead arquivado (dias + categoria da Ação gerada)
+- [x] PARAM-04 | E-mail (liga/desliga, remetente, modo teste, tipos de evento habilitados)
+- [x] PARAM-05 | Sincronização com Google Calendar (liga/desliga) — Service Account com delegação de domínio, um evento por caixa de e-mail sincronizada (não um evento único com convidados)
+- [x] PARAM-06 | Log de auditoria (`logs_auditoria`) — única tabela desse grupo com RLS de leitura restrita a Admin de verdade (`private.is_admin()`), não só em código; registra convite/edição/exclusão de usuário e exclusão de Proposta/Lead/Empresa
+- [x] PARAM-07 | Retenção do log de auditoria configurável + cron diário de limpeza
+- [x] PARAM-08 | Backup diário automático de produção pra projeto Supabase separado (cron, sem UI dedicada em `/parametros`)
+  - **Achado desta auditoria**: a lista de tabelas do backup (`backup-producao/route.ts`) não inclui `parametros_auditoria`, `logs_auditoria` nem `compromisso_google_events` — parece que a lista não foi atualizada quando essas tabelas foram criadas depois. Vale revisar/completar numa próxima sessão.
+  - **Achado desta auditoria**: não existe nenhuma tela que exiba o conteúdo de `logs_auditoria` — hoje é uma tabela só de escrita do ponto de vista da UI (só dá pra consultar via SQL Editor do Supabase). Pode ser intencional (uso só em investigação pontual) ou um gap de feature; sinalizando pra decisão futura.
+
+---
+
 ## Funcionalidades Transversais do MVP (TRANS)
 
 `[depende de: PIPE-08, AUTH-06]`
@@ -133,9 +202,9 @@
 - [ ] TRANS-01 | Avaliar e escolher biblioteca de geração de PDF (react-pdf ou server-side)
 - [ ] TRANS-02 | Criar template visual do PDF da proposta comercial
 - [ ] TRANS-03 | Implementar geração de PDF a partir dos dados do card/proposta
-- [ ] TRANS-04 | Configurar serviço de e-mail transacional (Resend ou SMTP)
-- [ ] TRANS-05 | Criar template de e-mail de notificação de mudança de status
-- [ ] TRANS-06 | Implementar trigger de envio automático ao mudar status para Aprovado/Reprovado
+- [x] TRANS-04 | Configurar serviço de e-mail transacional (Resend ou SMTP) — atendida pelo módulo NOTIF (SMTP/nodemailer, ver NOTIF-05)
+- [x] TRANS-05 | Criar template de e-mail de notificação de mudança de status — atendida pelo módulo NOTIF (template de `proposta_aprovada`/`proposta_reprovada`, ver NOTIF-05/06)
+- [x] TRANS-06 | Implementar trigger de envio automático ao mudar status para Aprovado/Reprovado — atendida pelo módulo NOTIF (trigger `propostas_notificar_update` + webhook de e-mail, ver NOTIF-03/06)
 - [ ] TRANS-07 | Documentar/preparar estrutura de integração futura com WhatsApp (sem implementar)
 - [ ] TRANS-08 | Testes funcionais: geração de PDF e disparo de e-mail
 
@@ -243,3 +312,4 @@
 - **2026-08-07**: Ajustado o respiro superior do cabeçalho (ícone + título) dos 3 cards largos do Dashboard (`SalesFunnel`, `MonthlyBarChart`, `RankingTable`), apontado pelo usuário numa captura marcando os três cabeçalhos como "colados na borda superior". Os três usavam `p-5` (padding igual nos 4 lados) no `CardContent`; trocado para `px-5 pt-6 pb-5` — só o topo ganhou 4px a mais (`20px` → `24px`), mantendo os outros lados como estavam, pra não desequilibrar o restante do card (o funil/gráfico/tabela logo abaixo já tinham espaçamento adequado). Mudança pequena e só nesses 3 arquivos — o `KpiCard` não foi tocado, pois seu conteúdo já é centralizado verticalmente no card inteiro (rodadas anteriores), não tendo esse problema de cabeçalho colado no topo. Testado com Puppeteer em desktop, os 3 cabeçalhos com respiro visível antes do ícone/título. `npm run build`/`lint` limpos.
 - **2026-08-07**: Correção de sequência da mudança anterior — o `MonthlyBarChart` tem dois retornos JSX (um estado vazio "sem propostas no período" e o normal com o gráfico), cada um com seu próprio `<CardContent>`; o `replace_all` do ajuste de padding só bateu com a indentação do estado vazio (8 espaços) e não do normal (6 espaços, string tecnicamente diferente por causa do espaço em branco antes da tag), deixando o card real (o que sempre aparece quando há dados, como no print que o usuário mandou) ainda com `p-5` sem o respiro extra. Corrigido aplicando `px-5 pt-6 pb-5` também nesse segundo `CardContent`. Testado com Puppeteer: card "Propostas por mês" agora com o mesmo respiro superior dos outros dois. `npm run build`/`lint` limpos.
 - **2026-08-25**: Monitoramento de erro em produção via Sentry (`@sentry/nextjs`) — item 4 da lista de pendências de robustez pré-lançamento (backup/plano B de Admin/log de auditoria já resolvidos em sessões anteriores; ver histórico de commits). Wizard oficial (`npx @sentry/wizard`) só concluiu login + instalação do pacote (parou antes de gerar os arquivos por não ter um terminal totalmente interativo neste ambiente) — configuração dos arquivos feita manualmente a partir daí: `sentry.server.config.ts`/`sentry.edge.config.ts` na raiz, `src/instrumentation.ts` (hook `register()` + `onRequestError` pro App Router) e `src/instrumentation-client.ts`, mais um `src/app/global-error.tsx` (boundary global de erro, exigido pelo App Router pra capturar erro de render). `next.config.ts` ganhou `withSentryConfig` (upload de source maps no build) e a CSP existente (`connect-src`) foi liberada pro domínio de ingest do Sentry (derivado do DSN via env, mesmo padrão já usado pra origem do Supabase) — sem isso o navegador bloquearia o envio de erro do client. Projeto único no Sentry (`granvale/logihub-crm`, plano Developer/gratuito) compartilhado entre produção e Dev, diferenciados só pela tag `environment` (env var `NEXT_PUBLIC_APP_ENV`, setada por ambiente na Vercel — `production` só no target Production, `development` como padrão do código quando a env var não existe, cobrindo Dev/Preview/local sem precisar de configuração extra). `SENTRY_AUTH_TOKEN` (upload de source maps) e `NEXT_PUBLIC_SENTRY_DSN` configurados na Vercel para Production e Preview. Testado ponta a ponta duas vezes (Dev e depois produção) com uma página/rota temporária (`/sentry-teste` + `/api/sentry-teste`, removida logo depois de cada teste) disparando erro de client e de servidor — confirmados no painel do Sentry com a tag `environment` certa nos dois ambientes, e o alerta por e-mail padrão do Sentry (issue novo) já chegou de verdade pro usuário. Durante o teste em Dev, o erro de servidor não apareceu na primeira checada — não era bug: `onRequestError` usa `waitUntil` pra manter a função da Vercel viva terminando o envio assíncrono depois da resposta, então há um delay de alguns segundos/minutos até aparecer no painel, confirmado reproduzindo com debug do SDK ligado temporariamente (removido depois). Depois, o teste em produção não mostrou issues novos à primeira vista pelo mesmo motivo de sempre nesse tipo de ferramenta: o Sentry agrupa eventos por mensagem+stack trace (não por ambiente), então rodar o mesmo teste do Dev em produção só incrementou o contador dos issues já existentes em vez de criar novos — confirmado repetindo o teste com uma mensagem de erro diferente, que aí sim gerou 2 issues novos distintos em produção. Sem alteração de schema/RLS nesta sessão.
+- **2026-08-25**: Reorganização documental, a pedido do usuário. (1) Todos os `.md` de planejamento/progresso (`Projeto_LogiHub_CRM.md`, `cronograma.md`, `checklist.md`, `bugs.md`, `skills.md`, `RECUPERACAO-EMERGENCIA.md`) movidos da raiz do repo pra `docs/` — `README.md`/`AGENTS.md` ficaram no root (convenção do GitHub / recriado automaticamente pelo `next dev`); referências cruzadas atualizadas (`.prettierignore`, READMEs de módulo). (2) `bugs.md` auditado: 4 bugs reais de 2026-08-07 que só estavam narrados no log de sessão (nunca formalizados) viraram BUG-010 a BUG-013; reforçada a convenção de sempre registrar bug novo ali, não só no texto do log. (3) **Achado maior**: o `cronograma.md`/`checklist.md` só cobriam o escopo do MVP original — o app cresceu, em sessões sem registro, pra 11 módulos (`src/modules/`), 5 deles (`captacao`, `leads`, `notificacoes`, `atualizacoes`, `parametros`) sem nenhuma sigla/tarefa documentada. Investigação a fundo de cada um (4 subagentes em paralelo, código + migrations lidos por completo) resultou em 5 seções novas retroativas no `cronograma.md` (**CAPT**, **LEAD**, **NOTIF**, **ATUAL**, **PARAM** — Módulos 5 a 9), espelhadas aqui com checkbox e observações pontuais por módulo. TRANS-04/05/06 (e-mail transacional) marcadas concluídas por tabela — na prática atendidas pelo módulo NOTIF, não por uma implementação própria do TRANS. **Achados de hardening/gap registrados para decisão futura (não corrigidos nesta sessão, é trabalho de documentação)**: (a) em Leads, Arquivar/Reativar/Gerar Proposta são admin-only só na UI, sem checagem server-side nem RLS — diferente da Exclusão, que é admin-only de verdade; (b) comentário desatualizado em `.env.example` sobre `SUPABASE_WEBHOOK_SECRET` (fala em "Database Webhook" do dashboard, mas a implementação real é trigger direto com `pg_net`); (c) a lista de tabelas do cron de backup diário não inclui `parametros_auditoria`/`logs_auditoria`/`compromisso_google_events` (tabelas criadas depois da última vez que a lista foi atualizada); (d) não existe nenhuma tela no app que mostre o conteúdo de `logs_auditoria` (só consultável via SQL Editor). Nenhuma mudança de código/schema nesta sessão — só documentação.

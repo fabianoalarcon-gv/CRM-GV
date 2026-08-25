@@ -24,6 +24,11 @@
 | CLI | Módulo Clientes/Empresas |
 | DASH | Módulo Dashboard Comercial |
 | CAL | Módulo Calendário |
+| CAPT | Módulo Captação (empresas ainda sem Lead) |
+| LEAD | Módulo Leads (funil inicial, antes de virar Proposta numerada) |
+| NOTIF | Notificações in-app e por e-mail |
+| ATUAL | Módulo Atualizações (changelog interno do sistema) |
+| PARAM | Parâmetros / Administração (config, auditoria, backup) |
 | TRANS | Funcionalidades Transversais (PDF, E-mail) |
 | QA | Testes e Qualidade Geral |
 | BRAND | Identidade Visual Final |
@@ -165,6 +170,90 @@ Núcleo do sistema — construir primeiro entre os módulos de negócio.
 
 ---
 
+> **Nota (2026-08-25)**: os 5 módulos abaixo (CAPT, LEAD, NOTIF, ATUAL, PARAM) foram construídos em sessões de desenvolvimento que não deixaram registro formal neste cronograma na época — documentados retroativamente nesta data, a partir de uma auditoria completa do código-fonte, todos já implementados e em uso em produção.
+
+## MÓDULO 5 — Captação (CAPT)
+`[depende de: DB-02 (empresas), AUTH-04, AUTH-05]`
+
+| Sigla | Tarefa |
+|---|---|
+| CAPT-01 | Modelar tabela `captacoes` (empresa recém-cadastrada, ainda sem Lead), RLS aberta a qualquer usuário autenticado (não é tela administrativa) |
+| CAPT-02 | Criar página `/captacao` com listagem de empresas aguardando qualificação (nome, setor, cidade/UF, origem do lead, se já tem contato registrado) |
+| CAPT-03 | Implementar filtros (busca por empresa, período — padrão últimos 90 dias, origem do lead, tem/não tem contato) |
+| CAPT-04 | Implementar criação manual de captação e o prompt de criação direto do fluxo de cadastro de nova Empresa |
+| CAPT-05 | Implementar exclusão de captação |
+| CAPT-06 | Implementar "Transformar em Lead" (gera uma proposta nova em estágio Prospecção e remove a captação) |
+| CAPT-07 | Indicadores de Captação no Dashboard (captações por mês; empresas cadastradas sem Lead ainda / taxa de conversão) |
+
+---
+
+## MÓDULO 6 — Leads (LEAD)
+`[depende de: PIPE — reaproveita a tabela propostas e o Kanban —, CAPT]`
+
+> Um Lead e uma Proposta são a mesma linha da tabela `propostas` — o que muda é o estágio (`status_id`). A página `/leads` reaproveita o board/lista genéricos do Pipeline, filtrados pros estágios iniciais do funil (Prospecção, Qualificação, Arquivado); `/pipeline` mostra os estágios finais (Proposta, Negociação, Fechado).
+
+| Sigla | Tarefa |
+|---|---|
+| LEAD-01 | Estender `propostas` pra suportar o estágio de Lead: nº proposta/valor/tipo de serviço passam a ser opcionais, novo campo `numero_lead` (numeração própria por ano, ex. `L001/26`, via trigger com contador atômico), `data_inicio_lead` |
+| LEAD-02 | Criar página `/leads`, reaproveitando o board (Kanban) e a visão em lista já usados pelo Pipeline, filtrados pros estágios Prospecção/Qualificação/Arquivado |
+| LEAD-03 | Formulário de criar/editar Lead (empresa, descrição, termômetro opcional, segmentos, valor estimado, responsável) |
+| LEAD-04 | Timelines de Andamento e Observações (reaproveita o histórico do Pipeline, `propostas_historico`, separado por tipo) |
+| LEAD-05 | Registro de Ações (compromissos) vinculadas ao Lead, com recorrência (diária/semanal/mensal/anual/dias úteis) e sincronização individual com o Google Calendar |
+| LEAD-06 | Implementar Arquivar/Reativar Lead (estágio reversível — guarda o estágio anterior pra restaurar) |
+| LEAD-07 | Implementar "Gerar Proposta" (promove Lead qualificado pra Proposta numerada, gera `numero_proposta`) e "Reverter para Qualificação" (a partir do Pipeline) |
+| LEAD-08 | Cron de retomada de Lead arquivado — configurável em Parâmetros (dias + categoria da Ação gerada automaticamente) |
+| LEAD-09 | Testes funcionais do módulo: criar, qualificar, registrar Ação, arquivar/reativar, promover a Proposta |
+
+---
+
+## MÓDULO 7 — Notificações (NOTIF)
+`[depende de: PIPE, CAL, CLI/empresas, LEAD]`
+
+| Sigla | Tarefa |
+|---|---|
+| NOTIF-01 | Modelar `notificacoes` (evento central, somente gravado por trigger `security definer`) + `notificacoes_lidas` (leitura por usuário) |
+| NOTIF-02 | Sino de notificações no header (todos os usuários, polling, indicador de não lidas, marcar como lida) |
+| NOTIF-03 | Triggers automáticos de evento: nova empresa, novo lead, nova proposta, movimentação de card no Kanban, proposta aprovada/reprovada, nova Ação |
+| NOTIF-04 | Scan diário de itens "sem movimentação/sem contato/sem ação" (Lead, Proposta, Empresa) — thresholds configuráveis em Parâmetros |
+| NOTIF-05 | Envio de e-mail (SMTP/nodemailer) por notificação — liga/desliga geral, remetente configurável, modo teste (redireciona tudo pra um e-mail só) e liga/desliga por tipo de evento |
+| NOTIF-06 | Webhook de disparo de e-mail (trigger do Postgres via `pg_net`, autenticado por secret guardado no Vault, comparado com `timingSafeEqual`) |
+| NOTIF-07 | Opt-out por usuário (`profiles.email_notifications`) e e-mail de boas-vindas no convite de novo usuário |
+
+---
+
+## MÓDULO 8 — Atualizações (ATUAL)
+
+Changelog interno do próprio sistema (não é uma feature de negócio do CRM) — permite ao Admin documentar o que mudou em cada versão/patch, com rastreio opcional de nº de chamado.
+
+`[depende de: AUTH-06]`
+
+| Sigla | Tarefa |
+|---|---|
+| ATUAL-01 | Modelar `atualizacoes` (patch/versão) + `atualizacoes_itens` (mudanças por tipo: solicitação/correção/melhoria/inclusão) + `atualizacoes_vistas` (leitura por usuário) |
+| ATUAL-02 | Tela admin `/atualizacoes` — criar patch, adicionar/editar/excluir itens de mudança, marcar "versão atual" (único, garantido por índice único no banco) |
+| ATUAL-03 | Ícone de novidades no header (todos os usuários, indicador de não lida) + modal "Sobre o app" mostrando a versão atual |
+
+---
+
+## MÓDULO 9 — Parâmetros / Administração (PARAM)
+
+Painel central de configurações que antes eram fixas no código, hoje ajustáveis pelo Admin sem precisar de deploy — mais o log de auditoria e o backup automático (infraestrutura, sem tela própria).
+
+`[depende de: AUTH-06, NOTIF, CAL (Google Calendar), LEAD]`
+
+| Sigla | Tarefa |
+|---|---|
+| PARAM-01 | Tela admin `/parametros` — RBAC 100% em código (`requireAdmin()` na Server Action + guarda na página), sem policy de escrita na RLS das tabelas de configuração |
+| PARAM-02 | Seção de thresholds de notificação (dias sem movimentação/contato/ação) |
+| PARAM-03 | Seção de retomada de Lead arquivado (dias + categoria da Ação gerada) |
+| PARAM-04 | Seção de e-mail (liga/desliga, remetente, modo teste, tipos de evento habilitados) |
+| PARAM-05 | Seção de sincronização com Google Calendar (liga/desliga; sync por Service Account com delegação de domínio, um evento por caixa de e-mail sincronizada) |
+| PARAM-06 | Log de auditoria de ações administrativas (`logs_auditoria`, com RLS restrita a Admin de verdade — não só em código) — registra convite/edição/exclusão de usuário e exclusão de Proposta/Lead/Empresa |
+| PARAM-07 | Seção de retenção do log de auditoria (dias configuráveis) + cron diário de limpeza automática |
+| PARAM-08 | Backup diário automático dos dados de produção pra um projeto Supabase separado (cron, sem UI dedicada) |
+
+---
+
 ## Funcionalidades Transversais do MVP (TRANS)
 `[depende de: PIPE-08 (dados da proposta para o PDF), AUTH-06 (destinatários de e-mail)]`
 
@@ -173,9 +262,9 @@ Núcleo do sistema — construir primeiro entre os módulos de negócio.
 | TRANS-01 | Avaliar e escolher biblioteca de geração de PDF (react-pdf ou server-side) |
 | TRANS-02 | Criar template visual do PDF da proposta comercial |
 | TRANS-03 | Implementar geração de PDF a partir dos dados do card/proposta |
-| TRANS-04 | Configurar serviço de e-mail transacional (Resend ou SMTP) |
-| TRANS-05 | Criar template de e-mail de notificação de mudança de status |
-| TRANS-06 | Implementar trigger de envio automático ao mudar status para Aprovado/Reprovado |
+| TRANS-04 | Configurar serviço de e-mail transacional (Resend ou SMTP) — **atendida pelo módulo NOTIF** (SMTP/nodemailer, ver NOTIF-05) |
+| TRANS-05 | Criar template de e-mail de notificação de mudança de status — **atendida pelo módulo NOTIF** (templates por tipo de evento, incluindo aprovação/reprovação, ver NOTIF-05/06) |
+| TRANS-06 | Implementar trigger de envio automático ao mudar status para Aprovado/Reprovado — **atendida pelo módulo NOTIF** (trigger `propostas_notificar_update` + webhook de e-mail, ver NOTIF-03/06) |
 | TRANS-07 | Documentar/preparar estrutura de integração futura com WhatsApp (sem implementar) |
 | TRANS-08 | Testes funcionais: geração de PDF e disparo de e-mail |
 
@@ -264,8 +353,11 @@ Essas tarefas não são de desenvolvimento, mas bloqueiam outras tarefas do cron
 4. **CLI**
 5. **DASH** (depende de dados reais fluindo por PIPE)
 6. **CAL** (pode rodar em paralelo com DASH, ambos dependem apenas de AUTH)
-7. **TRANS** (PDF e e-mail, depende do modal de proposta do PIPE)
-8. **QA** (rodada geral)
-9. **BRAND** (assim que PEND-01 for resolvida — pode acontecer em paralelo, mas o go-live espera por ela)
-10. **DEPLOY**
-11. **F2 / F3** — planejamento de schema, sem prazo fixo, pode ser feito em paralelo a qualquer momento após DB-06
+7. **CAPT** → **LEAD** (funil inicial, antes da Proposta numerada — construídos depois do MVP original, fora de ordem em relação aos itens abaixo)
+8. **NOTIF** (depende de PIPE/CAL/CLI/LEAD já existirem, pra ter o que notificar)
+9. **ATUAL** / **PARAM** (administração — podem rodar a qualquer momento após AUTH-06)
+10. **TRANS** (PDF e e-mail — parte de e-mail já coberta por NOTIF, resta só a geração de PDF)
+11. **QA** (rodada geral)
+12. **BRAND** (assim que PEND-01 for resolvida — pode acontecer em paralelo, mas o go-live espera por ela)
+13. **DEPLOY**
+14. **F2 / F3** — planejamento de schema, sem prazo fixo, pode ser feito em paralelo a qualquer momento após DB-06
