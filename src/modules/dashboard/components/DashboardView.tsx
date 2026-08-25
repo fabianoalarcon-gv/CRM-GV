@@ -41,6 +41,7 @@ import { PieChartCard } from "./PieChartCard";
 import { RankingTable } from "./RankingTable";
 import { SalesFunnel } from "./SalesFunnel";
 import { SectionHeading } from "./SectionHeading";
+import { SegmentoBarChart } from "./SegmentoBarChart";
 import { StageDurationCard } from "./StageDurationCard";
 import { ThermometerChart } from "./ThermometerChart";
 import type {
@@ -383,7 +384,7 @@ export function DashboardView({
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <PieChartCard
+        <SegmentoBarChart
           title="Segmento"
           subtitle="Propostas por segmento"
           icon="donut_large"
