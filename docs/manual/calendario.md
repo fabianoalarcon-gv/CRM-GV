@@ -1,6 +1,6 @@
-# Manual do usuário — Calendário
+# Manual do usuário: Calendário
 
-> Acesso: menu lateral **Calendário**. Disponível para todos os usuários (Admin e Comercial) — a agenda é **compartilhada**: todo mundo vê os compromissos de todo mundo, não é uma agenda individual.
+> Acesso: menu lateral **Calendário**. Disponível para todos os usuários (Admin e Comercial). A agenda é **compartilhada**: todo mundo vê os compromissos de todo mundo, não é uma agenda individual.
 
 ## Visão mensal
 
@@ -14,7 +14,7 @@ Alterne entre **Mês / Semana / Dia** no canto superior direito:
 
 ![Calendário em visão de semana, grade por horário com o compromisso posicionado no horário real](screenshots/calendario/02-semana.png)
 
-Nessas visões, os compromissos aparecem numa grade por horário (não só uma lista) — a posição e a altura do bloco refletem o horário real de início/fim. A linha vermelha marca a hora atual.
+Nessas visões, os compromissos aparecem numa grade por horário (não só uma lista): a posição e a altura do bloco refletem o horário real de início/fim. A linha vermelha marca a hora atual.
 
 ## Como criar um compromisso
 
@@ -31,7 +31,7 @@ Clique em **+ Novo compromisso** (ou diretamente num dia vazio, na visão de mê
 | Empresa | Não |
 | Descrição | Não |
 
-> Repetição/recorrência (ex: "toda semana") só está disponível quando o compromisso é criado como uma **Ação dentro de um Lead** (veja o [manual de Leads](leads.md)) — criando por aqui, é sempre um compromisso único.
+> Repetição/recorrência (ex: "toda semana") só está disponível quando o compromisso é criado como uma **Ação dentro de um Lead** (veja o [manual de Leads](leads.md)); criando por aqui, é sempre um compromisso único.
 
 ## Como ver/editar/excluir um compromisso
 
@@ -45,4 +45,4 @@ Mostra quem criou, horário, empresa vinculada e descrição. **Editar** abre o 
 
 ## Quem pode fazer o quê
 
-Não tem restrição por perfil — **qualquer usuário autenticado** pode ver, criar, editar e excluir qualquer compromisso, de qualquer pessoa. É uma agenda de equipe, não individual.
+Não tem restrição por perfil: **qualquer usuário autenticado** pode ver, criar, editar e excluir qualquer compromisso, de qualquer pessoa. É uma agenda de equipe, não individual.
