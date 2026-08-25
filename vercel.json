@@ -1,6 +1,7 @@
 {
   "crons": [
     { "path": "/api/cron/notificacoes-diarias", "schedule": "0 6 * * *" },
-    { "path": "/api/cron/retomada-lead-arquivado", "schedule": "10 6 * * *" }
+    { "path": "/api/cron/retomada-lead-arquivado", "schedule": "10 6 * * *" },
+    { "path": "/api/cron/backup-producao", "schedule": "0 5 * * *" }
   ]
 }
