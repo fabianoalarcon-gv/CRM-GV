@@ -1,6 +1,8 @@
 # PROMPT MESTRE — Construção do Sistema LogiHub
 
 > Cole este documento inteiro para a IA de desenvolvimento (Claude Code, Lovable, bolt.new, v0, etc.) para iniciar a construção do projeto. Ele foi desenhado para ser **modular**: cada módulo pode ser solicitado separadamente em prompts futuros, reaproveitando o mesmo contexto e modelo de dados.
+>
+> **Atualizado em 2026-08-25**: este era originalmente o prompt de partida do projeto (2026-08-06); a seção 6 (roadmap) e a seção 9 (pendências) foram atualizadas pra refletir o sistema como ele existe hoje, já em uso em produção e bem além do MVP inicial. Para o detalhamento tarefa-a-tarefa de cada módulo (incluindo os que vieram depois do MVP), ver `docs/cronograma.md`; para o histórico completo de decisões sessão a sessão, ver o log no fim de `docs/checklist.md`.
 
 ---
 
@@ -29,6 +31,12 @@ Cada módulo (Pipeline Comercial, Clientes, Dashboard, Frota, Armazenagem, etc.)
 - **Drag-and-drop (Kanban):** biblioteca `@dnd-kit` (ou `react-beautiful-dnd` como alternativa) para o módulo de Pipeline Comercial.
 - **Geração de PDF:** biblioteca para gerar propostas comerciais em PDF a partir dos dados do sistema (ex: `react-pdf` ou geração server-side).
 - **Notificações:** e-mail transacional (ex: Resend ou Supabase + serviço SMTP) e estrutura preparada para futura integração com WhatsApp (via API, ex: Twilio ou similar) — não implementar WhatsApp nesta fase, apenas deixar a arquitetura pronta.
+
+**Adicionado depois do MVP inicial** (ver `docs/cronograma.md`, módulos NOTIF/PARAM, pra detalhes):
+- **Monitoramento de erro:** Sentry (`@sentry/nextjs`), captura client + server + edge, mesmo projeto pra produção e Dev (diferenciados por tag `environment`).
+- **E-mail transacional:** implementado via SMTP/`nodemailer` (não Resend), com modo teste configurável.
+- **Sincronização de agenda:** Google Calendar, via Service Account com delegação de domínio (Workspace da Granvale), sincroniza toda Ação criada/editada/excluída no CRM.
+- **Backup:** cron diário exportando snapshot JSON de todas as tabelas pra um projeto Supabase separado (não é um serviço de backup nativo/pago).
 
 ---
 
@@ -105,6 +113,20 @@ Além disso, a planilha mantém um **painel resumo** com: valor total, valor "em
 - Geração de PDF da proposta a partir dos dados do card.
 - Notificação por e-mail quando uma proposta muda de status (ex: avisa o responsável quando é Aprovada/Reprovada).
 
+### ✅ Módulos construídos depois do MVP inicial (não previstos neste prompt original)
+
+Cinco módulos adicionais nasceram de necessidades reais da equipe já usando o sistema, fora do escopo original acima. Detalhamento tarefa-a-tarefa em `docs/cronograma.md` (siglas CAPT/LEAD/NOTIF/ATUAL/PARAM).
+
+**Captação** — inbox de empresas recém-cadastradas ainda sem Lead, com filtros e indicador de conversão no Dashboard; "Transformar em Lead" alimenta o módulo abaixo.
+
+**Leads** — funil inicial da venda (Prospecção → Qualificação → Arquivado), antes de virar uma Proposta numerada no Pipeline — tecnicamente a mesma tabela de Propostas, só num estágio anterior. Numeração própria (`L001/26`), Ações (compromissos) com recorrência, arquivar/reativar, e promoção pra Proposta formal.
+
+**Notificações** — sino no header (todos os usuários) pra eventos do sistema (nova empresa, novo lead/proposta, card movido, aprovado/reprovado, nova Ação), mais um scan diário de itens "esquecidos" (sem movimentação/contato/ação) e reativação automática de Lead arquivado há muito tempo. Cada evento pode também disparar e-mail, com liga/desliga por tipo e modo de teste.
+
+**Atualizações** — changelog interno do próprio sistema (não é feature de negócio do CRM): o Admin documenta o que mudou em cada versão/patch, com rastreio opcional de nº de chamado; todo usuário vê as novidades por um ícone no header.
+
+**Parâmetros** — painel central de configuração pro Admin (thresholds de notificação, e-mail, retomada de Lead arquivado, Google Calendar), mais o log de auditoria de ações administrativas (convites/edições/exclusões de usuário, exclusão de Proposta/Lead/Empresa) e o backup diário — esses dois últimos sem tela própria, mas administrados por ali perto.
+
 ### 🚛 FASE 2 (planejar schema, não implementar ainda)
 - Módulo de Agendamento de tarefas e prazos
 - Módulo de Frota/Veículos (cadastro, documentação, manutenção).
@@ -136,7 +158,9 @@ Ainda não decidido se o histórico da planilha (≈80 propostas de 2025/2026) s
 
 ## 9. PENDÊNCIAS A RESOLVER COM O USUÁRIO (Granvale)
 
+> Espelha o `PEND` de `docs/cronograma.md` — ver lá pro detalhe de o que cada uma bloqueia.
+
 - [ ] Enviar arquivo de logo e paleta de cores oficial da empresa.
 - [ ] Decidir se e como importar o histórico da planilha atual.
 - [ ] Definir layout/modelo do PDF da proposta comercial (tem um padrão hoje?).
-- [ ] Confirmar lista de destinatários para as notificações por e-mail.
+- [x] Confirmar lista de destinatários para as notificações por e-mail — resolvido pelo modelo implementado: todos os usuários ativos com notificação habilitada, opt-out individual, sem precisar de uma lista curada.
