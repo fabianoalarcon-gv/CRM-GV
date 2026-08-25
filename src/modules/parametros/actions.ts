@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ACAO_TIPO_OPTIONS } from "@/modules/calendario/utils";
 import { NOTIFICACAO_TIPO_OPTIONS } from "@/modules/notificacoes/utils";
 import type {
+  ParametrosAuditoriaInput,
   ParametrosEmailInput,
   ParametrosGoogleCalendarInput,
   ParametrosNotificacaoInput,
@@ -134,6 +135,26 @@ export async function updateParametrosRetomadaLead(input: ParametrosRetomadaLead
       categoria: input.categoria,
       updated_by: guard.userId,
     })
+    .eq("id", 1);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/parametros");
+  return { error: null };
+}
+
+export async function updateParametrosAuditoria(input: ParametrosAuditoriaInput) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  if (!Number.isInteger(input.diasRetencao) || input.diasRetencao <= 0) {
+    return { error: "Informe um número inteiro maior que zero para os dias." };
+  }
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("parametros_auditoria")
+    .update({ dias_retencao: input.diasRetencao, updated_by: guard.userId })
     .eq("id", 1);
 
   if (error) return { error: error.message };

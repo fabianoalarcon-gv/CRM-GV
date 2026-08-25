@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { registrarLogAuditoria } from "@/lib/auditoria";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { isValidMotivoReprovacao, isValidNumeroProposta } from "./validation";
 import type { HistoricoTipo, ProposalInput } from "./types";
@@ -111,9 +113,31 @@ export async function updateProposal(proposalId: number, input: ProposalInput) {
 
 export async function deleteProposal(proposalId: number) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Guardado ANTES de excluir — depois do delete não tem mais como buscar
+  // pra descrever no log de auditoria. Só admin chega até aqui de qualquer
+  // forma (RLS de propostas_delete exige private.is_admin()).
+  const { data: before } = await supabase
+    .from("propostas")
+    .select("numero_proposta, numero_lead, empresas(nome)")
+    .eq("id", proposalId)
+    .maybeSingle();
+
   const { error } = await supabase.from("propostas").delete().eq("id", proposalId);
 
   if (error) return { error: error.message };
+
+  if (before) {
+    const numero = before.numero_proposta ?? before.numero_lead ?? `#${proposalId}`;
+    await registrarLogAuditoria(createAdminClient(), {
+      acao: "proposta_excluida",
+      descricao: `Excluiu ${numero} da empresa ${before.empresas?.nome ?? "—"}.`,
+      autorId: user?.id ?? null,
+    });
+  }
 
   revalidatePath("/pipeline");
   revalidatePath("/leads");

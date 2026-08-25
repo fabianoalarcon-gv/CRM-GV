@@ -1,10 +1,12 @@
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/Card";
+import { ParametrosAuditoriaForm } from "@/modules/parametros/components/ParametrosAuditoriaForm";
 import { ParametrosEmailForm } from "@/modules/parametros/components/ParametrosEmailForm";
 import { ParametrosGoogleCalendarForm } from "@/modules/parametros/components/ParametrosGoogleCalendarForm";
 import { ParametrosNotificacaoForm } from "@/modules/parametros/components/ParametrosNotificacaoForm";
 import { ParametrosRetomadaLeadForm } from "@/modules/parametros/components/ParametrosRetomadaLeadForm";
 import {
+  getParametrosAuditoria,
   getParametrosEmail,
   getParametrosGoogleCalendar,
   getParametrosNotificacao,
@@ -16,13 +18,19 @@ export default async function ParametrosPage() {
   const currentUser = await getCurrentUser();
   if (currentUser?.role !== "admin") redirect("/");
 
-  const [parametrosNotificacao, parametrosRetomadaLead, parametrosEmail, parametrosGoogleCalendar] =
-    await Promise.all([
-      getParametrosNotificacao(),
-      getParametrosRetomadaLead(),
-      getParametrosEmail(),
-      getParametrosGoogleCalendar(),
-    ]);
+  const [
+    parametrosNotificacao,
+    parametrosRetomadaLead,
+    parametrosEmail,
+    parametrosGoogleCalendar,
+    parametrosAuditoria,
+  ] = await Promise.all([
+    getParametrosNotificacao(),
+    getParametrosRetomadaLead(),
+    getParametrosEmail(),
+    getParametrosGoogleCalendar(),
+    getParametrosAuditoria(),
+  ]);
 
   return (
     <div className="flex h-full flex-col gap-6">
@@ -83,6 +91,19 @@ export default async function ParametrosPage() {
         </CardHeader>
         <CardContent>
           <ParametrosGoogleCalendarForm parametros={parametrosGoogleCalendar} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Auditoria</CardTitle>
+          <CardDescription>
+            Prazo de retenção do log de ações administrativas (usuários, exclusão de Lead/Proposta/
+            Empresa).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ParametrosAuditoriaForm parametros={parametrosAuditoria} />
         </CardContent>
       </Card>
     </div>

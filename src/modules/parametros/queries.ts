@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { CompromissoTipo } from "@/modules/calendario/types";
 import type { NotificacaoTipo } from "@/modules/notificacoes/types";
 import type {
+  ParametrosAuditoria,
   ParametrosEmail,
   ParametrosGoogleCalendar,
   ParametrosNotificacao,
@@ -75,4 +76,17 @@ export async function getParametrosGoogleCalendar(): Promise<ParametrosGoogleCal
   if (error) throw error;
 
   return { ativo: data.ativo };
+}
+
+export async function getParametrosAuditoria(): Promise<ParametrosAuditoria> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("parametros_auditoria")
+    .select("dias_retencao")
+    .eq("id", 1)
+    .single();
+
+  if (error) throw error;
+
+  return { diasRetencao: data.dias_retencao };
 }

@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { registrarLogAuditoria } from "@/lib/auditoria";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { EmpresaInput, ContatoInput } from "./types";
 
@@ -64,9 +66,26 @@ export async function updateEmpresa(empresaId: number, input: EmpresaInput) {
 
 export async function deleteEmpresa(empresaId: number) {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Guardado ANTES de excluir — depois do delete não tem mais como buscar
+  // pra descrever no log de auditoria. Só admin chega até aqui de qualquer
+  // forma (RLS de empresas_delete exige private.is_admin()).
+  const { data: before } = await supabase.from("empresas").select("nome").eq("id", empresaId).maybeSingle();
+
   const { error } = await supabase.from("empresas").delete().eq("id", empresaId);
 
   if (error) return { error: error.message };
+
+  if (before) {
+    await registrarLogAuditoria(createAdminClient(), {
+      acao: "empresa_excluida",
+      descricao: `Excluiu a empresa ${before.nome}.`,
+      autorId: user?.id ?? null,
+    });
+  }
 
   revalidatePath("/empresas");
   return { error: null };

@@ -33,3 +33,9 @@ export interface ParametrosGoogleCalendar {
 }
 
 export type ParametrosGoogleCalendarInput = ParametrosGoogleCalendar;
+
+export interface ParametrosAuditoria {
+  diasRetencao: number;
+}
+
+export type ParametrosAuditoriaInput = ParametrosAuditoria;

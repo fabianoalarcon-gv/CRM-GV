@@ -415,6 +415,38 @@ export type Database = {
         }
         Relationships: []
       }
+      logs_auditoria: {
+        Row: {
+          acao: string
+          autor_id: string | null
+          created_at: string
+          descricao: string
+          id: number
+        }
+        Insert: {
+          acao: string
+          autor_id?: string | null
+          created_at?: string
+          descricao: string
+          id?: never
+        }
+        Update: {
+          acao?: string
+          autor_id?: string | null
+          created_at?: string
+          descricao?: string
+          id?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "logs_auditoria_autor_id_fkey"
+            columns: ["autor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notificacoes: {
         Row: {
           autor_id: string | null
@@ -516,6 +548,35 @@ export type Database = {
           {
             foreignKeyName: "notificacoes_lidas_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      parametros_auditoria: {
+        Row: {
+          dias_retencao: number
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          dias_retencao?: number
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          dias_retencao?: number
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parametros_auditoria_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
