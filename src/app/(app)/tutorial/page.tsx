@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { getTutorialModules } from "@/lib/tutorial/content";
 import { TUTORIAL_MODULE_ICON, DEFAULT_MODULE_ICON } from "@/modules/tutorial/constants";
 
@@ -23,7 +23,15 @@ export default function TutorialIndexPage() {
         {modules.map((tutorialModule, index) => (
           <Link key={tutorialModule.slug} href={`/tutorial/${tutorialModule.slug}`}>
             <Card className="h-full transition-colors hover:border-brand-accent">
-              <CardContent className="flex h-full items-center gap-3 p-4">
+              {/*
+                Não usa <CardContent> aqui: esse componente compartilhado vem
+                com pt-0 fixo (pensado pra ficar colado embaixo de um
+                <CardHeader>), e como Tailwind sempre deixa a utilidade de
+                lado específico (pt-0) vencer a shorthand (p-4) na folha de
+                estilo gerada — não importa a ordem das classes no HTML —
+                nenhum p-4/pt-4 passado por fora conseguia sobrescrever isso.
+              */}
+              <div className="flex h-full items-center gap-3 p-4">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-accent/10 text-brand-accent">
                   <Icon name={TUTORIAL_MODULE_ICON[tutorialModule.slug] ?? DEFAULT_MODULE_ICON} />
                 </span>
@@ -33,7 +41,7 @@ export default function TutorialIndexPage() {
                   </p>
                   <p className="font-semibold text-foreground">{tutorialModule.title}</p>
                 </div>
-              </CardContent>
+              </div>
             </Card>
           </Link>
         ))}
