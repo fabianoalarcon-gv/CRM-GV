@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /*
  * Tema claro fixo (a pedido do usuário) — a área de conteúdo (header + centro)

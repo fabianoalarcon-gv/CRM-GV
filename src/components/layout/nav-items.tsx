@@ -12,6 +12,7 @@ export const navItems: NavItem[] = [
   { label: "Pipeline", href: "/pipeline", icon: "view_kanban" },
   { label: "Empresas", href: "/empresas", icon: "group" },
   { label: "Calendário", href: "/calendario", icon: "calendar_today" },
+  { label: "Tutorial", href: "/tutorial", icon: "menu_book" },
 ];
 
 export const adminNavItems: NavItem[] = [
