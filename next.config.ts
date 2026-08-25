@@ -1,10 +1,17 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 // Origem do projeto Supabase (lida do env, não hardcoded) — usada no
 // connect-src da CSP abaixo, pra não precisar editar isso à mão se o
 // projeto Supabase mudar.
 const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+  : "";
+
+// Origem de ingest do Sentry (derivada do DSN, mesmo raciocínio acima) —
+// sem isso o navegador bloquearia o envio de erros por causa da CSP.
+const sentryOrigin = process.env.NEXT_PUBLIC_SENTRY_DSN
+  ? new URL(process.env.NEXT_PUBLIC_SENTRY_DSN).origin
   : "";
 
 // 'unsafe-inline' em script-src/style-src é necessário aqui: o App Router do
@@ -29,7 +36,7 @@ const csp = [
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: blob:",
-  `connect-src 'self' ${supabaseOrigin}`.trim(),
+  `connect-src 'self' ${supabaseOrigin} ${sentryOrigin}`.trim(),
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -76,4 +83,12 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: "granvale",
+  project: "logihub-crm",
+  // Só sobe source maps (pra stack trace legível no Sentry) e faz upload
+  // silenciosamente quando SENTRY_AUTH_TOKEN existir (configurado só na
+  // Vercel) — build local sem o token continua funcionando normalmente.
+  silent: true,
+  widenClientFileUpload: true,
+});
