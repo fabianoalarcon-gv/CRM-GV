@@ -29,6 +29,7 @@
 | NOTIF | Notificações in-app e por e-mail |
 | ATUAL | Módulo Atualizações (changelog interno do sistema) |
 | PARAM | Parâmetros / Administração (config, auditoria, backup) |
+| TUT | Manual do usuário e tutorial in-app |
 | TRANS | Funcionalidades Transversais (PDF, E-mail) |
 | QA | Testes e Qualidade Geral |
 | BRAND | Identidade Visual Final |
@@ -254,6 +255,22 @@ Painel central de configurações que antes eram fixas no código, hoje ajustáv
 
 ---
 
+## MÓDULO 10 — Manual do usuário e Tutorial in-app (TUT)
+
+Documentação orientada a tarefa ("como fazer X"), com print real de cada tela, pensada pro usuário final (não documentação técnica). Feito em duas fases: primeiro o manual em Markdown no repositório, depois uma versão navegável dentro do próprio sistema.
+
+`[depende de: todos os módulos com tela própria (o manual documenta cada um)]`
+
+| Sigla | Tarefa |
+|---|---|
+| TUT-01 | Manual do usuário em Markdown (`docs/manual/`), um arquivo por módulo (11 no total) com prints reais capturados via Playwright contra o ambiente Dev |
+| TUT-02 | Índice do manual (`docs/manual/indice.md`) com a ordem de leitura sugerida |
+| TUT-03 | Tutorial in-app: página `/tutorial` (índice) e `/tutorial/[slug]`, lendo os mesmos arquivos Markdown direto do disco (sem duplicar conteúdo num banco) |
+| TUT-04 | Rota interna de prints (`/api/tutorial-assets/[...path]`) que serve as imagens de `docs/manual/screenshots/` sem duplicá-las em `public/`, autenticada na mão (fica fora do matcher do proxy.ts) e protegida contra path traversal |
+| TUT-05 | Item "Tutorial" no menu lateral, visível pra todos os usuários (Admin e Comercial) |
+
+---
+
 ## Funcionalidades Transversais do MVP (TRANS)
 `[depende de: PIPE-08 (dados da proposta para o PDF), AUTH-06 (destinatários de e-mail)]`
 
@@ -356,6 +373,7 @@ Essas tarefas não são de desenvolvimento, mas bloqueiam outras tarefas do cron
 7. **CAPT** → **LEAD** (funil inicial, antes da Proposta numerada — construídos depois do MVP original, fora de ordem em relação aos itens abaixo)
 8. **NOTIF** (depende de PIPE/CAL/CLI/LEAD já existirem, pra ter o que notificar)
 9. **ATUAL** / **PARAM** (administração — podem rodar a qualquer momento após AUTH-06)
+9.5. **TUT** (manual do usuário e tutorial in-app — documenta os módulos já construídos, roda depois deles)
 10. **TRANS** (PDF e e-mail — parte de e-mail já coberta por NOTIF, resta só a geração de PDF)
 11. **QA** (rodada geral)
 12. **BRAND** (assim que PEND-01 for resolvida — pode acontecer em paralelo, mas o go-live espera por ela)
