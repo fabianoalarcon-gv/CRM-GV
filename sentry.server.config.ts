@@ -6,4 +6,5 @@ Sentry.init({
   // Só captura de erro por enquanto, sem tracing de performance (evita
   // consumir a cota do plano gratuito com dados que ninguém vai olhar ainda).
   tracesSampleRate: 0,
+  debug: true,
 });
