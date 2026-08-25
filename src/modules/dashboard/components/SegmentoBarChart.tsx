@@ -12,11 +12,13 @@ export interface SegmentoBarChartProps {
 }
 
 // Mesma paleta categórica do PieChartCard, pra manter a identidade visual —
-// mas aqui em barras, não em pizza: como um Lead/Proposta pode ter mais de um
-// segmento (multi-seleção), os percentuais de `data` não somam 100% entre si,
-// e uma pizza forçaria os ângulos a fechar 360° de um jeito que não bate com
-// o % escrito em cada fatia. Barras horizontais não têm esse problema: cada
-// uma mostra seu próprio percentual (0-100%) de forma independente.
+// mas aqui em barras, não em pizza: uma pizza precisa fechar os ângulos em
+// 360°, e o PieChartCard calcula esse ângulo a partir de `count` (contagem
+// crua de propostas por segmento, que ainda pode somar mais que o total
+// quando há multi-segmento) — o que voltaria a divergir do `pct` real
+// (baseado no valor/peso já dividido proporcionalmente). Barras horizontais
+// não têm esse problema: cada uma mostra seu próprio percentual (0-100%) de
+// forma independente, direto do `pct` de cada item.
 const BAR_COLORS = [
   "var(--color-chart-cat-1)",
   "var(--color-chart-cat-2)",

@@ -226,22 +226,29 @@ export function formatBreakdownLegend(count: number, valor: number): string {
   return `${formatCount(count)} - ${formatCurrency(valor)}`;
 }
 
-// Uma proposta com mais de um segmento conta em CADA fatia a que pertence —
-// diferente dos outros breakdowns do dashboard, os percentuais aqui não somam
-// mais 100% quando há propostas com múltiplos segmentos (comportamento
-// esperado: cada fatia representa "quantas propostas tocam esse segmento").
+// Uma proposta com mais de um segmento conta em CADA fatia a que pertence,
+// mas valor e percentual são DIVIDIDOS proporcionalmente entre os segmentos
+// dela (ex: proposta de R$900 com 3 segmentos soma R$300 em cada) — assim a
+// soma das fatias sempre bate com o valor/total real de propostas, sem
+// inflar por causa da sobreposição. `count`, por outro lado, fica como a
+// contagem "crua" de quantas propostas tocam o segmento (só informativo na
+// legenda) — por isso ele sozinho pode somar mais que o total de propostas.
 export function computeSegmentoBreakdown(propostas: DashboardProposta[]): CategoryBreakdown[] {
   const total = propostas.length;
-  const map = new Map<string, { label: string; count: number; valor: number }>();
-  for (const seg of SEGMENTO_OPTIONS) map.set(seg.value, { label: seg.label, count: 0, valor: 0 });
+  const map = new Map<string, { label: string; count: number; valor: number; weight: number }>();
+  for (const seg of SEGMENTO_OPTIONS) {
+    map.set(seg.value, { label: seg.label, count: 0, valor: 0, weight: 0 });
+  }
 
   let semSegmento = { count: 0, valor: 0 };
   for (const p of propostas) {
     if (p.segmentos.length > 0) {
+      const share = 1 / p.segmentos.length;
       for (const segmento of p.segmentos) {
         const entry = map.get(segmento)!;
         entry.count += 1;
-        entry.valor += p.valor;
+        entry.valor += p.valor * share;
+        entry.weight += share;
       }
     } else {
       semSegmento = { count: semSegmento.count + 1, valor: semSegmento.valor + p.valor };
@@ -256,7 +263,7 @@ export function computeSegmentoBreakdown(propostas: DashboardProposta[]): Catego
         label: v.label,
         count: v.count,
         valor: v.valor,
-        pct: total > 0 ? v.count / total : 0,
+        pct: total > 0 ? v.weight / total : 0,
       });
     }
   }
