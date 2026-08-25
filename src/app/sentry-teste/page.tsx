@@ -9,7 +9,7 @@ export default function SentryTestePage() {
       <button
         className="rounded bg-red-600 px-4 py-2 text-white"
         onClick={() => {
-          throw new Error("Erro de teste — disparado no navegador (client)");
+          throw new Error("Erro de teste PROD-2 — disparado no navegador (client)");
         }}
       >
         Disparar erro no navegador
