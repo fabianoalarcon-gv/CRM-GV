@@ -10,7 +10,7 @@ Planejamento, progresso e histórico do LogiHub CRM ficam em [`docs/`](docs/):
 - [`docs/bugs.md`](docs/bugs.md) — registro de bugs encontrados e corrigidos
 - [`docs/skills.md`](docs/skills.md) — skills de IA instaladas neste repositório e por quê
 - [`docs/RECUPERACAO-EMERGENCIA.md`](docs/RECUPERACAO-EMERGENCIA.md) — runbook pra cenário de nenhum Admin conseguir logar
-- [`docs/manual/`](docs/manual/) — manual do usuário, passo a passo de cada tela com prints (em construção)
+- [`docs/manual/indice.md`](docs/manual/indice.md) — manual do usuário, passo a passo de cada tela com prints (em construção)
 
 ## Getting Started
 
