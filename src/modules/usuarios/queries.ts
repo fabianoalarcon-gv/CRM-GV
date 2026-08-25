@@ -1,8 +1,19 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/auth/profile";
 import type { Role } from "@/lib/auth/types";
 import type { Usuario } from "./types";
 
+// Usa o client de service role (bypassa RLS) pra cruzar auth.users (e-mail)
+// com profiles — por isso a checagem de Admin fica aqui dentro, não só na
+// página que hoje é a única a chamar essa function. Sem isso, um futuro
+// caller que esquecesse de checar o role antes exporia e-mail/role de todo
+// mundo sem querer.
 export async function getUsuarios(): Promise<Usuario[]> {
+  const currentUser = await getCurrentUser();
+  if (currentUser?.role !== "admin") {
+    throw new Error("Apenas administradores podem listar usuários.");
+  }
+
   const admin = createAdminClient();
 
   const [{ data: authData, error: authError }, { data: profiles, error: profilesError }] =
