@@ -23,7 +23,7 @@ export default function TutorialIndexPage() {
         {modules.map((tutorialModule, index) => (
           <Link key={tutorialModule.slug} href={`/tutorial/${tutorialModule.slug}`}>
             <Card className="h-full transition-colors hover:border-brand-accent">
-              <CardContent className="flex items-start gap-3 p-4">
+              <CardContent className="flex h-full items-center gap-3 p-4">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-accent/10 text-brand-accent">
                   <Icon name={TUTORIAL_MODULE_ICON[tutorialModule.slug] ?? DEFAULT_MODULE_ICON} />
                 </span>
