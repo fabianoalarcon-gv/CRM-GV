@@ -1,5 +1,16 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Documentação do projeto
+
+Planejamento, progresso e histórico do LogiHub CRM ficam em [`docs/`](docs/):
+
+- [`docs/Projeto_LogiHub_CRM.md`](docs/Projeto_LogiHub_CRM.md) — prompt mestre / especificação original do sistema
+- [`docs/cronograma.md`](docs/cronograma.md) — tarefas do MVP por módulo, com siglas de referência
+- [`docs/checklist.md`](docs/checklist.md) — progresso (checkboxes) e log de sessões de desenvolvimento
+- [`docs/bugs.md`](docs/bugs.md) — registro de bugs encontrados e corrigidos
+- [`docs/skills.md`](docs/skills.md) — skills de IA instaladas neste repositório e por quê
+- [`docs/RECUPERACAO-EMERGENCIA.md`](docs/RECUPERACAO-EMERGENCIA.md) — runbook pra cenário de nenhum Admin conseguir logar
+
 ## Getting Started
 
 First, run the development server:
