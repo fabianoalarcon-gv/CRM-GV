@@ -341,7 +341,7 @@ Essas tarefas não são de desenvolvimento, mas bloqueiam outras tarefas do cron
 | PEND-01 | Enviar logo e paleta de cores oficial | BRAND-01 |
 | PEND-02 | Decidir se e como importar o histórico da planilha (~80 propostas) | Escopo de uma futura tarefa de importação (fora deste cronograma) |
 | PEND-03 | Definir layout/modelo do PDF da proposta comercial | TRANS-02 |
-| PEND-04 | Confirmar lista de destinatários das notificações por e-mail | TRANS-06 |
+| PEND-04 | Confirmar lista de destinatários das notificações por e-mail | TRANS-06 — **resolvido pelo modelo implementado no NOTIF**: todos os usuários ativos com `email_notifications = true`, opt-out individual em vez de lista curada |
 
 ---
 
