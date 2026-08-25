@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { timingSafeEqual } from "@/lib/timingSafeEqual";
 
 // Chamada 1x por dia pelo Vercel Cron (ver vercel.json) — mesmo padrão de
 // autenticação de /api/cron/notificacoes-diarias.
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
   }
 
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!authHeader || !timingSafeEqual(authHeader, `Bearer ${process.env.CRON_SECRET}`)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 

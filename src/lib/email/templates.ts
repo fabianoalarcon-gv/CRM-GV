@@ -39,6 +39,20 @@ const SEGMENTO_LABEL: Record<string, string> = {
   transporte: "Transporte",
 };
 
+// E-mail HTML não passa pelo escaping automático do React — texto vindo do
+// banco (nome de empresa, descrição, nome de usuário etc.) precisa ser
+// escapado manualmente antes de entrar no template, senão um valor como
+// `<img src=x onerror=...>` cadastrado num campo de texto renderiza como
+// HTML de verdade no cliente de e-mail de quem recebe a notificação.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function linha(rotulo: string, valor: string): string {
   return `<p style="margin:2px 0;"><strong>${rotulo}:</strong> ${valor}</p>`;
 }
@@ -75,23 +89,25 @@ export function buildLeadPropostaEmailBody(data: LeadPropostaEmailData): string 
   const numero = ehProposta ? data.numeroProposta : data.numeroLead;
 
   const linhas = [
-    linha(`${rotulo} Nº`, numero ?? "—"),
+    linha(`${rotulo} Nº`, escapeHtml(numero ?? "—")),
     linha("Data Inclusão", dataFormatter.format(new Date(data.createdAt))),
-    linha("Empresa", data.empresaNome ?? "Sem empresa"),
-    linha(`Descrição do ${rotulo}`, data.descricao ?? "Sem descrição"),
+    linha("Empresa", escapeHtml(data.empresaNome ?? "Sem empresa")),
+    linha(`Descrição do ${rotulo}`, escapeHtml(data.descricao ?? "Sem descrição")),
     linha(
       "Termômetro",
-      data.termometro ? (TERMOMETRO_LABEL[data.termometro] ?? data.termometro) : "Sem termômetro",
+      data.termometro
+        ? escapeHtml(TERMOMETRO_LABEL[data.termometro] ?? data.termometro)
+        : "Sem termômetro",
     ),
     linha(
       "Segmento",
       data.segmentos.length > 0
-        ? data.segmentos.map((s) => SEGMENTO_LABEL[s] ?? s).join(", ")
+        ? data.segmentos.map((s) => escapeHtml(SEGMENTO_LABEL[s] ?? s)).join(", ")
         : "Sem segmento",
     ),
     linha("Valor estimado", data.valor ? currencyFormatter.format(data.valor) : "Sem valor"),
-    linha("Status", data.statusLabel ?? "—"),
-    linha("Responsável", data.responsavelNome ?? "Sem responsável"),
+    linha("Status", escapeHtml(data.statusLabel ?? "—")),
+    linha("Responsável", escapeHtml(data.responsavelNome ?? "Sem responsável")),
   ];
 
   return rodapeComLogo(linhas.join(""));
@@ -104,8 +120,8 @@ export interface NovaEmpresaEmailData {
 
 export function buildNovaEmpresaEmailBody(data: NovaEmpresaEmailData): string {
   const linhas = [
-    linha("Nova empresa cadastrada", data.empresaNome),
-    linha("Cadastrado por", data.autorNome ?? "Sistema"),
+    linha("Nova empresa cadastrada", escapeHtml(data.empresaNome)),
+    linha("Cadastrado por", escapeHtml(data.autorNome ?? "Sistema")),
   ];
   return rodapeComLogo(linhas.join(""));
 }
@@ -127,11 +143,11 @@ export function buildMovimentacaoCardEmailBody(data: MovimentacaoCardEmailData):
   const numero = ehProposta ? data.numeroProposta : data.numeroLead;
 
   const frase =
-    `<p style="margin:2px 0;">${rotulo} Nº <strong>${numero ?? "—"}</strong> da empresa ` +
-    `<strong>${data.empresaNome ?? "Sem empresa"}</strong> foi movido do status ` +
-    `<strong>${data.statusAnterior ?? "—"}</strong> para <strong>${data.statusNovo ?? "—"}</strong>.</p>`;
+    `<p style="margin:2px 0;">${rotulo} Nº <strong>${escapeHtml(numero ?? "—")}</strong> da empresa ` +
+    `<strong>${escapeHtml(data.empresaNome ?? "Sem empresa")}</strong> foi movido do status ` +
+    `<strong>${escapeHtml(data.statusAnterior ?? "—")}</strong> para <strong>${escapeHtml(data.statusNovo ?? "—")}</strong>.</p>`;
 
-  return rodapeComLogo(frase + linha("Usuário", data.autorNome ?? "Sistema"));
+  return rodapeComLogo(frase + linha("Usuário", escapeHtml(data.autorNome ?? "Sistema")));
 }
 
 export interface PropostaResultadoEmailData {
@@ -148,11 +164,11 @@ export function buildPropostaResultadoEmailBody(data: PropostaResultadoEmailData
     : `<img src="${ICON_REPROVADO}" alt="Reprovado" width="16" height="16" style="vertical-align:middle;" />`;
 
   const frase =
-    `<p style="margin:2px 0;">Proposta Nº <strong>${data.numeroProposta}</strong> da empresa ` +
-    `<strong>${data.empresaNome ?? "Sem empresa"}</strong> foi <strong>${resultadoLabel}</strong>. ` +
+    `<p style="margin:2px 0;">Proposta Nº <strong>${escapeHtml(data.numeroProposta)}</strong> da empresa ` +
+    `<strong>${escapeHtml(data.empresaNome ?? "Sem empresa")}</strong> foi <strong>${resultadoLabel}</strong>. ` +
     `${icon}</p>`;
 
-  return rodapeComLogo(frase + linha("Usuário", data.autorNome ?? "Sistema"));
+  return rodapeComLogo(frase + linha("Usuário", escapeHtml(data.autorNome ?? "Sistema")));
 }
 
 export interface NovaAcaoEmailData {
@@ -174,22 +190,22 @@ export function buildNovaAcaoEmailBody(data: NovaAcaoEmailData): string {
   const cardNumero = ehProposta ? data.numeroProposta : data.numeroLead;
 
   const detalhes = [
-    linha("Título", data.titulo),
+    linha("Título", escapeHtml(data.titulo)),
     linha("Data/Hora Início", formatDataHora(data.inicio)),
     linha("Data/Hora Fim", data.fim ? formatDataHora(data.fim) : "Sem hora de fim"),
     linha(
       "Categoria",
       data.tipo
-        ? ((TIPO_LABEL as Record<string, string>)[data.tipo] ?? data.tipo)
+        ? escapeHtml((TIPO_LABEL as Record<string, string>)[data.tipo] ?? data.tipo)
         : "Sem categoria",
     ),
-    linha(`${cardRotulo} Nº`, cardNumero ?? "Sem vínculo"),
-    linha("Empresa", data.empresaNome ?? "Sem empresa"),
-    linha("Descrição", data.descricao ?? "Sem descrição"),
+    linha(`${cardRotulo} Nº`, escapeHtml(cardNumero ?? "Sem vínculo")),
+    linha("Empresa", escapeHtml(data.empresaNome ?? "Sem empresa")),
+    linha("Descrição", escapeHtml(data.descricao ?? "Sem descrição")),
   ].join("");
 
   const criacao = [
-    linha("Usuário", data.autorNome ?? "Sistema"),
+    linha("Usuário", escapeHtml(data.autorNome ?? "Sistema")),
     linha("Data/Hora da criação da agenda", formatDataHora(data.createdAt)),
   ].join("");
 
@@ -212,8 +228,8 @@ export function buildSemMovimentacaoEmailBody(data: SemMovimentacaoEmailData): s
   const diasTexto = data.dias !== null ? `${data.dias} dia${data.dias === 1 ? "" : "s"}` : "—";
 
   const frase =
-    `<p style="margin:2px 0;">${rotulo} Nº <strong>${numero ?? "—"}</strong> da empresa ` +
-    `<strong>${data.empresaNome ?? "Sem empresa"}</strong> parado há <strong>${diasTexto}</strong> ` +
+    `<p style="margin:2px 0;">${rotulo} Nº <strong>${escapeHtml(numero ?? "—")}</strong> da empresa ` +
+    `<strong>${escapeHtml(data.empresaNome ?? "Sem empresa")}</strong> parado há <strong>${diasTexto}</strong> ` +
     `sem movimentação.</p>`;
 
   return rodapeComLogo(frase);
@@ -235,8 +251,8 @@ export function buildSemAcaoEmailBody(data: SemAcaoEmailData): string {
   const diasTexto = data.dias !== null ? `${data.dias} dia${data.dias === 1 ? "" : "s"}` : "—";
 
   const frase =
-    `<p style="margin:2px 0;">${rotulo} Nº <strong>${numero ?? "—"}</strong> da empresa ` +
-    `<strong>${data.empresaNome ?? "Sem empresa"}</strong> sem nenhuma ação registrada há ` +
+    `<p style="margin:2px 0;">${rotulo} Nº <strong>${escapeHtml(numero ?? "—")}</strong> da empresa ` +
+    `<strong>${escapeHtml(data.empresaNome ?? "Sem empresa")}</strong> sem nenhuma ação registrada há ` +
     `<strong>${diasTexto}</strong>.</p>`;
 
   return rodapeComLogo(frase);
@@ -251,7 +267,7 @@ export function buildEmpresaSemContatoEmailBody(data: EmpresaSemContatoEmailData
   const diasTexto = data.dias !== null ? `${data.dias} dia${data.dias === 1 ? "" : "s"}` : "—";
 
   const frase =
-    `<p style="margin:2px 0;">A empresa <strong>${data.empresaNome}</strong> continua sem ` +
+    `<p style="margin:2px 0;">A empresa <strong>${escapeHtml(data.empresaNome)}</strong> continua sem ` +
     `nenhum contato cadastrado há <strong>${diasTexto}</strong>.</p>`;
 
   return rodapeComLogo(frase);
@@ -260,7 +276,7 @@ export function buildEmpresaSemContatoEmailBody(data: EmpresaSemContatoEmailData
 // Corpo simples (texto único da notificação) usado pelos demais tipos de
 // evento.
 export function buildSimpleEmailBody(mensagem: string): string {
-  return rodapeComLogo(`<p>${mensagem}</p>`);
+  return rodapeComLogo(`<p>${escapeHtml(mensagem)}</p>`);
 }
 
 export interface NovoUsuarioEmailData {
@@ -277,12 +293,12 @@ export function buildNovoUsuarioEmailBody(data: NovoUsuarioEmailData): string {
   const loginUrl = `${APP_URL}/login`;
 
   const corpo =
-    `<p style="margin:0 0 16px;">Olá, ${data.nome},</p>` +
+    `<p style="margin:0 0 16px;">Olá, ${escapeHtml(data.nome)},</p>` +
     `<p style="margin:0 0 16px;">Você foi cadastrado no <strong>LogiHub CRM</strong>. Use os dados abaixo para acessar o sistema pela primeira vez:</p>` +
-    linha("E-mail de acesso", data.email) +
+    linha("E-mail de acesso", escapeHtml(data.email)) +
     linha(
       "Senha provisória",
-      `<span style="font-family:monospace; font-size:14px;">${data.senha}</span>`,
+      `<span style="font-family:monospace; font-size:14px;">${escapeHtml(data.senha)}</span>`,
     ) +
     `<p style="margin:24px 0; text-align:center;">
       <a href="${loginUrl}"

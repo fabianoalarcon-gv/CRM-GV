@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEmail } from "@/lib/email/send";
+import { timingSafeEqual } from "@/lib/timingSafeEqual";
 import {
   buildEmpresaSemContatoEmailBody,
   buildLeadPropostaEmailBody,
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
   }
 
   const authHeader = request.headers.get("authorization");
-  if (authHeader !== `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET}`) {
+  if (!authHeader || !timingSafeEqual(authHeader, `Bearer ${process.env.SUPABASE_WEBHOOK_SECRET}`)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
