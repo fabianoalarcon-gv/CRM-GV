@@ -1,6 +1,8 @@
 # BUGS — LogiHub CRM
 
 > Registro de bugs encontrados durante o desenvolvimento. Marque `[x]` quando corrigido. Ordenar do mais recente para o mais antigo.
+>
+> **Todo bug real encontrado numa sessão — em teste, code review ou relato do usuário — deve ser registrado aqui** (seção "Abertos" se ainda não corrigido, "Corrigidos" se já resolvido na mesma sessão), seguindo o modelo no fim deste arquivo. Não deixar só narrado no log de sessão do `checklist.md`.
 
 ---
 
@@ -11,6 +13,35 @@ _Nenhum bug em aberto no momento._
 ---
 
 ## Corrigidos
+
+- [x] **BUG-013** — Violação das regras de hooks do React no `HourGrid` do Calendário
+  - **Onde**: `src/modules/calendario/components/CalendarioView.tsx`
+  - **Descrição**: o cálculo dos dias da semana (`useMemo`) era chamado dentro de um bloco condicional do JSX (`{viewMode === "semana" && <HourGrid days={useMemo(...)} />}`) — hook só pode rodar incondicionalmente no topo do componente. Não chegou a dar erro visível na hora, mas quebraria ao alternar entre as visões Mês/Semana/Dia.
+  - **Como foi encontrado**: code review do próprio código durante a implementação do `HourGrid` (não em teste).
+  - **Correção**: cálculo (`weekDays`) movido pro topo do componente, antes de qualquer retorno condicional.
+  - **Data**: 2026-08-07
+
+- [x] **BUG-012** — Exportação de CSV (Empresas) cancelava o download em alguns navegadores
+  - **Onde**: `src/modules/empresas/components/ExportEmpresasButton.tsx` (módulo se chamava "Clientes" na época)
+  - **Descrição**: `URL.revokeObjectURL(...)` era chamado logo após o `click()` no link de download do Blob gerado — em alguns navegadores isso cancela o download, porque o clique só dispara o download de forma assíncrona.
+  - **Como foi encontrado**: teste manual do botão "Exportar" durante o redesign da tela de Clientes (o teste automatizado via Puppeteer/CDP não conseguia validar downloads de forma confiável — limitação conhecida da ferramenta, não indicativo do bug em si).
+  - **Correção**: `URL.revokeObjectURL` adiado com `setTimeout`, dando tempo do download disparar antes do Blob ser liberado.
+  - **Data**: 2026-08-07
+
+- [x] **BUG-011** — Estágios vazios do Pipeline mostrando a chave crua do banco em vez do rótulo
+  - **Onde**: `src/modules/dashboard/queries.ts` (nova `getStatusLabels`) / `src/app/(app)/page.tsx`
+  - **Descrição**: após a mudança do Pipeline de 3 para 5 estágios, colunas ainda sem nenhuma proposta real (Prospecção/Qualificação/Negociação) apareciam no Dashboard com a chave crua do banco (ex: `prospeccao`) em vez do rótulo (“Prospecção”).
+  - **Causa raiz**: mais funda que o BUG-010 — o mapa de rótulos era inferido a partir das propostas existentes (`buildStatusLabelMap`), então um estágio sem nenhuma proposta *nunca* tinha rótulo pra inferir, filtro ou não.
+  - **Como foi encontrado**: verificação visual durante o teste da migração pra 5 estágios.
+  - **Correção**: rótulos passaram a vir direto da tabela `proposal_statuses` (nova query `getStatusLabels`), e `buildStatusLabelMap` foi removido do código.
+  - **Data**: 2026-08-07
+
+- [x] **BUG-010** — Rótulo de status do Dashboard caindo pra chave crua quando o filtro zerava os resultados
+  - **Onde**: módulo Dashboard (`src/app/(app)/page.tsx` / componentes de gráfico) — corrigido definitivamente pelo BUG-011 depois
+  - **Descrição**: com o filtro de período/tipo de serviço zerando os resultados, o gráfico de status mostrava a chave crua do banco (`em_analise`) em vez do rótulo (“Em análise”).
+  - **Como foi encontrado**: teste funcional do Dashboard (DASH-11), validando os números batendo com uma query direta ao banco.
+  - **Correção**: mapa de rótulos passou a ser calculado a partir da lista completa (não filtrada) de propostas, em vez da lista já filtrada. **Nota**: essa correção não cobria estágio sem nenhuma proposta real — ver BUG-011, que substituiu essa abordagem por completo.
+  - **Data**: 2026-08-07
 
 - [x] **BUG-009** — Link de recuperação de senha caía sempre em "Link inválido ou expirado"
   - **Onde**: `src/app/redefinir-senha/page.tsx`
