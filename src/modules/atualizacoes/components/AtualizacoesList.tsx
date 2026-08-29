@@ -11,13 +11,16 @@ import { Select } from "@/components/ui/Select";
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import {
   createAtualizacaoItem,
+  deleteAtualizacao,
   deleteAtualizacaoItem,
   setVersaoAtual,
+  updateAtualizacao,
   updateAtualizacaoItem,
 } from "../actions";
 import { TIPO_BADGE_VARIANT, TIPO_LABEL, TIPO_OPTIONS } from "../constants";
 import type {
   Atualizacao,
+  AtualizacaoInput,
   AtualizacaoItem,
   AtualizacaoItemInput,
   AtualizacaoItemTipo,
@@ -41,6 +44,17 @@ const EMPTY_ITEM_VALUES: AtualizacaoItemInput = {
   local: "",
   descricao: "",
 };
+
+const EMPTY_ATUALIZACAO_VALUES: AtualizacaoInput = { numeroPatch: "", dataHora: "" };
+
+// ISO (UTC, como vem do banco) -> valor pro <input type="datetime-local">
+// (YYYY-MM-DDTHH:mm no fuso local), espelhando o que NovaAtualizacaoButton
+// envia de volta (new Date(valorLocal).toISOString()).
+function toDatetimeLocal(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 function toItemInput(item: AtualizacaoItem): AtualizacaoItemInput {
   return {
@@ -74,6 +88,17 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
   const [deletingItemId, setDeletingItemId] = useState<number | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [editingAtualizacao, setEditingAtualizacao] = useState<Atualizacao | null>(null);
+  const [atualizacaoValues, setAtualizacaoValues] = useState<AtualizacaoInput>(
+    EMPTY_ATUALIZACAO_VALUES,
+  );
+  const [atualizacaoError, setAtualizacaoError] = useState<string | null>(null);
+  const [isSavingAtualizacao, setIsSavingAtualizacao] = useState(false);
+
+  const [deletingAtualizacaoId, setDeletingAtualizacaoId] = useState<number | null>(null);
+  const [isDeletingAtualizacao, setIsDeletingAtualizacao] = useState(false);
+  const [deleteAtualizacaoError, setDeleteAtualizacaoError] = useState<string | null>(null);
 
   const [togglingVersaoId, setTogglingVersaoId] = useState<number | null>(null);
   const [versaoError, setVersaoError] = useState<string | null>(null);
@@ -191,6 +216,50 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
     setDeletingItemId(null);
   }
 
+  function openEditAtualizacao(atualizacao: Atualizacao) {
+    setEditingAtualizacao(atualizacao);
+    setAtualizacaoValues({
+      numeroPatch: atualizacao.numeroPatch,
+      dataHora: toDatetimeLocal(atualizacao.dataHora),
+    });
+    setAtualizacaoError(null);
+  }
+
+  function closeEditAtualizacao() {
+    setEditingAtualizacao(null);
+    setAtualizacaoValues(EMPTY_ATUALIZACAO_VALUES);
+    setAtualizacaoError(null);
+  }
+
+  async function handleSubmitEditAtualizacao(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editingAtualizacao) return;
+
+    setAtualizacaoError(null);
+    setIsSavingAtualizacao(true);
+    const result = await updateAtualizacao(editingAtualizacao.id, atualizacaoValues);
+    setIsSavingAtualizacao(false);
+
+    if (result.error) {
+      setAtualizacaoError(result.error);
+      return;
+    }
+    closeEditAtualizacao();
+  }
+
+  async function handleDeleteAtualizacao(atualizacaoId: number) {
+    setIsDeletingAtualizacao(true);
+    setDeleteAtualizacaoError(null);
+    const result = await deleteAtualizacao(atualizacaoId);
+    setIsDeletingAtualizacao(false);
+
+    if (result.error) {
+      setDeleteAtualizacaoError(result.error);
+      return;
+    }
+    setDeletingAtualizacaoId(null);
+  }
+
   if (atualizacoes.length === 0) {
     return (
       <p className="text-sm text-brand-graphite-light">Nenhuma atualização cadastrada ainda.</p>
@@ -237,8 +306,53 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
               >
                 + Incluir item
               </Button>
+              {deletingAtualizacaoId === atualizacao.id ? (
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <span className="text-xs text-brand-graphite-light">Excluir patch e itens?</span>
+                  <button
+                    type="button"
+                    disabled={isDeletingAtualizacao}
+                    onClick={() => handleDeleteAtualizacao(atualizacao.id)}
+                    className="text-xs font-medium text-temp-quente hover:underline"
+                  >
+                    {isDeletingAtualizacao ? "Excluindo…" : "Confirmar"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDeletingAtualizacaoId(null)}
+                    className="text-xs font-medium text-brand-graphite-light hover:underline"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    title="Editar atualização"
+                    onClick={() => openEditAtualizacao(atualizacao)}
+                    className="rounded p-1.5 text-brand-graphite-light hover:bg-black/[.04] hover:text-foreground"
+                  >
+                    <Icon name="edit" size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    title="Excluir atualização"
+                    onClick={() => {
+                      setDeleteAtualizacaoError(null);
+                      setDeletingAtualizacaoId(atualizacao.id);
+                    }}
+                    className="rounded p-1.5 text-brand-graphite-light hover:bg-temp-quente/10 hover:text-temp-quente"
+                  >
+                    <Icon name="delete" size={18} />
+                  </button>
+                </div>
+              )}
             </div>
           </CardHeader>
+          {deletingAtualizacaoId === atualizacao.id && deleteAtualizacaoError && (
+            <p className="px-4 pb-2 text-sm text-temp-quente">{deleteAtualizacaoError}</p>
+          )}
           <CardContent>
             {atualizacao.itens.length === 0 ? (
               <p className="text-sm text-brand-graphite-light">
@@ -411,6 +525,42 @@ export function AtualizacoesList({ atualizacoes }: AtualizacoesListProps) {
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? "Incluindo…" : "Incluir"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={editingAtualizacao !== null}
+        onClose={closeEditAtualizacao}
+        title="Editar atualização"
+        className="max-w-md"
+      >
+        <form onSubmit={handleSubmitEditAtualizacao} className="flex flex-col gap-4">
+          <Input
+            label="Número do Patch"
+            required
+            value={atualizacaoValues.numeroPatch}
+            onChange={(e) =>
+              setAtualizacaoValues((prev) => ({ ...prev, numeroPatch: e.target.value }))
+            }
+          />
+          <Input
+            label="Data/Hora da Atualização"
+            type="datetime-local"
+            required
+            value={atualizacaoValues.dataHora}
+            onChange={(e) =>
+              setAtualizacaoValues((prev) => ({ ...prev, dataHora: e.target.value }))
+            }
+          />
+          {atualizacaoError && <p className="text-sm text-temp-quente">{atualizacaoError}</p>}
+          <div className="mt-2 flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={closeEditAtualizacao}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={isSavingAtualizacao}>
+              {isSavingAtualizacao ? "Salvando…" : "Salvar alterações"}
             </Button>
           </div>
         </form>

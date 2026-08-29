@@ -47,6 +47,44 @@ export async function createAtualizacao(input: AtualizacaoInput) {
   return { error: null };
 }
 
+export async function updateAtualizacao(atualizacaoId: number, input: AtualizacaoInput) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  const numeroPatch = input.numeroPatch.trim();
+  if (!numeroPatch) return { error: "Informe o número do patch." };
+  if (!input.dataHora) return { error: "Informe a data/hora da atualização." };
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("atualizacoes")
+    .update({
+      numero_patch: numeroPatch,
+      data_hora: new Date(input.dataHora).toISOString(),
+    })
+    .eq("id", atualizacaoId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/atualizacoes");
+  return { error: null };
+}
+
+// Exclui a atualização inteira. atualizacoes_itens e atualizacoes_vistas caem
+// junto por ON DELETE CASCADE (ver migration 20260819160000_atualizacoes).
+export async function deleteAtualizacao(atualizacaoId: number) {
+  const guard = await requireAdmin();
+  if (guard.error) return { error: guard.error };
+
+  const admin = createAdminClient();
+  const { error } = await admin.from("atualizacoes").delete().eq("id", atualizacaoId);
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/atualizacoes");
+  return { error: null };
+}
+
 // Marca (ou desmarca) uma atualização como "Versão Atual". Ao marcar, primeiro
 // desmarca qualquer outra que já estivesse marcada e só depois marca a nova —
 // nessa ordem, nunca existem duas marcadas ao mesmo tempo (reforçado por
