@@ -350,23 +350,17 @@ export function DashboardView({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <KpiCard
           label="Taxa de conversão"
-          value={
-            rates.taxaConversao !== null
-              ? `${formatCurrency(valorAprovado)} (${(rates.taxaConversao * 100).toFixed(0)}%)`
-              : "—"
-          }
-          caption="Valor aprovado · % = aprovadas ÷ (aprovadas + reprovadas)"
+          value={rates.taxaConversao !== null ? `${(rates.taxaConversao * 100).toFixed(0)}%` : "—"}
+          caption="Aprovadas ÷ (aprovadas + reprovadas)"
           icon="trending_up"
           color="var(--color-status-aprovado)"
         />
         <KpiCard
           label="Taxa de reprovação"
           value={
-            rates.taxaReprovacao !== null
-              ? `${formatCurrency(valorReprovado)} (${(rates.taxaReprovacao * 100).toFixed(0)}%)`
-              : "—"
+            rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"
           }
-          caption="Valor reprovado · % = reprovadas ÷ (aprovadas + reprovadas)"
+          caption="Reprovadas ÷ (aprovadas + reprovadas)"
           icon="trending_down"
           color="var(--color-temp-quente)"
         />
