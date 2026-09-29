@@ -128,7 +128,16 @@ export function DashboardView({
     [pipelineFiltered, rates],
   );
   const funnelStages = useMemo(() => computeFunnelStages(statusAggregates), [statusAggregates]);
-  const ranking = useMemo(() => rankTopPropostas(pipelineFiltered, 5), [pipelineFiltered]);
+  // Ranking ignora reprovadas: o card mostra oportunidades ainda vivas ou já
+  // ganhas, não negócio perdido.
+  const ranking = useMemo(
+    () =>
+      rankTopPropostas(
+        pipelineFiltered.filter((p) => p.resultado !== "reprovado"),
+        5,
+      ),
+    [pipelineFiltered],
+  );
   const segmentoBreakdown = useMemo(
     () => computeSegmentoBreakdown(pipelineFiltered),
     [pipelineFiltered],

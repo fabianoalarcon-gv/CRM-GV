@@ -18,7 +18,7 @@ No topo: **Data Inicial**/**Data Final** (padrão: últimos 90 dias), **Tipo** (
 - **Propostas por mês**: volume (em R$) enviado ao longo do tempo.
 - **Funil de vendas**: quantas propostas estão em cada estágio (Proposta → Negociação → Fechado) e a taxa de conversão entre eles.
 - **Propostas por segmento** / **por serviço** / **por temperatura (Termômetro)**: distribuição em barras, pizza e um "termômetro" visual.
-- **Ranking Top 5**: as 5 propostas de maior valor no período filtrado.
+- **Ranking Top 5**: as 5 propostas de maior valor no período filtrado (propostas reprovadas não entram).
 
 ## Indicadores de Leads
 
