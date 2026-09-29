@@ -138,19 +138,35 @@ export function computeFunnelStages(statusAggregates: StatusAggregate[]): Funnel
 export interface ConversionRates {
   taxaConversao: number | null;
   taxaReprovacao: number | null;
+  // Mesmas taxas, mas ponderadas pelo valor (R$) das propostas em vez da
+  // quantidade.
+  taxaConversaoValor: number | null;
+  taxaReprovacaoValor: number | null;
 }
 
 export function computeConversionRates(propostas: DashboardProposta[]): ConversionRates {
-  const aprovado = propostas.filter((p) => p.resultado === "aprovado").length;
-  const reprovado = propostas.filter((p) => p.resultado === "reprovado").length;
-  const decididas = aprovado + reprovado;
-
-  if (decididas === 0) return { taxaConversao: null, taxaReprovacao: null };
+  const aprovadas = propostas.filter((p) => p.resultado === "aprovado");
+  const reprovadas = propostas.filter((p) => p.resultado === "reprovado");
+  const decididas = aprovadas.length + reprovadas.length;
+  const valorAprovado = aprovadas.reduce((sum, p) => sum + p.valor, 0);
+  const valorReprovado = reprovadas.reduce((sum, p) => sum + p.valor, 0);
+  const valorDecidido = valorAprovado + valorReprovado;
 
   return {
-    taxaConversao: aprovado / decididas,
-    taxaReprovacao: reprovado / decididas,
+    taxaConversao: decididas > 0 ? aprovadas.length / decididas : null,
+    taxaReprovacao: decididas > 0 ? reprovadas.length / decididas : null,
+    taxaConversaoValor: valorDecidido > 0 ? valorAprovado / valorDecidido : null,
+    taxaReprovacaoValor: valorDecidido > 0 ? valorReprovado / valorDecidido : null,
   };
+}
+
+const percentFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "percent",
+  maximumFractionDigits: 2,
+});
+
+export function formatPercent(rate: number | null): string {
+  return rate !== null ? percentFormatter.format(rate) : "—";
 }
 
 export interface MonthlyAggregate {

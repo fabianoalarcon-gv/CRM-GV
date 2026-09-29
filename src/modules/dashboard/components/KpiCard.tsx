@@ -1,10 +1,11 @@
+import type { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/Card";
 import { cn } from "@/lib/cn";
 import { CardIcon } from "./CardIcon";
 
 export interface KpiCardProps {
   label: string;
-  value: string;
+  value: ReactNode;
   caption?: string;
   accent?: boolean;
   icon: string;

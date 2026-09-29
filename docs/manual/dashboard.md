@@ -13,7 +13,7 @@ No topo: **Data Inicial**/**Data Final** (padrão: últimos 90 dias), **Tipo** (
 ## Indicadores de Propostas
 
 - **KPIs do topo**: valor total em propostas, valor em andamento, valor aprovado e valor reprovado (com a contagem de propostas em cada).
-- **Taxa de conversão** e **Taxa de reprovação**: aprovadas ÷ (aprovadas + reprovadas), e o mesmo pro reprovado.
+- **Taxa de conversão** e **Taxa de reprovação**: aprovadas ÷ (aprovadas + reprovadas), e o mesmo pro reprovado. Cada card mostra duas porcentagens: **Qtd** (pela quantidade de propostas) e **Valor** (pela soma em R$ das propostas).
 - **Previsão de receita**: valor já aprovado + uma estimativa sobre o que está em andamento (usando a taxa de conversão histórica; cai pra 50% enquanto não há propostas decididas o bastante pra confiar na taxa real, isso fica explicado na própria legenda do card).
 - **Propostas por mês**: volume (em R$) enviado ao longo do tempo.
 - **Funil de vendas**: quantas propostas estão em cada estágio (Proposta → Negociação → Fechado) e a taxa de conversão entre eles.

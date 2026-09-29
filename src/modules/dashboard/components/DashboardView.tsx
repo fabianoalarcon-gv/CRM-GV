@@ -27,6 +27,7 @@ import {
   formatCurrency,
   formatDaysLegend,
   formatEmpresaLegend,
+  formatPercent,
   inDateRange,
   isLeadRecord,
   isPipelineRecord,
@@ -359,16 +360,14 @@ export function DashboardView({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <KpiCard
           label="Taxa de conversão"
-          value={rates.taxaConversao !== null ? `${(rates.taxaConversao * 100).toFixed(0)}%` : "—"}
+          value={<RateByQtdAndValor qtd={rates.taxaConversao} valor={rates.taxaConversaoValor} />}
           caption="Aprovadas ÷ (aprovadas + reprovadas)"
           icon="trending_up"
           color="var(--color-status-aprovado)"
         />
         <KpiCard
           label="Taxa de reprovação"
-          value={
-            rates.taxaReprovacao !== null ? `${(rates.taxaReprovacao * 100).toFixed(0)}%` : "—"
-          }
+          value={<RateByQtdAndValor qtd={rates.taxaReprovacao} valor={rates.taxaReprovacaoValor} />}
           caption="Reprovadas ÷ (aprovadas + reprovadas)"
           icon="trending_down"
           color="var(--color-temp-quente)"
@@ -494,5 +493,22 @@ export function DashboardView({
         />
       </div>
     </div>
+  );
+}
+
+// Duas taxas no mesmo card (por quantidade e por valor em R$): rótulo pequeno
+// em fonte normal e número em destaque, pra caber lado a lado sem quebrar.
+function RateByQtdAndValor({ qtd, valor }: { qtd: number | null; valor: number | null }) {
+  return (
+    <span className="flex flex-wrap items-baseline gap-x-4">
+      <span>
+        <span className="mr-1 font-sans text-xs font-normal text-brand-graphite-light">Qtd</span>
+        {formatPercent(qtd)}
+      </span>
+      <span>
+        <span className="mr-1 font-sans text-xs font-normal text-brand-graphite-light">Valor</span>
+        {formatPercent(valor)}
+      </span>
+    </span>
   );
 }
