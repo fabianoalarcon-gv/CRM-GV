@@ -58,7 +58,7 @@ function linha(rotulo: string, valor: string): string {
 }
 
 function rodapeComLogo(corpoHtml: string): string {
-  return `${corpoHtml}<br /><img src="${LOGO_URL}" alt="LogiHub CRM" style="max-width:180px;" />`;
+  return `${corpoHtml}<br /><img src="${LOGO_URL}" alt="LogiHub CRM" style="max-width:126px;" />`;
 }
 
 // Imagem em data: URI não carrega no Gmail/Outlook (clientes de e-mail
